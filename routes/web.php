@@ -68,3 +68,18 @@ Route::get('/admin/produk/edit', function () {
     ];
     return view('admin.form-produk', ['mode' => 'edit', 'produk' => $produkDummy]);
 })->name('admin.produk.edit');
+
+// Letakkan di dalam Route::prefix('admin')->name('admin.')->group(function () { ... })
+Route::get('/pesanan', function () {
+    return view('admin.pesanan');
+})->name('admin.pesanan');
+
+// Letakkan di dalam Route::prefix('admin')->name('admin.')->group(function () { ... })
+Route::get('/pesanan/detail', function () {
+    return view('admin.detail-pesanan');
+})->name('admin.pesanan.detail');
+
+// Letakkan di dalam Route::prefix('admin')->name('admin.')->group(function () { ... })
+Route::get('/pembayaran', function () {
+    return view('admin.pembayaran');
+})->name('admin.pembayaran');
