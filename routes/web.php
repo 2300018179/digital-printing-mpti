@@ -34,3 +34,8 @@ Route::get('/forgot-password', [CustomerController::class, 'showForgotPassword']
 
 // Proses Kirim Link ke Email (POST)
 Route::post('/forgot-password', [CustomerController::class, 'sendResetLink'])->name('password.email');
+
+// Halaman Tampilan Jam Layanan / Operasional
+Route::get('/jam-layanan', function () {
+    return view('customer.jam-layanan');
+})->name('customer.jam-layanan');

@@ -54,7 +54,7 @@
                     <a href="#" class="py-3.5 px-4 hover:bg-red-700 transition duration-150">Beranda</a>
                     <a href="#" class="py-3.5 px-4 hover:bg-red-700 transition duration-150">Semua Produk</a>
                     <a href="#" class="py-3.5 px-4 hover:bg-red-700 transition duration-150">Promo</a>
-                    <a href="#" class="py-3.5 px-4 hover:bg-red-700 transition duration-150">Jam Layanan</a>
+                    <a href="{{ route('customer.jam-layanan') }}" class="hover:text-gray-200 transition">Jam Layanan</a>
                     <a href="#" class="py-3.5 px-4 hover:bg-red-700 transition duration-150">Tentang Kami</a>
                 </div>
             </div>
