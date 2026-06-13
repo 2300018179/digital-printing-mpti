@@ -1,0 +1,111 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class CustomerController extends Controller
+{
+    // Menampilkan halaman Dashboard utama
+    public function index()
+    {
+        $products = [
+            ['name' => 'Cetak Banner / Spanduk', 'price' => 'Rp 25.000 / m²', 'icon' => '🎨'],
+            ['name' => 'Cetak Stiker A3+', 'price' => 'Rp 10.000 / lembar', 'icon' => '🏷️'],
+            ['name' => 'Brosur / Flyer (Art Paper)', 'price' => 'Rp 1.500 / lembar', 'icon' => '📄'],
+            ['name' => 'Kartu Nama (Isi 100 pcs)', 'price' => 'Rp 35.000 / box', 'icon' => '🪪'],
+        ];
+
+        return view('customer.dashboard', compact('products'));
+    }
+
+    // Menampilkan halaman Login form
+    public function showLogin()
+    {
+        return view('customer.login');
+    }
+
+    // Memproses data input dari Form Login
+    public function login(Request $request)
+    {
+        // 1. Validasi inputan form terlebih dahulu
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        $remember = $request->has('remember');
+
+        // 2. Coba cocokkan data dengan database menggunakan fungsi bawaan Auth Laravel
+        if (Auth::attempt($credentials, $remember)) {
+            // Jika sukses, buat ulang session token keamanan
+            $request->session()->regenerate();
+            return redirect()->route('customer.dashboard');
+        }
+
+        // 3. Jika gagal/salah, kembalikan ke login dengan pesan error merah
+        return back()->withErrors([
+            'email' => 'Email atau password yang Anda masukkan tidak cocok.',
+        ])->onlyInput('email');
+    }
+
+    // Fungsi tambahan untuk tombol Log Out
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('login');
+    }
+
+    // Menampilkan halaman Daftar Akun
+    public function showRegister()
+    {
+        return view('customer.register');
+    }
+
+    // Memproses penyimpanan data pendaftaran pengguna baru
+    public function register(Request $request)
+    {
+        // 1. Validasi inputan form sesuai dengan ketentuan di mockup Figma kamu
+        $request->validate([
+            'name'     => ['required', 'string', 'max:255'],
+            'phone'    => ['required', 'string', 'max:20'],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:6'], // Minimal 6 karakter sesuai teks mockup
+        ], [
+            'email.unique' => 'Email ini sudah terdaftar, silakan gunakan email lain.',
+            'password.min' => 'Password minimal harus 6 karakter.',
+        ]);
+
+        // 2. Buat data user baru ke database
+        \App\Models\User::create([
+            'name'     => $request->name,
+            'phone'    => $request->phone, // Pastikan nanti kolom ini ada jika database dikembangkan, atau sementara masuk ke memory
+            'email'    => $request->email,
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+        ]);
+
+        // 3. Setelah sukses mendaftar, otomatis lempar ke halaman login dengan pesan sukses
+        return redirect()->route('login')->with('success', 'Akun berhasil dibuat! Silakan login.');
+    }
+
+    // Menampilkan halaman Lupa Password (Reset Password)
+    public function showForgotPassword()
+    {
+        return view('customer.forgot-password');
+    }
+
+    // Memproses simulasi klik tombol KIRIM (Hanya aksi visual)
+    public function sendResetLink(Request $request)
+    {
+        // Validasi format email saja
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        // Langsung kembalikan efek sukses agar alert hijau muncul di layar
+        return back()->with('success', 'Link reset password berhasil dikirim ke email Anda! Silakan cek kotak masuk Anda.');
+    }
+}
