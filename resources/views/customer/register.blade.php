@@ -64,7 +64,7 @@
                 </div>
                 
                 <div class="text-center text-sm text-gray-800 font-normal pt-1">
-                    Sudah Punya Akun? <a href="{{ route('login') }}" class="text-[#c40000] hover:underline font-medium">Silahkan Login</a>
+                    Sudah Punya Akun? <a href="{{ route('login') }}" class="text-[#c40000] hover:underline font-normal">Silahkan Login</a>
                 </div>
             </form>
         </div>
