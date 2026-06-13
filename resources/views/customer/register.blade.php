@@ -19,7 +19,7 @@
                 <img src="{{ asset('assets/logo.png') }}" alt="Fantastic Digital Printing Logo" class="h-28 w-auto object-contain">
             </div>
 
-            <h2 class="text-2xl font-normal text-center text-gray-800 mb-6 tracking-wide">Daftar Akun</h2>
+            <h2 class="text-2xl font-normal text-center text-gray-800 mb-6 tracking-wide">Registration</h2>
 
             <form action="{{ route('register.submit') }}" method="POST" class="space-y-4">
                 @csrf 
