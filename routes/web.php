@@ -29,3 +29,42 @@ Route::post('/register', [CustomerController::class, 'register'])->name('registe
 Route::get('/forgot-password', [CustomerController::class, 'showForgotPassword'])->name('password.request');
 // Proses Kirim Link Reset ke Email (POST)
 Route::post('/forgot-password', [CustomerController::class, 'sendResetLink'])->name('password.email');
+
+
+//ADMIN
+// Halaman Utama Dashboard Admin
+Route::get('/admin/dashboard', function () {
+    return view('admin.dashboard');
+})->name('admin.dashboard');
+
+// Halaman Manajemen Data Produk Admin
+Route::get('/admin/produk', function () {
+    return view('admin.produk');
+})->name('admin.produk');
+
+// Halaman Tambah Produk
+Route::get('/admin/produk/tambah', function () {
+    return view('admin.form-produk', ['mode' => 'tambah']);
+})->name('admin.produk.tambah');
+
+Route::get('/kategori', function () {
+        return view('admin.kategori');
+    })->name('admin.kategori');
+
+// Letakkan di dalam grup admin bersama rute kategori lainnya
+Route::get('/kategori/tambah', function () {
+    return view('admin.form-kategori');
+})->name('admin.kategori.tambah');
+
+// Halaman Edit Produk (Simulasi Data Statis untuk dicoba dulu)
+Route::get('/admin/produk/edit', function () {
+    $produkDummy = [
+        'nama' => 'Kartu Nama',
+        'kategori' => 'Kartu Nama',
+        'harga' => 50000,
+        'stok' => 120,
+        'deskripsi' => 'Cetak kartu nama bisnis premium dua sisi bahan Art Carton 260gr.',
+        'status' => 'Aktif'
+    ];
+    return view('admin.form-produk', ['mode' => 'edit', 'produk' => $produkDummy]);
+})->name('admin.produk.edit');
