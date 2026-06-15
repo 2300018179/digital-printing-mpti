@@ -77,11 +77,11 @@
             <div class="flex flex-wrap gap-4 items-center">
                 <div class="relative w-full max-w-xs">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-red-500">🔍</span>
-                    <input type="text" id="search-input" oninput="filterTable()" placeholder="Cari Produk" class="w-full pl-10 pr-4 py-2 text-xs font-medium bg-white border border-red-400 rounded-xl focus:outline-none focus:ring-1 focus:ring-red-500 text-gray-700 placeholder-gray-400 shadow-sm">
+                    <input type="text" id="search-input" oninput="resetPageAndFilter()" placeholder="Cari Produk" class="w-full pl-10 pr-4 py-2 text-xs font-medium bg-white border border-red-400 rounded-xl focus:outline-none focus:ring-1 focus:ring-red-500 text-gray-700 placeholder-gray-400 shadow-sm">
                 </div>
 
                 <div class="relative">
-                    <select id="category-filter" onchange="filterTable()" class="appearance-none bg-white border border-red-400 rounded-xl pl-4 pr-10 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-red-500 shadow-sm min-w-[150px]">
+                    <select id="category-filter" onchange="resetPageAndFilter()" class="appearance-none bg-white border border-red-400 rounded-xl pl-4 pr-10 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-red-500 shadow-sm min-w-[150px]">
                         <option value="all">Semua Kategori</option>
                         <option value="Kartu Nama">Kartu Nama</option>
                         <option value="Brosur">Brosur</option>
@@ -93,7 +93,7 @@
                 </div>
 
                 <div class="relative">
-                    <select id="status-filter" onchange="filterTable()" class="appearance-none bg-white border border-red-400 rounded-xl pl-4 pr-10 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-red-500 shadow-sm min-w-[140px]">
+                    <select id="status-filter" onchange="resetPageAndFilter()" class="appearance-none bg-white border border-red-400 rounded-xl pl-4 pr-10 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-red-500 shadow-sm min-w-[140px]">
                         <option value="all">Semua Status</option>
                         <option value="Aktif">Aktif</option>
                         <option value="Non-Aktif">Non-Aktif</option>
@@ -203,7 +203,7 @@
                 </div>
             </div>
 
-            <div class="flex justify-center items-center gap-1.5 pt-2 text-xs font-semibold text-gray-600">
+            <div id="pagination-container" class="flex justify-center items-center gap-1.5 pt-2 text-xs font-semibold text-gray-600">
                 <button onclick="changePage('prev')" id="btn-prev" class="w-7 h-7 bg-gray-100 hover:bg-gray-200 rounded flex items-center justify-center transition">‹</button>
                 
                 <button onclick="changePage(1)" id="page-1" class="page-number w-7 h-7 bg-red-700 text-white rounded flex items-center justify-center shadow-sm">1</button>
@@ -219,18 +219,22 @@
 
     <script>
         let currentPage = 1;
+        const itemsPerPage = 3; // Jumlah item mockup figma per halaman
 
-        // Fungsi Utama untuk Filter dan Menampilkan Data per Halaman
+        function resetPageAndFilter() {
+            currentPage = 1; // Kembalikan ke halaman 1 jika filter diganti
+            filterTable();
+        }
+
         function filterTable() {
             const searchQuery = document.getElementById('search-input').value.toLowerCase();
             const selectedCategory = document.getElementById('category-filter').value;
             const selectedStatus = document.getElementById('status-filter').value;
             
             const rows = document.querySelectorAll('.product-row');
-            let visibleCount = 0;
             let filteredRows = [];
 
-            // Tahap 1: Saring berdasarkan input Search, Kategori, dan Status
+            // Tahap 1: Saring baris yang memenuhi kriteria pencarian dan dropdown filter
             rows.forEach(row => {
                 const productName = row.querySelector('.product-name').textContent.toLowerCase();
                 const productCategory = row.querySelector('.product-category').textContent;
@@ -242,17 +246,19 @@
 
                 if (matchesSearch && matchesCategory && matchesStatus) {
                     filteredRows.push(row);
-                    visibleCount++;
                 } else {
-                    row.style.display = 'none'; // Langsung sembunyikan yang tidak cocok
+                    row.style.display = 'none';
                 }
             });
 
-            // Tahap 2: Jalankan pembagian Halaman (Pagination) jika tidak sedang mengetik/mencari data
-            if (searchQuery === '' && selectedCategory === 'all' && selectedStatus === 'all') {
-                // Tampilkan kontrol pagination kembali
-                document.querySelectorAll('.page-number, #btn-prev, #btn-next').forEach(el => el.style.opacity = '1');
-                
+            // Tahap 2: Terapkan pembagian halaman (Pagination) pada data yang sudah lolos filter
+            const isFilteringActive = (searchQuery !== '' || selectedCategory !== 'all' || selectedStatus !== 'all');
+            
+            if (!isFilteringActive) {
+                // Skenario Normal (Tanpa Filter) -> Bagi data secara ketat menggunakan atribut data-page bawaan html
+                document.getElementById('pagination-container').style.opacity = '1';
+                document.getElementById('pagination-container').style.pointerEvents = 'auto';
+
                 rows.forEach(row => {
                     const rowPage = parseInt(row.getAttribute('data-page'));
                     if (rowPage === currentPage) {
@@ -262,18 +268,19 @@
                     }
                 });
             } else {
-                // Jika sedang melakukan pencarian, abaikan sekat halaman dan tampilkan semua hasil yang cocok
+                // Skenario Saat Ada Filter -> Tampilkan semua hasil pencarian sekaligus & matikan tombol halaman
+                document.getElementById('pagination-container').style.opacity = '0.3';
+                document.getElementById('pagination-container').style.pointerEvents = 'none';
+
                 filteredRows.forEach((row, index) => {
                     row.style.display = '';
-                    row.querySelector('.row-number').textContent = index + 1;
+                    row.querySelector('.row-number').textContent = index + 1; // Atur urutan nomor live
                 });
-                // Samarkan tombol pagination karena semua data pencarian tampil sekaligus
-                document.querySelectorAll('.page-number, #btn-prev, #btn-next').forEach(el => el.style.opacity = '0.3');
             }
 
-            // Atur pesan jika data kosong
+            // Tampilkan pesan jika tabel kosong total
             const noDataMessage = document.getElementById('no-data');
-            if (visibleCount === 0 || (searchQuery === '' && currentPage === 1 && document.querySelectorAll('.product-row[data-page="1"]').length === 0)) {
+            if (filteredRows.length === 0) {
                 noDataMessage.classList.remove('hidden');
             } else {
                 noDataMessage.classList.add('hidden');
@@ -282,19 +289,17 @@
             updatePaginationUI();
         }
 
-        // Fungsi Aksi Klik Tombol Angka Halaman / Slide Perbagian
         function changePage(page) {
             if (page === 'prev') {
                 if (currentPage > 1) currentPage--;
             } else if (page === 'next') {
-                if (currentPage < 2) currentPage++; // Batas maksimal dummy 2 halaman
+                if (currentPage < 2) currentPage++; // Batas halaman dummy maksimal 2 sesuai data kamu
             } else {
                 currentPage = page;
             }
             filterTable();
         }
 
-        // Fungsi Memperbarui Gaya Aktif Tombol Angka Merah Maroon (Sesuai Figma)
         function updatePaginationUI() {
             const p1 = document.getElementById('page-1');
             const p2 = document.getElementById('page-2');
@@ -317,7 +322,7 @@
             }
         }
 
-        // Jalankan inisialisasi awal pembagian halaman saat halaman pertama kali dimuat
+        // Jalankan kalkulasi halaman saat awal dimuat
         document.addEventListener("DOMContentLoaded", function() {
             filterTable();
         });

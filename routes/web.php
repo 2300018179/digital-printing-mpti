@@ -85,9 +85,17 @@ Route::get('/promo', function () {
     return view('admin.promo');
 })->name('admin.promo');
 
+Route::get('/promo/tambah', function () {
+    return view('admin.tambah-promo'); 
+})->name('admin.promo.tambah');
+
 Route::get('/pelanggan', function () {
     return view('admin.pelanggan');
 })->name('admin.pelanggan');
+
+Route::get('/admin/pelanggan/detail/{id}', function ($id) {
+    return view('admin.pelanggan-detail');
+})->name('admin.pelanggan.detail');
 
 Route::get('/laporan', function () {
     return view('admin.laporan');

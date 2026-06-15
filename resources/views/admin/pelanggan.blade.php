@@ -10,7 +10,6 @@
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen">
 
-    <!-- ATAS: NAVBAR ADMIN -->
     <header class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
         <div class="flex items-center">
             <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-10 object-contain">
@@ -26,7 +25,6 @@
     </header>
 
     <div class="flex flex-1">
-        <!-- KIRI: SIDEBAR NAVIGASI -->
         <aside class="w-64 bg-red-700 text-white flex flex-col justify-between min-h-[calc(100vh-57px)] sticky top-[57px]">
             <div class="py-4">
                 <nav class="space-y-1 px-2">
@@ -66,28 +64,24 @@
             </div>
         </aside>
 
-        <!-- KANAN: KONTEN UTAMA DATA PELANGGAN -->
         <main class="flex-1 p-8 space-y-6">
             <div>
                 <h2 class="text-xl font-bold text-gray-800 tracking-wide">Data Pelanggan</h2>
                 <p class="text-xs text-gray-500 mt-1">Melihat daftar pelanggan yang terdaftar dan riwayat total orderan mereka.</p>
             </div>
 
-            <!-- BAR PENCARIAN (SESUAI DESAIN MAROON & WIREFRAME) -->
             <div class="flex items-center gap-2 max-w-md">
                 <div class="relative flex-1">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
                         🔍
                     </span>
-                    <input type="text" placeholder="Cari pelanggan..." class="w-full pl-9 pr-4 py-2.5 bg-white border border-red-400 rounded-xl text-xs font-medium text-gray-700 placeholder-gray-400 focus:outline-none focus:border-red-600 transition shadow-sm">
+                    <input type="text" id="inputCariPelanggan" onkeyup="cariPelanggan()" placeholder="Cari nama, email, atau no. telp..." class="w-full pl-9 pr-4 py-2.5 bg-white border border-red-400 rounded-xl text-xs font-medium text-gray-700 placeholder-gray-400 focus:outline-none focus:border-red-600 transition shadow-sm">
                 </div>
-                <!-- Tombol filter kecil dari wireframe -->
                 <button class="p-2.5 bg-white border border-gray-300 hover:border-red-600 rounded-xl text-xs transition shadow-sm" title="Filter Tambahan">
                     👥
                 </button>
             </div>
 
-            <!-- KOTAK TABEL PELANGGAN -->
             <div class="bg-white border border-red-400 rounded-2xl shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -101,69 +95,64 @@
                                 <th class="p-4 text-center w-24">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 text-xs text-gray-700 font-medium">
-                            <!-- Baris 1 -->
-                            <tr class="hover:bg-gray-50/50 transition">
+                        <tbody id="bodyTabelPelanggan" class="divide-y divide-gray-100 text-xs text-gray-700 font-medium">
+                            <tr class="hover:bg-gray-50/50 transition baris-pelanggan">
                                 <td class="p-4 text-center text-gray-400 font-normal">1</td>
-                                <td class="p-4 font-semibold text-gray-800">Budi Santoso</td>
-                                <td class="p-4 text-gray-500">budi@email.com</td>
-                                <td class="p-4 font-mono text-gray-600">081234567890</td>
+                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Budi Santoso</td>
+                                <td class="p-4 text-gray-500 kolom-email">budi@email.com</td>
+                                <td class="p-4 font-mono text-gray-600 kolom-telp">081234567890</td>
                                 <td class="p-4 text-center font-bold text-gray-800">12</td>
                                 <td class="p-4 text-center">
-                                    <button onclick="alert('Melihat riwayat profil Budi Santoso')" class="w-8 h-8 bg-white border border-gray-300 hover:border-red-600 text-gray-600 hover:text-red-600 rounded-lg shadow-sm transition inline-flex items-center justify-center text-xs" title="Lihat Detail">
-                                        👁️
+                                    <button onclick="window.location.href='{{ route('admin.pelanggan.detail', ['id' => 1]) }}'" class="px-4 py-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white text-gray-600 rounded-lg text-[11px] font-bold shadow-sm transition">
+                                        Detail
                                     </button>
                                 </td>
                             </tr>
-                            <!-- Baris 2 -->
-                            <tr class="hover:bg-gray-50/50 transition">
+                            <tr class="hover:bg-gray-50/50 transition baris-pelanggan">
                                 <td class="p-4 text-center text-gray-400 font-normal">2</td>
-                                <td class="p-4 font-semibold text-gray-800">Siti Aisyah</td>
-                                <td class="p-4 text-gray-500">siti@email.com</td>
-                                <td class="p-4 font-mono text-gray-600">081298765432</td>
+                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Siti Aisyah</td>
+                                <td class="p-4 text-gray-500 kolom-email">siti@email.com</td>
+                                <td class="p-4 font-mono text-gray-600 kolom-telp">081298765432</td>
                                 <td class="p-4 text-center font-bold text-gray-800">8</td>
                                 <td class="p-4 text-center">
-                                    <button onclick="alert('Melihat riwayat profil Siti Aisyah')" class="w-8 h-8 bg-white border border-gray-300 hover:border-red-600 text-gray-600 hover:text-red-600 rounded-lg shadow-sm transition inline-flex items-center justify-center text-xs" title="Lihat Detail">
-                                        👁️
+                                    <button onclick="window.location.href='{{ route('admin.pelanggan.detail', ['id' => 2]) }}'" class="px-4 py-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white text-gray-600 rounded-lg text-[11px] font-bold shadow-sm transition">
+                                        Detail
                                     </button>
                                 </td>
                             </tr>
-                            <!-- Baris 3 -->
-                            <tr class="hover:bg-gray-50/50 transition">
+                            <tr class="hover:bg-gray-50/50 transition baris-pelanggan">
                                 <td class="p-4 text-center text-gray-400 font-normal">3</td>
-                                <td class="p-4 font-semibold text-gray-800">Andi Wijaya</td>
-                                <td class="p-4 text-gray-500">andi@email.com</td>
-                                <td class="p-4 font-mono text-gray-600">081278945612</td>
+                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Andi Wijaya</td>
+                                <td class="p-4 text-gray-500 kolom-email">andi@email.com</td>
+                                <td class="p-4 font-mono text-gray-600 kolom-telp">081278945612</td>
                                 <td class="p-4 text-center font-bold text-gray-800">5</td>
                                 <td class="p-4 text-center">
-                                    <button onclick="alert('Melihat riwayat profil Andi Wijaya')" class="w-8 h-8 bg-white border border-gray-300 hover:border-red-600 text-gray-600 hover:text-red-600 rounded-lg shadow-sm transition inline-flex items-center justify-center text-xs" title="Lihat Detail">
-                                        👁️
+                                    <button onclick="window.location.href='{{ route('admin.pelanggan.detail', ['id' => 3]) }}'" class="px-4 py-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white text-gray-600 rounded-lg text-[11px] font-bold shadow-sm transition">
+                                        Detail
                                     </button>
                                 </td>
                             </tr>
-                            <!-- Baris 4 -->
-                            <tr class="hover:bg-gray-50/50 transition">
+                            <tr class="hover:bg-gray-50/50 transition baris-pelanggan">
                                 <td class="p-4 text-center text-gray-400 font-normal">4</td>
-                                <td class="p-4 font-semibold text-gray-800">Dinda Amelia</td>
-                                <td class="p-4 text-gray-500">dinda@email.com</td>
-                                <td class="p-4 font-mono text-gray-600">081212345678</td>
+                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Dinda Amelia</td>
+                                <td class="p-4 text-gray-500 kolom-email">dinda@email.com</td>
+                                <td class="p-4 font-mono text-gray-600 kolom-telp">081212345678</td>
                                 <td class="p-4 text-center font-bold text-gray-800">7</td>
                                 <td class="p-4 text-center">
-                                    <button onclick="alert('Melihat riwayat profil Dinda Amelia')" class="w-8 h-8 bg-white border border-gray-300 hover:border-red-600 text-gray-600 hover:text-red-600 rounded-lg shadow-sm transition inline-flex items-center justify-center text-xs" title="Lihat Detail">
-                                        👁️
+                                    <button onclick="window.location.href='{{ route('admin.pelanggan.detail', ['id' => 4]) }}'" class="px-4 py-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white text-gray-600 rounded-lg text-[11px] font-bold shadow-sm transition">
+                                        Detail
                                     </button>
                                 </td>
                             </tr>
-                            <!-- Baris 5 -->
-                            <tr class="hover:bg-gray-50/50 transition">
+                            <tr class="hover:bg-gray-50/50 transition baris-pelanggan">
                                 <td class="p-4 text-center text-gray-400 font-normal">5</td>
-                                <td class="p-4 font-semibold text-gray-800">Rian Pratama</td>
-                                <td class="p-4 text-gray-500">rian@email.com</td>
-                                <td class="p-4 font-mono text-gray-600">081244556677</td>
+                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Rian Pratama</td>
+                                <td class="p-4 text-gray-500 kolom-email">rian@email.com</td>
+                                <td class="p-4 font-mono text-gray-600 kolom-telp">081244556677</td>
                                 <td class="p-4 text-center font-bold text-gray-800">3</td>
                                 <td class="p-4 text-center">
-                                    <button onclick="alert('Melihat riwayat profil Rian Pratama')" class="w-8 h-8 bg-white border border-gray-300 hover:border-red-600 text-gray-600 hover:text-red-600 rounded-lg shadow-sm transition inline-flex items-center justify-center text-xs" title="Lihat Detail">
-                                        👁️
+                                    <button onclick="window.location.href='{{ route('admin.pelanggan.detail', ['id' => 5]) }}'" class="px-4 py-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white text-gray-600 rounded-lg text-[11px] font-bold shadow-sm transition">
+                                        Detail
                                     </button>
                                 </td>
                             </tr>
@@ -172,7 +161,6 @@
                 </div>
             </div>
 
-            <!-- PAGINATION BAWAH -->
             <div class="flex items-center justify-center gap-1.5 text-xs pt-2">
                 <button class="w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded flex items-center justify-center transition shadow-sm font-bold">‹</button>
                 <button class="w-7 h-7 bg-red-700 text-white rounded flex items-center justify-center shadow-sm font-bold">1</button>
@@ -185,5 +173,27 @@
         </main>
     </div>
 
+    <script>
+        function cariPelanggan() {
+            // Ambil text input kunci pencarian
+            let input = document.getElementById("inputCariPelanggan").value.toLowerCase();
+            // Ambil semua elemen baris data tabel pelanggan
+            let barisPelanggan = document.getElementsByClassName("baris-pelanggan");
+
+            for (let i = 0; i < barisPelanggan.length; i++) {
+                // Ambil text content dari kolom nama, email, dan telepon
+                let nama = barisPelanggan[i].getElementsByClassName("kolom-nama")[0].textContent.toLowerCase();
+                let email = barisPelanggan[i].getElementsByClassName("kolom-email")[0].textContent.toLowerCase();
+                let telp = barisPelanggan[i].getElementsByClassName("kolom-telp")[0].textContent.toLowerCase();
+
+                // Cek jika kata kunci cocok dengan salah satu kolom data
+                if (nama.includes(input) || email.includes(input) || telp.includes(input)) {
+                    barisPelanggan[i].style.display = ""; // Tampilkan baris
+                } else {
+                    barisPelanggan[i].style.display = "none"; // Sembunyikan baris
+                }
+            }
+        }
+    </script>
 </body>
 </html>

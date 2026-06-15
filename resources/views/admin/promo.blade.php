@@ -10,7 +10,6 @@
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen">
 
-    <!-- ATAS: NAVBAR ADMIN -->
     <header class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
         <div class="flex items-center">
             <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-10 object-contain">
@@ -26,7 +25,6 @@
     </header>
 
     <div class="flex flex-1">
-        <!-- KIRI: SIDEBAR NAVIGASI -->
         <aside class="w-64 bg-red-700 text-white flex flex-col justify-between min-h-[calc(100vh-57px)] sticky top-[57px]">
             <div class="py-4">
                 <nav class="space-y-1 px-2">
@@ -66,21 +64,30 @@
             </div>
         </aside>
 
-        <!-- KANAN: KONTEN UTAMA DATA PROMO -->
         <main class="flex-1 p-8 space-y-6">
-            <!-- HEADER DATA PROMO & TOMBOL TAMBAH -->
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800 tracking-wide">Data Promo</h2>
-                    <p class="text-xs text-gray-500 mt-1">Kelola kode voucher potongan harga dan diskon cetak.</p>
-                </div>
-                <!-- Tombol Tambah Sesuai Desain Maroon -->
-                <button onclick="alert('Membuka form tambah promo baru')" class="px-5 py-2.5 bg-red-700 hover:bg-red-800 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800 tracking-wide">Data Promo</h2>
+                <a href="{{ route('admin.promo.tambah') }}" class="bg-red-700 hover:bg-red-800 text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-sm transition flex items-center gap-2">
                     <span>+</span> Tambah Promo
-                </button>
+                </a>
             </div>
 
-            <!-- KOTAK TABEL PROMO (SESUAI WIREFRAME) -->
+            <div class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between text-xs">
+                <div class="w-full sm:w-72 relative">
+                    <input type="text" id="inputCari" onkeyup="jalankanFilter()" placeholder="Cari nama atau kode promo..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500 font-normal">
+                    <span class="absolute left-3.5 top-3 text-gray-400">🔍</span>
+                </div>
+                
+                <div class="w-full sm:w-auto flex items-center gap-2 justify-end">
+                    <span class="text-gray-500 font-medium">Status:</span>
+                    <select id="filterStatus" onchange="jalankanFilter()" class="border border-gray-200 p-2.5 rounded-xl focus:outline-none focus:border-red-500 bg-white font-semibold text-gray-700 cursor-pointer">
+                        <option value="Semua">Semua Status</option>
+                        <option value="Aktif">Aktif</option>
+                        <option value="Nonaktif">Nonaktif</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="bg-white border border-red-400 rounded-2xl shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -95,55 +102,52 @@
                                 <th class="p-4 text-center w-28">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 text-xs">
-                            <!-- Baris 1 -->
-                            <tr class="hover:bg-gray-50/50 transition">
-                                <td class="p-4 text-center text-gray-400 font-medium">1</td>
-                                <td class="p-4 font-semibold text-gray-800">Diskon 10%</td>
-                                <td class="p-4 font-mono font-bold text-red-700 bg-red-50/50 px-2 py-1 rounded inline-block mt-2">ALLPROD10</td>
+                        <tbody id="bodyTabelPromo" class="divide-y divide-gray-100 text-xs">
+                            <tr class="hover:bg-gray-50/50 transition baris-promo">
+                                <td class="p-4 text-center text-gray-400 font-medium angka-no">1</td>
+                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Diskon 10%</td>
+                                <td class="p-4 font-mono font-bold text-red-700 bg-red-50/50 px-2 py-1 rounded inline-block mt-2 kolom-kode">ALLPROD10</td>
                                 <td class="p-4 font-medium text-gray-700">10%</td>
                                 <td class="p-4 text-gray-500 font-medium">01 Mei 2026 - 31 Mei 2026</td>
                                 <td class="p-4 text-center">
-                                    <span class="px-3 py-1 bg-green-50 border border-green-200 text-green-600 rounded-full text-[10px] font-bold">Aktif</span>
+                                    <span class="px-3 py-1 bg-green-50 border border-green-200 text-green-600 rounded-full text-[10px] font-bold kolom-status">Aktif</span>
                                 </td>
                                 <td class="p-4 text-center">
                                     <div class="flex justify-center gap-1.5">
-                                        <button onclick="alert('Edit Promo 1')" class="p-1.5 border border-gray-300 hover:border-blue-600 hover:text-blue-600 bg-white rounded-lg transition shadow-sm" title="Edit">📝</button>
-                                        <button onclick="alert('Hapus Promo 1')" class="p-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white rounded-lg transition shadow-sm" title="Hapus">🗑️</button>
+                                        <a href="{{ route('admin.promo.tambah', ['id' => 1]) }}" class="p-1.5 border border-gray-300 hover:border-blue-600 hover:text-blue-600 bg-white rounded-lg transition shadow-sm text-center flex items-center justify-center" title="Edit">📝</a>
+                                        <button onclick="hapusPromo(this, 'Diskon 10%')" class="p-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white rounded-lg transition shadow-sm" title="Hapus">🗑️</button>
                                     </div>
                                 </td>
                             </tr>
-                            <!-- Baris 2 -->
-                            <tr class="hover:bg-gray-50/50 transition">
-                                <td class="p-4 text-center text-gray-400 font-medium">2</td>
-                                <td class="p-4 font-semibold text-gray-800">Gratis Ongkir</td>
-                                <td class="p-4 font-mono font-bold text-red-700 bg-red-50/50 px-2 py-1 rounded inline-block mt-2">ONGKIRGRATIS</td>
+                            <tr class="hover:bg-gray-50/50 transition baris-promo">
+                                <td class="p-4 text-center text-gray-400 font-medium angka-no">2</td>
+                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Gratis Ongkir</td>
+                                <td class="p-4 font-mono font-bold text-red-700 bg-red-50/50 px-2 py-1 rounded inline-block mt-2 kolom-kode">ONGKIRGRATIS</td>
                                 <td class="p-4 font-medium text-gray-700">-</td>
                                 <td class="p-4 text-gray-500 font-medium">01 Mei 2026 - 31 Mei 2026</td>
                                 <td class="p-4 text-center">
-                                    <span class="px-3 py-1 bg-green-50 border border-green-200 text-green-600 rounded-full text-[10px] font-bold">Aktif</span>
+                                    <span class="px-3 py-1 bg-green-50 border border-green-200 text-green-600 rounded-full text-[10px] font-bold kolom-status">Aktif</span>
                                 </td>
                                 <td class="p-4 text-center">
                                     <div class="flex justify-center gap-1.5">
-                                        <button onclick="alert('Edit Promo 2')" class="p-1.5 border border-gray-300 hover:border-blue-600 hover:text-blue-600 bg-white rounded-lg transition shadow-sm" title="Edit">📝</button>
-                                        <button onclick="alert('Hapus Promo 2')" class="p-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white rounded-lg transition shadow-sm" title="Hapus">🗑️</button>
+                                        <a href="{{ route('admin.promo.tambah', ['id' => 2]) }}" class="p-1.5 border border-gray-300 hover:border-blue-600 hover:text-blue-600 bg-white rounded-lg transition shadow-sm text-center flex items-center justify-center" title="Edit">📝</a>
+                                        <button onclick="hapusPromo(this, 'Gratis Ongkir')" class="p-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white rounded-lg transition shadow-sm" title="Hapus">🗑️</button>
                                     </div>
                                 </td>
                             </tr>
-                            <!-- Baris 3 -->
-                            <tr class="hover:bg-gray-50/50 transition">
-                                <td class="p-4 text-center text-gray-400 font-medium">3</td>
-                                <td class="p-4 font-semibold text-gray-800">Cashback 5%</td>
-                                <td class="p-4 font-mono font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded inline-block mt-2">CASHBACK5</td>
+                            <tr class="hover:bg-gray-50/50 transition baris-promo">
+                                <td class="p-4 text-center text-gray-400 font-medium angka-no">3</td>
+                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Cashback 5%</td>
+                                <td class="p-4 font-mono font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded inline-block mt-2 kolom-kode">CASHBACK5</td>
                                 <td class="p-4 font-medium text-gray-700">5%</td>
                                 <td class="p-4 text-gray-500 font-medium">01 Juni 2026 - 30 Juni 2026</td>
                                 <td class="p-4 text-center">
-                                    <span class="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-500 rounded-full text-[10px] font-bold">Nonaktif</span>
+                                    <span class="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-500 rounded-full text-[10px] font-bold kolom-status">Nonaktif</span>
                                 </td>
                                 <td class="p-4 text-center">
                                     <div class="flex justify-center gap-1.5">
-                                        <button onclick="alert('Edit Promo 3')" class="p-1.5 border border-gray-300 hover:border-blue-600 hover:text-blue-600 bg-white rounded-lg transition shadow-sm" title="Edit">📝</button>
-                                        <button onclick="alert('Hapus Promo 3')" class="p-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white rounded-lg transition shadow-sm" title="Hapus">🗑️</button>
+                                        <a href="{{ route('admin.promo.tambah', ['id' => 3]) }}" class="p-1.5 border border-gray-300 hover:border-blue-600 hover:text-blue-600 bg-white rounded-lg transition shadow-sm text-center flex items-center justify-center" title="Edit">📝</a>
+                                        <button onclick="hapusPromo(this, 'Cashback 5%')" class="p-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white rounded-lg transition shadow-sm" title="Hapus">🗑️</button>
                                     </div>
                                 </td>
                             </tr>
@@ -152,7 +156,6 @@
                 </div>
             </div>
 
-            <!-- PAGINATION BAWAH (SESUAI DESAIN MAROON) -->
             <div class="flex items-center justify-center gap-1.5 text-xs pt-2">
                 <button class="w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded flex items-center justify-center transition shadow-sm font-bold">‹</button>
                 <button class="w-7 h-7 bg-red-700 text-white rounded flex items-center justify-center shadow-sm font-bold">1</button>
@@ -165,5 +168,48 @@
         </main>
     </div>
 
+    <script>
+        // 1. FUNGSI FILTER PENCARIAN & STATUS
+        function jalankanFilter() {
+            let inputCari = document.getElementById("inputCari").value.toLowerCase();
+            let filterStatus = document.getElementById("filterStatus").value;
+            let barisPromo = document.getElementsByClassName("baris-promo");
+
+            for (let i = 0; i < barisPromo.length; i++) {
+                let namaPromo = barisPromo[i].getElementsByClassName("kolom-nama")[0].textContent.toLowerCase();
+                let kodePromo = barisPromo[i].getElementsByClassName("kolom-kode")[0].textContent.toLowerCase();
+                let statusPromo = barisPromo[i].getElementsByClassName("kolom-status")[0].textContent.trim();
+
+                let cocokKeyword = namaPromo.includes(inputCari) || kodePromo.includes(inputCari);
+                let cocokStatus = filterStatus === "Semua" || statusPromo === filterStatus;
+
+                if (cocokKeyword && cocokStatus) {
+                    barisPromo[i].style.display = "";
+                } else {
+                    barisPromo[i].style.display = "none";
+                }
+            }
+        }
+
+        // 2. FUNGSI BARU: HAPUS BARIS TABEL PROMO & UPDATE NOMOR OTOMATIS
+        function hapusPromo(button, namaPromo) {
+            // Memunculkan dialog konfirmasi terlebih dahulu
+            let konfirmasi = confirm("Apakah Anda yakin ingin menghapus promo '" + namaPromo + "'?");
+            
+            if (konfirmasi) {
+                // Mencari baris <tr> terdekat dari tombol yang diklik lalu menghapusnya
+                let baris = button.closest('.baris-promo');
+                baris.remove();
+                
+                // Menyusun kembali urutan nomor (No) pada kolom pertama agar tetap berurutan (1, 2, 3...)
+                let sisaBaris = document.getElementsByClassName("angka-no");
+                for (let i = 0; i < sisaBaris.length; i++) {
+                    sisaBaris[i].textContent = i + 1;
+                }
+
+                alert("Promo '" + namaPromo + "' berhasil dihapus!");
+            }
+        }
+    </script>
 </body>
 </html>
