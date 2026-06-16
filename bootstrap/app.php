@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+    // Tambahkan baris ini untuk mendaftarkan middleware IsAdmin
+    $middleware->alias([
+        'is_admin' => \App\Http\Middleware\IsAdmin::class,
+    ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

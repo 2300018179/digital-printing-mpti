@@ -21,14 +21,14 @@
 
             <h2 class="text-2xl font-normal text-center text-gray-800 mb-8 tracking-wide">Log In</h2>
 
-            <form action="{{ route('login') }}" method="POST" class="space-y-5">
+            <form action="{{ route('login.submit') }}" method="POST" class="space-y-5">
                 @csrf 
                 
                 <div class="flex flex-col gap-2">
-                    <label for="username" class="text-sm text-gray-700 font-normal pl-1">
-                        Masukkan Email / Username
+                    <label for="email" class="text-sm text-gray-700 font-normal pl-1">
+                        Masukkan Email
                     </label>
-                    <input type="text" id="username" name="username" required
+                    <input type="email" id="email" name="email" required
                         class="w-full px-5 py-4 bg-[#f5d5d5] rounded-[15px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#c40000]/20 transition-all text-base">
                 </div>
 

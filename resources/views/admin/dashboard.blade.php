@@ -62,9 +62,12 @@
 
             <!-- Tombol Log Out -->
             <div class="p-3 border-t border-red-800">
-                <a href="{{ route('customer.dashboard') }}" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold bg-red-900 hover:bg-red-950 transition text-center justify-center uppercase tracking-wider">
-                    <span>🚪</span> Log Out
-                </a>
+                <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin keluar?')">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold bg-red-900 hover:bg-red-950 transition text-center justify-center uppercase tracking-wider text-white">
+                        <span>🚪</span> Log Out
+                    </button>
+                </form>
             </div>
         </aside>
 

@@ -33,74 +33,82 @@ Route::middleware('auth')->group(function () {
 
 // 3. RUTE ADMIN (BAWAAN UPDATE)
 // Halaman Utama Dashboard Admin
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard');
+Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
 
-// Halaman Manajemen Data Produk Admin
-Route::get('/admin/produk', function () {
-    return view('admin.produk');
-})->name('admin.produk');
+    // --- DASHBOARD ---
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
 
-// Halaman Tambah Produk
-Route::get('/admin/produk/tambah', function () {
-    return view('admin.form-produk', ['mode' => 'tambah']);
-})->name('admin.produk.tambah');
+    // --- MANAJEMEN PRODUK ---
+    Route::get('/produk', function () {
+        return view('admin.produk');
+    })->name('produk');
 
-Route::get('/kategori', function () {
-    return view('admin.kategori');
-})->name('admin.kategori');
+    Route::get('/produk/tambah', function () {
+        return view('admin.form-produk', ['mode' => 'tambah']);
+    })->name('produk.tambah');
 
-// Letakkan di dalam grup admin bersama rute kategori lainnya
-Route::get('/kategori/tambah', function () {
-    return view('admin.form-kategori');
-})->name('admin.kategori.tambah');
+    Route::get('/produk/edit', function () {
+        $produkDummy = [
+            'nama' => 'Kartu Nama',
+            'kategori' => 'Kartu Nama',
+            'harga' => 50000,
+            'stok' => 120,
+            'deskripsi' => 'Cetak kartu nama bisnis premium dua sisi bahan Art Carton 260gr.',
+            'status' => 'Aktif'
+        ];
+        return view('admin.form-produk', ['mode' => 'edit', 'produk' => $produkDummy]);
+    })->name('produk.edit');
 
-// Halaman Edit Produk (Simulasi Data Statis untuk dicoba dulu)
-Route::get('/admin/produk/edit', function () {
-    $produkDummy = [
-        'nama' => 'Kartu Nama',
-        'kategori' => 'Kartu Nama',
-        'harga' => 50000,
-        'stok' => 120,
-        'deskripsi' => 'Cetak kartu nama bisnis premium dua sisi bahan Art Carton 260gr.',
-        'status' => 'Aktif'
-    ];
-    return view('admin.form-produk', ['mode' => 'edit', 'produk' => $produkDummy]);
-})->name('admin.produk.edit');
+    // --- MANAJEMEN KATEGORI ---
+    Route::get('/kategori', function () {
+        return view('admin.kategori');
+    })->name('kategori');
 
-Route::get('/pesanan', function () {
-    return view('admin.pesanan');
-})->name('admin.pesanan');
+    Route::get('/kategori/tambah', function () {
+        return view('admin.form-kategori');
+    })->name('kategori.tambah');
 
-Route::get('/pesanan/detail', function () {
-    return view('admin.detail-pesanan');
-})->name('admin.pesanan.detail');
+    // --- MANAJEMEN PESANAN ---
+    Route::get('/pesanan', function () {
+        return view('admin.pesanan');
+    })->name('pesanan');
 
-Route::get('/pembayaran', function () {
-    return view('admin.pembayaran');
-})->name('admin.pembayaran');
+    Route::get('/pesanan/detail', function () {
+        return view('admin.detail-pesanan');
+    })->name('pesanan.detail');
 
-Route::get('/promo', function () {
-    return view('admin.promo');
-})->name('admin.promo');
+    // --- MANAJEMEN PEMBAYARAN ---
+    Route::get('/pembayaran', function () {
+        return view('admin.pembayaran');
+    })->name('pembayaran');
 
-Route::get('/promo/tambah', function () {
-    return view('admin.tambah-promo'); 
-})->name('admin.promo.tambah');
+    // --- MANAJEMEN PROMO ---
+    Route::get('/promo', function () {
+        return view('admin.promo');
+    })->name('promo');
 
-Route::get('/pelanggan', function () {
-    return view('admin.pelanggan');
-})->name('admin.pelanggan');
+    Route::get('/promo/tambah', function () {
+        return view('admin.tambah-promo'); 
+    })->name('promo.tambah');
 
-Route::get('/admin/pelanggan/detail/{id}', function ($id) {
-    return view('admin.pelanggan-detail');
-})->name('admin.pelanggan.detail');
+    // --- MANAJEMEN PELANGGAN ---
+    Route::get('/pelanggan', function () {
+        return view('admin.pelanggan');
+    })->name('pelanggan');
 
-Route::get('/laporan', function () {
-    return view('admin.laporan');
-})->name('admin.laporan');
+    Route::get('/pelanggan/detail/{id}', function ($id) {
+        return view('admin.pelanggan-detail');
+    })->name('pelanggan.detail');
 
-Route::get('/pengaturan', function () {
-    return view('admin.pengaturan');
-})->name('admin.pengaturan');
+    // --- LAPORAN & PENGATURAN ---
+    Route::get('/laporan', function () {
+        return view('admin.laporan');
+    })->name('laporan');
+
+    Route::get('/pengaturan', function () {
+        return view('admin.pengaturan');
+    })->name('pengaturan');
+    
+});

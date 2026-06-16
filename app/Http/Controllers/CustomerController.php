@@ -41,6 +41,13 @@ class CustomerController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             // Jika sukses, buat ulang session token keamanan
             $request->session()->regenerate();
+            
+            // --- LOGIKA PENGALIHAN BERDASARKAN ROLE DI SINI ---
+            if (Auth::user()->role === 'admin') {
+                return redirect()->route('admin.dashboard'); // Lempar ke dashboard admin kamu
+            }
+
+            // Jika bukan admin, lempar ke dashboard customer bawaan temanmu
             return redirect()->route('customer.dashboard');
         }
 
@@ -82,7 +89,7 @@ class CustomerController extends Controller
         // 2. Buat data user baru ke database
         \App\Models\User::create([
             'name'     => $request->name,
-            'phone'    => $request->phone, // Pastikan nanti kolom ini ada jika database dikembangkan, atau sementara masuk ke memory
+            'phone'    => $request->phone, 
             'email'    => $request->email,
             'password' => \Illuminate\Support\Facades\Hash::make($request->password),
         ]);
