@@ -8,20 +8,23 @@ use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
+    /**
+     * Seed the application's database.
+     */
     public function run(): void
     {
-        // Membuat akun Admin Utama
+        // Membuat Akun Admin Utama
         User::create([
             'name' => 'Admin Fantastic',
             'email' => 'admin@fantastic.com',
-            'password' => Hash::make('password123'), 
+            'password' => Hash::make('password123'),
             'role' => 'admin',
         ]);
 
-        // Membuat akun contoh Customer (opsional, untuk testing)
+        // Membuat Akun Customer Contoh (Untuk Tes)
         User::create([
-            'name' => 'Budi Santoso',
-            'email' => 'budi@email.com',
+            'name' => 'Customer Toko',
+            'email' => 'customer@gmail.com',
             'password' => Hash::make('password123'),
             'role' => 'customer',
         ]);

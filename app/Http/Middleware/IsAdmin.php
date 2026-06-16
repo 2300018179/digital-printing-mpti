@@ -9,14 +9,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class IsAdmin
 {
+    /**
+     * Handle an incoming request.
+     */
     public function handle(Request $request, Closure $next): Response
     {
-        // Cek apakah user sudah login DAN apakah rolenya adalah admin
+        // 1. Cek apakah user sudah login, dan apakah role-nya ADALAH 'admin'
         if (Auth::check() && Auth::user()->role === 'admin') {
-            return $next($request); // Diizinkan masuk halaman admin
+            return $next($request); // Diloloskan masuk ke dashboard admin
         }
 
-        // Jika bukan admin, tendang balik ke halaman login dengan pesan error
-        return redirect()->route('login')->with('error', 'Akses ditolak! Anda bukan admin.');
+        // 2. Jika bukan admin, tendang balik ke halaman utama
+        return redirect('/')->with('error', 'Anda tidak memiliki hak akses admin.');
     }
 }

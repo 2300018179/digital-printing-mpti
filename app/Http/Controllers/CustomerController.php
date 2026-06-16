@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class CustomerController extends Controller
 {
@@ -42,12 +43,12 @@ class CustomerController extends Controller
             // Jika sukses, buat ulang session token keamanan
             $request->session()->regenerate();
             
-            // --- LOGIKA PENGALIHAN BERDASARKAN ROLE DI SINI ---
-            if (Auth::user()->role === 'admin') {
+            // --- LOGIKA PENGALIHAN BERDASARKAN ROLE IS_ADMIN ---
+            if (Auth::user()->is_admin) {
                 return redirect()->route('admin.dashboard'); // Lempar ke dashboard admin kamu
             }
 
-            // Jika bukan admin, lempar ke dashboard customer bawaan temanmu
+            // Jika bukan admin, lempar ke dashboard customer bawaan
             return redirect()->route('customer.dashboard');
         }
 
@@ -75,7 +76,7 @@ class CustomerController extends Controller
     // Memproses penyimpanan data pendaftaran pengguna baru
     public function register(Request $request)
     {
-        // 1. Validasi inputan form sesuai dengan ketentuan di mockup Figma kamu
+        // 1. Validasi inputan form sesuai dengan ketentuan di mockup Figma
         $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'phone'    => ['required', 'string', 'max:20'],
@@ -86,12 +87,13 @@ class CustomerController extends Controller
             'password.min' => 'Password minimal harus 6 karakter.',
         ]);
 
-        // 2. Buat data user baru ke database
+        // 2. Buat data user baru ke database (Default customer biasa: is_admin = false)
         \App\Models\User::create([
             'name'     => $request->name,
             'phone'    => $request->phone, 
             'email'    => $request->email,
-            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'password' => Hash::make($request->password),
+            'is_admin' => false, 
         ]);
 
         // 3. Setelah sukses mendaftar, otomatis lempar ke halaman login dengan pesan sukses

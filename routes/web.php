@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\AdminProductController; // << 1. BERHASIL DI-IMPORT DI SINI
 
 // 1. Halaman Utama & Umum
 Route::get('/', [CustomerController::class, 'index'])->name('customer.dashboard');
@@ -32,7 +33,6 @@ Route::middleware('auth')->group(function () {
 });
 
 // 3. RUTE ADMIN (BAWAAN UPDATE)
-// Halaman Utama Dashboard Admin
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
 
     // --- DASHBOARD ---
@@ -40,26 +40,12 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
         return view('admin.dashboard');
     })->name('dashboard');
 
-    // --- MANAJEMEN PRODUK ---
-    Route::get('/produk', function () {
-        return view('admin.produk');
-    })->name('produk');
-
-    Route::get('/produk/tambah', function () {
-        return view('admin.form-produk', ['mode' => 'tambah']);
-    })->name('produk.tambah');
-
-    Route::get('/produk/edit', function () {
-        $produkDummy = [
-            'nama' => 'Kartu Nama',
-            'kategori' => 'Kartu Nama',
-            'harga' => 50000,
-            'stok' => 120,
-            'deskripsi' => 'Cetak kartu nama bisnis premium dua sisi bahan Art Carton 260gr.',
-            'status' => 'Aktif'
-        ];
-        return view('admin.form-produk', ['mode' => 'edit', 'produk' => $produkDummy]);
-    })->name('produk.edit');
+    // --- MANAJEMEN PRODUK (CRUD RESOURCE) ---
+    // PERBAIKAN: Rute closure statis /produk, /produk/tambah, dan /produk/edit dihapus 
+    // karena sudah ditangani secara otomatis dan jauh lebih aman oleh Route::resource di bawah ini.
+    Route::resource('produk', AdminProductController::class)->names([
+        'index' => 'produk',
+    ]);
 
     // --- MANAJEMEN KATEGORI ---
     Route::get('/kategori', function () {
