@@ -75,23 +75,16 @@
 
             <div class="bg-white border border-red-400 rounded-2xl shadow-sm p-6">
                 <!-- ID Form kita sesuaikan untuk Handle JavaScript -->
-                <form id="formTambahKategori" class="space-y-5">
-                    <div class="space-y-2">
+                <form action="{{ route('admin.kategori.store') }}" method="POST" class="space-y-5">
+                    @csrf <div class="space-y-2">
                         <label for="nama_kategori" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Nama Kategori</label>
-                        <input type="text" id="nama_kategori" required placeholder="Contoh: Banner, Brosur, Stiker" 
-                            class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-gray-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition">
-                    </div>
-
-                    <div class="space-y-2">
-                        <label for="jumlah_produk" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Jumlah Produk Awal</label>
-                        <input type="number" id="jumlah_produk" required min="0" placeholder="0" value="0"
+                        <input type="text" name="name" id="nama_kategori" required placeholder="Contoh: Banner, Brosur, Stiker" 
                             class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-gray-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition">
                     </div>
 
                     <hr class="border-gray-100 my-2">
 
                     <div class="flex justify-end gap-3 pt-2">
-                        <!-- Klik Batal: Langsung diarahkan kembali ke halaman kategori -->
                         <a href="{{ route('admin.kategori') }}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full text-xs font-bold transition shadow-sm">
                             Batal
                         </a>
@@ -109,7 +102,6 @@
             e.preventDefault(); // Mencegah reload halaman bawaan form
 
             const nama = document.getElementById('nama_kategori').value;
-            const jumlah = document.getElementById('jumlah_produk').value;
 
             // Ambil data kategori yang sudah ada di localStorage, atau buat array kosong jika belum ada
             let daftarKategori = JSON.parse(localStorage.getItem('kategoriLokal')) || [];
@@ -117,7 +109,7 @@
             // Masukkan data kategori baru ke dalam list array
             daftarKategori.push({
                 nama_kategori: nama,
-                jumlah_produk: jumlah
+    
             });
 
             // Simpan kembali array terbaru ke localStorage browser

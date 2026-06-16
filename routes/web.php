@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\AdminProductController; // << 1. BERHASIL DI-IMPORT DI SINI
+use App\Http\Controllers\AdminProductController; 
+use App\Http\Controllers\AdminKategoriController;
 
 // 1. Halaman Utama & Umum
 Route::get('/', [CustomerController::class, 'index'])->name('customer.dashboard');
@@ -40,21 +41,18 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
         return view('admin.dashboard');
     })->name('dashboard');
 
-    // --- MANAJEMEN PRODUK (CRUD RESOURCE) ---
-    // PERBAIKAN: Rute closure statis /produk, /produk/tambah, dan /produk/edit dihapus 
-    // karena sudah ditangani secara otomatis dan jauh lebih aman oleh Route::resource di bawah ini.
     Route::resource('produk', AdminProductController::class)->names([
         'index' => 'produk',
     ]);
 
-    // --- MANAJEMEN KATEGORI ---
-    Route::get('/kategori', function () {
-        return view('admin.kategori');
-    })->name('kategori');
-
+    Route::get('/kategori', [AdminKategoriController::class, 'index'])->name('kategori');
+    Route::delete('/kategori/{id}', [AdminKategoriController::class, 'destroy'])->name('kategori.destroy');
     Route::get('/kategori/tambah', function () {
         return view('admin.form-kategori');
     })->name('kategori.tambah');
+    Route::post('/kategori/tambah', [AdminKategoriController::class, 'store'])->name('kategori.store');
+    Route::get('/kategori/{id}/edit', [AdminKategoriController::class, 'edit'])->name('kategori.edit');
+    Route::put('/kategori/{id}', [AdminKategoriController::class, 'update'])->name('kategori.update');
 
     // --- MANAJEMEN PESANAN ---
     Route::get('/pesanan', function () {

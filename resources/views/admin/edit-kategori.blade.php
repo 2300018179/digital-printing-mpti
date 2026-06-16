@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Kategori - Fantastic Digital Printing</title>
+    <title>Edit Kategori - Fantastic Digital Printing</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Poppins', sans-serif; }</style>
@@ -11,9 +11,7 @@
 <body class="bg-gray-50 flex flex-col min-h-screen">
 
     <header class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-        <div class="flex items-center">
-            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-10 object-contain">
-        </div>
+        <div class="flex items-center"><img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-10 object-contain"></div>
         <div class="flex items-center gap-3">
             <span class="text-xs font-semibold text-gray-700">Selamat Datang, <strong class="text-gray-900">Admin</strong></span>
             <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center border border-gray-300">
@@ -31,10 +29,10 @@
                     <a href="{{ route('admin.dashboard') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
                         <span>🏠</span> Dashboard
                     </a>
-                    <a href="{{ route('admin.produk') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
+                    <a href="{{ route('admin.produk') }}" class="bg-red-800 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition">
                         <span>🛍️</span> Produk
                     </a>
-                    <a href="{{ route('admin.kategori') }}" class="bg-red-800 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition">
+                    <a href="{{ route('admin.kategori') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
                         <span>🏷️</span> Kategori
                     </a>
                     <a href="{{ route('admin.pesanan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
@@ -61,7 +59,7 @@
             <div class="p-3 border-t border-red-800">
                 <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar?')">
                     @csrf
-                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold bg-red-900 hover:bg-red-950 transition text-center justify-center uppercase tracking-wider">
+                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold bg-red-900 hover:bg-red-950 transition text-center justify-center uppercase tracking-wider text-white">
                         <span>🚪</span> Log Out
                     </button>
                 </form>
@@ -69,51 +67,28 @@
         </aside>
 
         <main class="flex-1 p-8 space-y-6">
-            
             <div class="flex justify-between items-center">
-                <h2 class="text-xl font-bold text-gray-800 tracking-wide">Data Kategori</h2>
-                <a href="{{ route('admin.kategori.tambah') }}" class="bg-red-700 hover:bg-red-800 text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-sm transition flex items-center gap-2">
-                    <span>+</span> Tambah Kategori
-                </a>
+                <h2 class="text-xl font-bold text-gray-800 tracking-wide">Edit Kategori</h2>
             </div>
 
-            <div class="bg-white border border-red-400 rounded-2xl shadow-sm overflow-hidden p-6">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs" id="category-table">
-                        <thead>
-                            <tr class="bg-red-50 text-red-700 font-bold border-b border-red-100">
-                                <th class="p-4 w-16 text-center">No</th>
-                                <th class="p-4">Nama Kategori</th>
-                                <th class="p-4 w-32 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 font-medium text-gray-600">
-                            @forelse($kategoris as $index => $kategori)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="p-4 text-center text-gray-400">{{ $index + 1 }}</td>
-                                <td class="p-4 font-semibold text-gray-800">{{ $kategori->name }}</td>
-                                <td class="p-4 text-center">
-                                    <div class="flex justify-center gap-4 text-base">
-                                        <a href="{{ route('admin.kategori.edit', $kategori->id) }}" class="text-blue-600 hover:text-blue-800 transition">✏️</a>
-                                        <form action="{{ route('admin.kategori.destroy', $kategori->id) }}" method="POST" onsubmit="return confirm('Yakin hapus?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-800 transition">🗑️</button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="3" class="p-4 text-center text-gray-400">Belum ada kategori di database.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 max-w-lg">
+                <form action="{{ route('admin.kategori.update', $kategori->id) }}" method="POST" class="space-y-5">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div class="space-y-2">
+                        <label for="name" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Nama Kategori</label>
+                        <input type="text" name="name" id="name" value="{{ old('name', $kategori->name) }}" required 
+                            class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-gray-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition">
+                    </div>
 
+                    <div class="flex justify-end gap-3 pt-2">
+                        <a href="{{ route('admin.kategori') }}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full text-xs font-bold transition shadow-sm">Batal</a>
+                        <button type="submit" class="px-5 py-2.5 bg-red-700 hover:bg-red-800 text-white rounded-full text-xs font-bold transition shadow-sm">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
         </main>
     </div>
-        
 </body>
 </html>
