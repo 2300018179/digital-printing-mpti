@@ -16,6 +16,7 @@ class Pesanan extends Model
         'nama_pelanggan', 
         'tanggal_pesanan', 
         'status', 
+        'bukti_transfer',
         'total',
         // tambahkan kolom lainnya di sini
     ];

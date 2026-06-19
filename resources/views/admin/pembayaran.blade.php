@@ -70,36 +70,58 @@
                 <p class="text-xs text-gray-500 mt-1">Periksa bukti transfer dan konfirmasi pembayaran dari pelanggan.</p>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3">
-                <button id="tab-menunggu" onclick="switchTab('Menunggu')" class="px-5 py-2.5 bg-white border-2 border-red-600 text-red-700 font-bold text-xs rounded-full shadow-sm transition">
-                    Menunggu Verifikasi (<span id="count-menunggu">4</span>)
-                </button>
-                <button id="tab-disetujui" onclick="switchTab('Disetujui')" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-600 font-bold text-xs rounded-full transition">
-                    Sudah Diverifikasi
-                </button>
-                <button id="tab-ditolak" onclick="switchTab('Ditolak')" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-600 font-bold text-xs rounded-full transition">
-                    Ditolak
-                </button>
+                <div class="flex gap-3 mb-6">
+                @foreach(['Menunggu', 'Disetujui', 'Ditolak'] as $s)
+                <a href="{{ route('admin.pembayaran', ['status' => $s]) }}" 
+                class="px-5 py-2.5 font-bold text-xs rounded-full transition {{ $status == $s ? 'bg-red-700 text-white' : 'bg-white border text-gray-600' }}">
+                {{ $s }} ({{ $counts[$s] ?? 0 }})
+                </a>
+                @endforeach
             </div>
 
-            <div class="bg-white border border-red-400 rounded-2xl shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-100 text-gray-400 uppercase text-[10px] tracking-wider font-bold">
-                                <th class="p-4 text-center w-16">No</th>
-                                <th class="p-4">Order ID</th>
-                                <th class="p-4">Pelanggan</th>
-                                <th class="p-4">Tanggal</th>
-                                <th class="p-4">Total</th>
-                                <th class="p-4 text-center w-32">Bukti Transfer</th>
-                                <th id="th-aksi" class="p-4 text-center w-32">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pembayaran-table-body">
-                            </tbody>
-                    </table>
-                </div>
+            <div class="bg-white border rounded-2xl shadow-sm overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-[10px] uppercase text-gray-400 font-bold">
+                        <tr>
+                            <th class="p-4">Order ID</th>
+                            <th class="p-4">Pelanggan</th>
+                            <th class="p-4">Tanggal</th>
+                            <th class="p-4">Bukti Transfer</th>
+                            <th class="p-4">Total</th>
+                            <th class="p-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($pesanans as $item)
+                        <tr class="border-b">
+                            <td class="p-4 font-mono text-xs font-bold">{{ $item->id }}</td>
+                            <td class="p-4 text-xs">{{ $item->user->name ?? 'User' }}</td>
+                            <td class="p-4 text-xs">{{ $item->created_at->format('d M Y, H:i') }}</td>
+                            <td class="p-4 text-center">
+                                @if($item->bukti_transfer)
+                                    <a href="{{ asset('storage/' . $item->bukti_transfer) }}" 
+                                    download 
+                                    class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                    📥 Unduh
+                                    </a>
+                                @else
+                                    <span class="text-gray-300 text-xs italic">Tidak ada</span>
+                                @endif
+                            </td>
+                            <td class="p-4 text-xs">Rp {{ number_format($item->total, 0, ',', '.') }}</td>
+                            <td class="p-4 text-center">
+                                <form action="{{ route('admin.pembayaran.update', $item->id) }}" method="POST" class="flex justify-center gap-2">
+                                    @csrf @method('PUT')
+                                    <button name="status" value="Disetujui" class="bg-green-100 p-2 rounded-lg text-xs">✔️</button>
+                                    <button name="status" value="Ditolak" class="bg-red-100 p-2 rounded-lg text-xs">❌</button>
+                                </form>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr><td colspan="4" class="p-8 text-center text-gray-400">Tidak ada data.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
 
             <div class="flex items-center justify-center gap-1.5 text-xs pt-2">
@@ -110,140 +132,6 @@
         </main>
     </div>
 
-    <script>
-        let currentTab = 'Menunggu';
-
-        // Data Mentah Berdasarkan Gambar Ketiga (Wireframe)
-        let dataPembayaran = [
-            { id: "#ORD-00152", nama: "Budi Santoso", tgl: "20 Mei 2026", total: "Rp 350.000", status: "Menunggu" },
-            { id: "#ORD-00151", nama: "Siti Aisyah", tgl: "20 Mei 2026", total: "Rp 240.000", status: "Menunggu" },
-            { id: "#ORD-00150", nama: "Andi Wijaya", tgl: "19 Mei 2026", total: "Rp 125.000", status: "Menunggu" },
-            { id: "#ORD-00149", nama: "Dinda Amelia", tgl: "18 Mei 2026", total: "Rp 870.000", status: "Menunggu" }
-        ];
-
-        function renderPembayaran() {
-            const tbody = document.getElementById('pembayaran-table-body');
-            const thAksi = document.getElementById('th-aksi');
-            tbody.innerHTML = '';
-
-            // Filter data berdasarkan tab aktif
-            const filtered = dataPembayaran.filter(item => item.status === currentTab);
-            
-            // Update jumlah counter angka di tab Menunggu Verifikasi
-            const totalMenunggu = dataPembayaran.filter(item => item.status === 'Menunggu').length;
-            document.getElementById('count-menunggu').innerText = totalMenunggu;
-
-            // Sembunyikan kolom aksi jika berada di tab 'Sudah Diverifikasi' atau 'Ditolak'
-            if (currentTab === 'Menunggu') {
-                thAksi.style.display = '';
-            } else {
-                thAksi.style.display = 'none';
-            }
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-xs font-medium text-gray-400">Tidak ada data pembayaran dengan status ini.</td></tr>`;
-                return;
-            }
-
-            filtered.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50/50 border-b border-gray-100 transition";
-                
-                let aksiHTML = '';
-                if (currentTab === 'Menunggu') {
-                    aksiHTML = `
-                        <td class="p-4 text-center">
-                            <div class="flex justify-center gap-2">
-                                <button onclick="prosesVerifikasi('${item.id}', 'Disetujui')" class="w-8 h-8 bg-white border border-gray-300 hover:border-green-600 text-green-600 rounded-lg text-xs font-bold shadow-sm transition flex items-center justify-center">✔️</button>
-                                <button onclick="prosesVerifikasi('${item.id}', 'Ditolak')" class="w-8 h-8 bg-white border border-gray-300 hover:border-red-600 text-red-600 rounded-lg text-xs font-bold shadow-sm transition flex items-center justify-center">❌</button>
-                            </div>
-                        </td>
-                    `;
-                }
-
-                tr.innerHTML = `
-                    <td class="p-4 text-center text-gray-400 font-medium text-xs">${index + 1}</td>
-                    <td class="p-4 font-mono text-xs font-bold text-gray-700">${item.id}</td>
-                    <td class="p-4 font-semibold text-gray-800 text-xs">${item.nama}</td>
-                    <td class="p-4 text-gray-500 font-medium text-xs">${item.tgl}</td>
-                    <td class="p-4 font-bold text-gray-800 text-xs">${item.total}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="openModal('${item.id}')" class="w-8 h-8 bg-white border border-gray-300 hover:border-red-600 text-gray-600 hover:text-red-600 rounded-lg shadow-sm transition inline-flex items-center justify-center text-xs">
-                            📄
-                        </button>
-                    </td>
-                    ${aksiHTML}
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function switchTab(tabName) {
-            currentTab = tabName;
-            
-            // Atur gaya tombol agar berubah warna sesuai tab aktif
-            const btnMenunggu = document.getElementById('tab-menunggu');
-            const btnDisetujui = document.getElementById('tab-disetujui');
-            const btnDitolak = document.getElementById('tab-ditolak');
-
-            // Reset class semua tombol jadi mode pasif
-            [btnMenunggu, btnDisetujui, btnDitolak].forEach(btn => {
-                btn.className = "px-5 py-2.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-600 font-bold text-xs rounded-full transition";
-            });
-
-            // Beri warna merah maroon aktif pada tab yang diklik
-            if (tabName === 'Menunggu') {
-                btnMenunggu.className = "px-5 py-2.5 bg-white border-2 border-red-600 text-red-700 font-bold text-xs rounded-full shadow-sm transition";
-            } else if (tabName === 'Disetujui') {
-                btnDisetujui.className = "px-5 py-2.5 bg-white border-2 border-red-600 text-red-700 font-bold text-xs rounded-full shadow-sm transition";
-            } else if (tabName === 'Ditolak') {
-                btnDitolak.className = "px-5 py-2.5 bg-white border-2 border-red-600 text-red-700 font-bold text-xs rounded-full shadow-sm transition";
-            }
-
-            renderPembayaran();
-        }
-
-        function prosesVerifikasi(orderId, statusBaru) {
-            const index = dataPembayaran.findIndex(item => item.id === orderId);
-            if (index !== -1) {
-                dataPembayaran[index].status = statusBaru;
-                alert(`Pembayaran untuk order ${orderId} telah berhasil diadopsi ke status: ${statusBaru}!`);
-                renderPembayaran();
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", renderPembayaran);
-
-        // Fungsi untuk Membuka Pop-up Gambar Bukti Transfer
-        function openModal(orderId) {
-            const modal = document.getElementById('buktiModal');
-            const modalIdText = document.getElementById('modalOrderId');
-            
-            // Set teks Order ID sesuai baris yang diklik
-            modalIdText.innerText = orderId;
-            
-            // Tampilkan modal dengan efek transisi halus
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modal.querySelector('.transform').classList.remove('scale-95');
-                modal.querySelector('.transform').classList.add('scale-100');
-            }, 10);
-        }
-
-        // Fungsi untuk Menutup Pop-up Gambar Bukti Transfer
-        function closeModal() {
-            const modal = document.getElementById('buktiModal');
-            
-            modal.classList.add('opacity-0');
-            modal.querySelector('.transform').classList.remove('scale-100');
-            modal.querySelector('.transform').classList.add('scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300); // Menunggu animasi transisi selesai sebelum disembunyikan
-        }
-    </script>
     <!-- ========================================== -->
     <!-- POP-UP MODAL BUKTI TRANSFER (TAMBAHAN BARU) -->
     <!-- ========================================== -->
@@ -268,7 +156,7 @@
             <!-- Footer Modal -->
             <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end">
                 <button onclick="closeModal()" class="px-4 py-1.5 bg-red-700 hover:bg-red-800 text-white rounded-xl text-xs font-bold transition shadow-sm">
-                    Tutup Pratinjau
+                    Tutup
                 </button>
             </div>
         </div>

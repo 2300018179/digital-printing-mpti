@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\AdminProductController; 
 use App\Http\Controllers\AdminKategoriController;
 use App\Http\Controllers\AdminPesananController;
+use App\Http\Controllers\AdminPembayaranController;
 
 // =========================================================================
 // 1. HALAMAN UTAMA & UMUM (Bisa diakses siapa saja, kapan saja)
@@ -61,13 +62,15 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::post('/kategori/tambah', [AdminKategoriController::class, 'store'])->name('kategori.store');
     Route::get('/kategori/{id}/edit', [AdminKategoriController::class, 'edit'])->name('kategori.edit');
     Route::put('/kategori/{id}', [AdminKategoriController::class, 'update'])->name('kategori.update');
-
+    
+    // --- MANAJEMEN PESANAN ---
     Route::get('/pesanan', [AdminPesananController::class, 'index'])->name('pesanan');
     Route::get('/pesanan/detail/{id}', [AdminPesananController::class, 'detail'])->name('pesanan.detail');
     Route::put('/pesanan/update/{id}', [AdminPesananController::class, 'updateStatus'])->name('pesanan.updateStatus');
     
     // --- MANAJEMEN PEMBAYARAN ---
-    Route::get('/pembayaran', function () { return view('admin.pembayaran'); })->name('pembayaran');
+    Route::get('/pembayaran', [AdminPembayaranController::class, 'index'])->name('pembayaran');
+    Route::put('/pembayaran/update/{id}', [AdminPembayaranController::class, 'updateStatus'])->name('pembayaran.update');
 
     // --- MANAJEMEN PROMO ---
     Route::get('/promo', function () { return view('admin.promo'); })->name('promo');
