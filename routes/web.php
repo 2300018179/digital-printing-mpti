@@ -5,94 +5,78 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\AdminProductController; 
 use App\Http\Controllers\AdminKategoriController;
 
-// 1. Halaman Utama & Umum
+// =========================================================================
+// 1. HALAMAN UTAMA & UMUM (Bisa diakses siapa saja, kapan saja)
+// =========================================================================
 Route::get('/', [CustomerController::class, 'index'])->name('customer.dashboard');
 Route::get('/jam-layanan', [CustomerController::class, 'jamLayanan'])->name('customer.jam-layanan');
 
-// 2. RUTE AUTENTIKASI (LOGIN & REGISTER)
+// *** INI KUNCINYA *** // Kita taruh rute logout di sini (bebas hambatan), supaya pas session dihancurkan, 
+// Laravel tidak kebingungan dan tidak nge-redirect paksa kamu ke halaman login.
+Route::post('/logout', [CustomerController::class, 'logout'])->name('logout');
+
+
+// =========================================================================
+// 2. RUTE AUTENTIKASI (Hanya bisa diakses kalau BELUM LOGIN)
+// =========================================================================
 Route::middleware('guest')->group(function () {
-    // Form Login
+    // Form Login & Prosesnya
     Route::get('/login', [CustomerController::class, 'showLogin'])->name('login');
-    // Proses Kirim Data Login (POST)
     Route::post('/login', [CustomerController::class, 'login'])->name('login.submit');
 
-    // Form Daftar Akun
+    // Form Daftar Akun & Prosesnya
     Route::get('/register', [CustomerController::class, 'showRegister'])->name('register');
-    // Proses Kirim Data Daftar (POST)
     Route::post('/register', [CustomerController::class, 'register'])->name('register.submit');
 
-    // --- RUTE LUPA PASSWORD ---
-    // Form Lupa Password
+    // Fitur Lupa Password
     Route::get('/forgot-password', [CustomerController::class, 'showForgotPassword'])->name('password.request');
-    // Proses Kirim Link Reset ke Email (POST)
     Route::post('/forgot-password', [CustomerController::class, 'sendResetLink'])->name('password.email');
 });
 
-// Proses Keluar Akun (Log Out) - Hanya bisa diakses jika sudah login
+
+// =========================================================================
+// 3. RUTE CUSTOMER YANG WAJIB LOGIN (Taruh di sini kalau ada nanti)
+// =========================================================================
 Route::middleware('auth')->group(function () {
-    Route::post('/logout', [CustomerController::class, 'logout'])->name('logout');
+    // Contoh: Route::get('/checkout', [CustomerController::class, 'checkout']);
 });
 
-// 3. RUTE ADMIN (BAWAAN UPDATE)
+
+// =========================================================================
+// 4. RUTE KHUSUS ADMIN (Wajib Login & Wajib punya role Admin)
+// =========================================================================
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
 
-    // --- DASHBOARD ---
+    // --- DASHBOARD ADMIN ---
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
 
-    Route::resource('produk', AdminProductController::class)->names([
-        'index' => 'produk',
-    ]);
-
+    // --- MANAJEMEN PRODUK & KATEGORI ---
+    Route::resource('produk', AdminProductController::class)->names(['index' => 'produk']);
     Route::get('/kategori', [AdminKategoriController::class, 'index'])->name('kategori');
     Route::delete('/kategori/{id}', [AdminKategoriController::class, 'destroy'])->name('kategori.destroy');
-    Route::get('/kategori/tambah', function () {
-        return view('admin.form-kategori');
-    })->name('kategori.tambah');
+    Route::get('/kategori/tambah', function () { return view('admin.form-kategori'); })->name('kategori.tambah');
     Route::post('/kategori/tambah', [AdminKategoriController::class, 'store'])->name('kategori.store');
     Route::get('/kategori/{id}/edit', [AdminKategoriController::class, 'edit'])->name('kategori.edit');
     Route::put('/kategori/{id}', [AdminKategoriController::class, 'update'])->name('kategori.update');
 
     // --- MANAJEMEN PESANAN ---
-    Route::get('/pesanan', function () {
-        return view('admin.pesanan');
-    })->name('pesanan');
-
-    Route::get('/pesanan/detail', function () {
-        return view('admin.detail-pesanan');
-    })->name('pesanan.detail');
+    Route::get('/pesanan', function () { return view('admin.pesanan'); })->name('pesanan');
+    Route::get('/pesanan/detail', function () { return view('admin.detail-pesanan'); })->name('pesanan.detail');
 
     // --- MANAJEMEN PEMBAYARAN ---
-    Route::get('/pembayaran', function () {
-        return view('admin.pembayaran');
-    })->name('pembayaran');
+    Route::get('/pembayaran', function () { return view('admin.pembayaran'); })->name('pembayaran');
 
     // --- MANAJEMEN PROMO ---
-    Route::get('/promo', function () {
-        return view('admin.promo');
-    })->name('promo');
-
-    Route::get('/promo/tambah', function () {
-        return view('admin.tambah-promo'); 
-    })->name('promo.tambah');
+    Route::get('/promo', function () { return view('admin.promo'); })->name('promo');
+    Route::get('/promo/tambah', function () { return view('admin.tambah-promo'); })->name('promo.tambah');
 
     // --- MANAJEMEN PELANGGAN ---
-    Route::get('/pelanggan', function () {
-        return view('admin.pelanggan');
-    })->name('pelanggan');
-
-    Route::get('/pelanggan/detail/{id}', function ($id) {
-        return view('admin.pelanggan-detail');
-    })->name('pelanggan.detail');
+    Route::get('/pelanggan', function () { return view('admin.pelanggan'); })->name('pelanggan');
+    Route::get('/pelanggan/detail/{id}', function ($id) { return view('admin.pelanggan-detail'); })->name('pelanggan.detail');
 
     // --- LAPORAN & PENGATURAN ---
-    Route::get('/laporan', function () {
-        return view('admin.laporan');
-    })->name('laporan');
-
-    Route::get('/pengaturan', function () {
-        return view('admin.pengaturan');
-    })->name('pengaturan');
-    
+    Route::get('/laporan', function () { return view('admin.laporan'); })->name('laporan');
+    Route::get('/pengaturan', function () { return view('admin.pengaturan'); })->name('pengaturan');
 });

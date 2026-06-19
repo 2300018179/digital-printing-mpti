@@ -58,6 +58,27 @@ class CustomerController extends Controller
         ])->onlyInput('email');
     }
 
+    // Fungsi untuk memproses Log Out / Keluar Akun
+    public function logout(Request $request)
+    {
+        // Ambil data status role sebelum session-nya dihapus
+        $isAdmin = Auth::user() && Auth::user()->role === 'admin';
+
+        // Proses logout dari sistem autentikasi Laravel
+        Auth::logout();
+
+        // Hancurkan session dan buat ulang token CSRF demi keamanan
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Pengalihan cerdas berdasarkan role yang keluar
+        if ($isAdmin) {
+            return redirect()->route('login'); // Admin dilempar ke form login
+        }
+
+        return redirect()->route('customer.dashboard'); // Customer tetap di dashboard sebagai Guest
+    }
+
     // Menampilkan halaman Daftar Akun
     public function showRegister()
     {

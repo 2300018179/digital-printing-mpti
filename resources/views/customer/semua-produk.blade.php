@@ -49,34 +49,17 @@
                         <a href="/keranjang" class="text-black no-underline transition-all duration-300 ease-in-out cursor-pointer inline-block hover:text-brandRed hover:scale-[1.1]" title="Keranjang"><i class="fa fa-shopping-cart"></i></a>
                         <a href="/notifikasi" class="text-black no-underline transition-all duration-300 ease-in-out cursor-pointer inline-block hover:text-brandRed hover:scale-[1.1]" title="Notifikasi"><i class="fa fa-bell"></i></a>
                     </div>
-                    <div class="hidden md:flex items-center gap-5">
-                        @auth
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 bg-brandBgGray rounded-full border border-gray-300 flex items-center justify-center text-gray-600 shadow-sm" title="{{ Auth::user()->name }}">
-                                    <i class="fa-solid fa-user text-lg"></i>
-                                </div>
-                                
-                                <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin keluar?')" class="m-0 p-0">
-                                    @csrf
-                                    <button type="submit" class="p-[8px_20px] bg-[#c40000] text-white border border-[#c40000] rounded-[20px] cursor-pointer font-semibold transition-all duration-300 ease-in-out hover:bg-white hover:text-[#c40000] hover:border-[#c40000] hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 active:translate-y-0">
-                                        Logout
-                                    </button>
-                                </form>
-                            </div>
-                        @endauth
-
-                        @guest
-                            <a href="{{ route('login') }}">
-                                <button class="p-[8px_20px] bg-[#c40000] text-white border border-[#c40000] rounded-[20px] cursor-pointer font-semibold transition-all duration-300 ease-in-out hover:bg-white hover:text-[#c40000] hover:border-[#c40000] hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 active:translate-y-0">
-                                    Log In
-                                </button>
-                            </a>
-                            <a href="{{ route('register') }}">
-                                <button class="p-[8px_20px] bg-[#c40000] text-white border border-[#c40000] rounded-[20px] cursor-pointer font-semibold transition-all duration-300 ease-in-out hover:bg-white hover:text-[#c40000] hover:border-[#c40000] hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 active:translate-y-0">
-                                    Registration
-                                </button>
-                            </a>
-                        @endguest
+                    <div class="hidden md:flex gap-5">
+                        <a href="{{ route('login') }}">
+                            <button class="p-[8px_20px] bg-[#c40000] text-white border border-[#c40000] rounded-[20px] cursor-pointer font-semibold transition-all duration-300 ease-in-out hover:bg-white hover:text-[#c40000] hover:border-[#c40000] hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 active:translate-y-0">
+                                Log In
+                            </button>
+                        </a>
+                        <a href="{{ route('register') }}">
+                        <button class="p-[8px_20px] bg-[#c40000] text-white border border-[#c40000] rounded-[20px] cursor-pointer font-semibold transition-all duration-300 ease-in-out hover:bg-white hover:text-[#c40000] hover:border-[#c40000] hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 active:translate-y-0">
+                            Registration
+                        </button>
+                    </a>
                     </div>
                 </div>
             </div>
@@ -89,7 +72,11 @@
                 </div>
                 <ul class="hidden md:flex list-none gap-[50px] ml-30 flex-1 pl-8">
                     <li><a href="/" class="text-white no-underline text-sm cursor-pointer inline-block">Beranda</a></li>
-                    <li><a href="semua-produk.html" class="text-white no-underline text-sm cursor-pointer inline-block">Semua Produk</a></li>
+                    <li>
+                        <a href="{{ route('customer.semua-produk') }}" class="text-white no-underline text-sm cursor-pointer inline-block">
+                            Semua Produk
+                        </a>
+                    </li>
                     <li><a href="/promo" class="text-white no-underline text-sm cursor-pointer inline-block">Promo</a></li>
                     <li><a href="/layanan" class="text-white no-underline text-sm cursor-pointer inline-block">Jam Layanan</a></li>
                     <li><a href="/tentang" class="text-white no-underline text-sm cursor-pointer inline-block">Tentang Kami</a></li>
@@ -104,7 +91,7 @@
     </div> 
 
     <main class="pt-[140px]">
-        <div class="max-w-[1350px] mx-auto px-[15px] w-full flex flex-col md:flex-row gap-5 items-stretch mb-5">
+        <div class="max-w-[1350px] mx-auto px-[15px] w-full flex flex-col md:flex-row gap-5 items-start mb-12">
             <aside class="hidden md:flex w-[280px] shrink-0 bg-white rounded-[0_0_20px_20px] shadow-[6px_10px_20px_rgba(0,0,0,0.05)] flex-col">
                 <ul class="list-none m-0 p-0">
                     <li class="flex justify-between items-center p-[6.3px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5]">
@@ -181,114 +168,54 @@
                 </ul>
             </aside>
 
-            <!-- SLIDER & PROMO BANNER CONTAINER -->
-            <div class="flex-1 flex p-0 h-[300px]">
-                <div class="w-full h-full">
-                    <div class="h-full rounded-[20px] overflow-hidden relative bg-[#e0e0e0]">
-                        <img src="{{ asset('assets/view/iklan.jpg') }}" alt="Promo Utama" class="w-full h-full object-cover">
-                        
-                        <button class="absolute top-1/2 -translate-y-1/2 w-[35px] h-[35px] bg-black/70 text-white border-none rounded-full flex items-center justify-center cursor-pointer z-10 transition duration-300 hover:bg-black/95 left-[15px]" aria-label="Previous">
-                            <i class="fa fa-chevron-left text-[14px]"></i>
-                        </button>
-                        <button class="absolute top-1/2 -translate-y-1/2 w-[35px] h-[35px] bg-black/70 text-white border-none rounded-full flex items-center justify-center cursor-pointer z-10 transition duration-300 hover:bg-black/95 right-[15px]" aria-label="Next">
-                            <i class="fa fa-chevron-right text-[14px]"></i>
-                        </button>
+            <section class="flex-1 flex flex-col justify-between self-stretch">
+                <div>
+                    <div class="flex items-center gap-[10px] mb-6">
+                        <h2 class="text-[20px] font-extrabold text-brandRed whitespace-nowrap">Semua Koleksi Produk</h2>
+                        <div class="flex-1 h-[3px] bg-brandRed"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        @php
+                            $products = [
+                                ['title' => 'Bannner', 'price' => 'Rp. 25.000/m', 'img' => 'products/produk1.jpg'],
+                                ['title' => 'Pamflet', 'price' => 'Rp. 25.000/m', 'img' => 'products/produk1.jpg'],
+                                ['title' => 'Sablon Kaos (1 Warna)', 'price' => 'Rp. 10.000/pcs', 'img' => 'products/produk1.jpg'],
+                                ['title' => 'Sablon Jersey (Full)', 'price' => 'Rp. 25.000/pcs', 'img' => 'products/produk1.jpg'],
+                                ['title' => 'Kalender Dinding', 'price' => 'Rp. 35.000/pcs', 'img' => 'products/produk1.jpg'],
+                                ['title' => 'Stiker Vinyl', 'price' => 'Rp. 15.000/lbr', 'img' => 'products/produk1.jpg'],
+                                ['title' => 'Kartu Nama Bisnis', 'price' => 'Rp. 45.000/box', 'img' => 'products/produk1.jpg'],
+                                ['title' => 'X-Banner Premium', 'price' => 'Rp. 60.000/set', 'img' => 'products/produk1.jpg'],
+                            ];
+                        @endphp
+
+                        @foreach ($products as $p)
+                        <div class="bg-white rounded-[20px] overflow-hidden border border-[#c40000] flex flex-col justify-between relative transition-all duration-300 ease-in-out cursor-pointer hover:-translate-y-[5px] hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]">
+                            <div class="w-full aspect-square flex items-center justify-center p-[15px] bg-white">
+                                <img src="{{ asset($p['img']) }}" alt="{{ $p['title'] }}" class="max-h-full max-w-full object-contain">
+                            </div>
+                            
+                            <div class="bg-[#c40000] text-white p-[12px_15px_15px_15px] rounded-[0_0_15px_15px] -mt-[1px] flex flex-col items-center text-center gap-2">
+                                <div class="text-[14px] font-bold tracking-wide line-clamp-1 w-full font-inder">
+                                    {{ $p['title'] }}
+                                </div>
+                                <span class="inline-block bg-white text-gray-800 text-[11px] font-extrabold px-4 py-0.5 rounded-full shadow-sm">
+                                    {{ $p['price'] }}
+                                </span>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="max-w-[1350px] mx-auto px-[15px] w-full">
-            <section class="flex flex-wrap md:flex-nowrap justify-between gap-5 md:gap-10 m-[10px_0_20px_0]">
-                <div class="flex-1 min-w-[45%] md:min-w-0 bg-[#e6e6e6] p-[10px] rounded-[25px] flex items-center gap-[12px]">
-                    <div class="bg-brandRed w-10 h-10 min-w-[40px] rounded-[12px] flex items-center justify-center text-white text-xl"><i class="fas fa-shipping-fast"></i></div>
-                    <div class="feature-text">
-                        <h4 class="text-sm font-bold text-[#333] mb-[2px]">Kirim Kemanapun</h4>
-                        <p class="text-[11px] text-[#666] line-height-[1.3]">Tersedia pilihan pengiriman, dari instan hingga kargo</p>
-                    </div>
-                </div>
-                <div class="flex-1 min-w-[45%] md:min-w-0 bg-[#e6e6e6] p-[10px] rounded-[25px] flex items-center gap-[12px]">
-                    <div class="bg-brandRed w-10 h-10 min-w-[40px] rounded-[12px] flex items-center justify-center text-white text-xl"><i class="fas fa-star"></i></div>
-                    <div class="feature-text">
-                        <h4 class="text-sm font-bold text-[#333] mb-[2px]">Berkualitas</h4>
-                        <p class="text-[11px] text-[#666] line-height-[1.3]">Dicetak dengan mesin berteknologi tinggi</p>
-                    </div>
-                </div>
-                <div class="flex-1 min-w-[45%] md:min-w-0 bg-[#e6e6e6] p-[10px] rounded-[25px] flex items-center gap-[12px]">
-                    <div class="bg-brandRed w-10 h-10 min-w-[40px] rounded-[12px] flex items-center justify-center text-white text-xl"><i class="fas fa-cog"></i></div>
-                    <div class="feature-text">
-                        <h4 class="text-sm font-bold text-[#333] mb-[2px]">Proses Cepat</h4>
-                        <p class="text-[11px] text-[#666] line-height-[1.3]">Proses produksi cepat, bahkan bisa ditunggu</p>
-                    </div>
-                </div>
-                <div class="flex-1 min-w-[45%] md:min-w-0 bg-[#e6e6e6] p-[10px] rounded-[25px] flex items-center gap-[12px]">
-                    <div class="bg-brandRed w-10 h-10 min-w-[40px] rounded-[12px] flex items-center justify-center text-white text-xl"><i class="fas fa-headset"></i></div>
-                    <div class="feature-text">
-                        <h4 class="text-sm font-bold text-[#333] mb-[2px]">Online Support</h4>
-                        <p class="text-[11px] text-[#666] line-height-[1.3]">Pesan hanya lewat online saja tanpa datang ke lokasi</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="mt-[10px]">
-                <div class="flex items-center gap-[10px] my-5">
-                    <h2 class="text-[20px] font-extrabold text-brandRed whitespace-nowrap">Produk Unggulan</h2>
-                    <div class="flex-1 h-[3px] bg-brandRed"></div>
-                    <a href="#" class="text-brandRed no-underline text-[15px] font-bold">Lihat Semua ></a>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mt-5">
-                    
-                    <div class="bg-white rounded-[20px] overflow-hidden border border-[#c40000] flex flex-col relative transition-all duration-300 ease-in-out cursor-pointer hover:-translate-y-[5px] hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]">
-                        <div class="w-full aspect-square flex items-center justify-center p-[5px] bg-white">
-                            <img src="{{ asset('products/produk1.jpg') }}" alt="Banner" class="w-full h-full object-contain">
-                        </div>
-                        <div class="bg-[#c40000] text-white p-[15px] rounded-[0_0_15px_15px] -mt-[1px] flex flex-col items-center justify-center min-h-[80px] relative">
-                            <span class="text-sm font-semibold text-left mb-[15px] w-full">Banner</span> 
-                            <div class="font-inder bg-white text-black p-[5px_20px] rounded-[20px] text-[13px] font-normal shadow-[0_2px_4px_rgba(0,0,0,0.1)] whitespace-nowrap inline-block leading-none">Rp 25.000/m</div> 
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-[20px] overflow-hidden border border-[#c40000] flex flex-col relative transition-all duration-300 ease-in-out cursor-pointer hover:-translate-y-[5px] hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]">
-                        <div class="w-full aspect-square flex items-center justify-center p-[5px] bg-white">
-                            <img src="{{ asset('assets/products/brosur.png') }}" alt="Brosur Art Paper" class="w-full h-full object-contain">
-                        </div>
-                        <div class="bg-[#c40000] text-white p-[15px] rounded-[0_0_15px_15px] -mt-[1px] flex flex-col items-center justify-center min-h-[80px] relative">
-                            <span class="text-sm font-semibold text-left mb-[15px] w-full">Brosur Art Paper</span> 
-                            <div class="font-inder bg-white text-black p-[5px_20px] rounded-[20px] text-[13px] font-normal shadow-[0_2px_4px_rgba(0,0,0,0.1)] whitespace-nowrap inline-block leading-none">Rp 5.000/lbr</div> 
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-[20px] overflow-hidden border border-[#c40000] flex flex-col relative transition-all duration-300 ease-in-out cursor-pointer hover:-translate-y-[5px] hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]">
-                        <div class="w-full aspect-square flex items-center justify-center p-[5px] bg-white">
-                            <img src="{{ asset('assets/products/stiker.png') }}" alt="Stiker Kromo" class="w-full h-full object-contain">
-                        </div>
-                        <div class="bg-[#c40000] text-white p-[15px] rounded-[0_0_15px_15px] -mt-[1px] flex flex-col items-center justify-center min-h-[80px] relative">
-                            <span class="text-sm font-semibold text-left mb-[15px] w-full">Stiker Kromo</span> 
-                            <div class="font-inder bg-white text-black p-[5px_20px] rounded-[20px] text-[13px] font-normal shadow-[0_2px_4px_rgba(0,0,0,0.1)] whitespace-nowrap inline-block leading-none">Rp 15.000/lbr</div> 
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-[20px] overflow-hidden border border-[#c40000] flex flex-col relative transition-all duration-300 ease-in-out cursor-pointer hover:-translate-y-[5px] hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]">
-                        <div class="w-full aspect-square flex items-center justify-center p-[5px] bg-white">
-                            <img src="{{ asset('assets/products/mug.png') }}" alt="Mug" class="w-full h-full object-contain">
-                        </div>
-                        <div class="bg-[#c40000] text-white p-[15px] rounded-[0_0_15px_15px] -mt-[1px] flex flex-col items-center justify-center min-h-[80px] relative">
-                            <span class="text-sm font-semibold text-left mb-[15px] w-full">Mug</span> 
-                            <div class="font-inder bg-white text-black p-[5px_20px] rounded-[20px] text-[13px] font-normal shadow-[0_2px_4px_rgba(0,0,0,0.1)] whitespace-nowrap inline-block leading-none">Rp 25.000/pcs</div> 
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-[20px] overflow-hidden border border-[#c40000] flex flex-col relative transition-all duration-300 ease-in-out cursor-pointer hover:-translate-y-[5px] hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]">
-                        <div class="w-full aspect-square flex items-center justify-center p-[5px] bg-white">
-                            <img src="{{ asset('assets/products/x banner.jpg') }}" alt="X Banner" class="w-full h-full object-contain">
-                        </div>
-                        <div class="bg-[#c40000] text-white p-[15px] rounded-[0_0_15px_15px] -mt-[1px] flex flex-col items-center justify-center min-h-[80px] relative">
-                            <span class="text-sm font-semibold text-left mb-[15px] w-full">X Banner</span> 
-                            <div class="font-inder bg-white text-black p-[5px_20px] rounded-[20px] text-[13px] font-normal shadow-[0_2px_4px_rgba(0,0,0,0.1)] whitespace-nowrap inline-block leading-none">Rp 90.000</div> 
-                        </div>
-                    </div>
-
+                <div class="flex justify-center items-center gap-2 text-xs font-semibold mt-12 mb-4 text-gray-600">
+                    <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-brandBgGray transition"><i class="fa fa-chevron-left text-[10px]"></i></button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-lg bg-brandRed text-white font-bold">1</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-brandBgGray transition">2</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-brandBgGray transition">3</button>
+                    <span class="px-1 text-gray-400">...</span>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-brandBgGray transition">10</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-brandBgGray transition"><i class="fa fa-chevron-right text-[10px]"></i></button>
                 </div>
             </section>
         </div>
