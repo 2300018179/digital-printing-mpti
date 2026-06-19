@@ -28,8 +28,12 @@
                     <label for="email" class="text-sm text-gray-700 font-normal pl-1">
                         Masukkan Email
                     </label>
-                    <input type="email" id="email" name="email" required
-                        class="w-full px-5 py-4 bg-[#f5d5d5] rounded-[15px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#c40000]/20 transition-all text-base">
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" required
+                        class="w-full px-5 py-4 bg-[#f5d5d5] rounded-[15px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#c40000]/20 transition-all text-base @error('email') border border-red-500 @enderror">
+                    
+                    @error('email')
+                        <span class="text-xs text-red-500 pl-1">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="flex flex-col gap-2">
@@ -38,6 +42,10 @@
                     </label>
                     <input type="password" id="password" name="password" required
                         class="w-full px-5 py-4 bg-[#f5d5d5] rounded-[15px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#c40000]/20 transition-all text-base">
+                    
+                    @error('password')
+                        <span class="text-xs text-red-500 pl-1">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="flex items-center justify-between text-xs text-gray-500 px-1 pt-1">

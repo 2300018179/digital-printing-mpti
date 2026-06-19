@@ -43,12 +43,12 @@ class CustomerController extends Controller
             // Jika sukses, buat ulang session token keamanan
             $request->session()->regenerate();
             
-            // --- LOGIKA PENGALIHAN BERDASARKAN ROLE IS_ADMIN ---
-            if (Auth::user()->is_admin) {
+            // --- LOGIKA PENGALIHAN BERDASARKAN ROLE ---
+            if (Auth::user()->role === 'admin') {
                 return redirect()->route('admin.dashboard'); // Lempar ke dashboard admin kamu
             }
 
-            // Jika bukan admin, lempar ke dashboard customer bawaan
+            // Jika bukan admin (berarti customer), lempar ke dashboard customer bawaan
             return redirect()->route('customer.dashboard');
         }
 
@@ -56,15 +56,6 @@ class CustomerController extends Controller
         return back()->withErrors([
             'email' => 'Email atau password yang Anda masukkan tidak cocok.',
         ])->onlyInput('email');
-    }
-
-    // Fungsi tambahan untuk tombol Log Out
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('login');
     }
 
     // Menampilkan halaman Daftar Akun
@@ -87,13 +78,13 @@ class CustomerController extends Controller
             'password.min' => 'Password minimal harus 6 karakter.',
         ]);
 
-        // 2. Buat data user baru ke database (Default customer biasa: is_admin = false)
+        // 2. Buat data user baru ke database dengan role 'customer'
         \App\Models\User::create([
             'name'     => $request->name,
             'phone'    => $request->phone, 
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'is_admin' => false, 
+            'role'     => 'customer', 
         ]);
 
         // 3. Setelah sukses mendaftar, otomatis lempar ke halaman login dengan pesan sukses
