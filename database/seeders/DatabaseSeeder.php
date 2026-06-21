@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         // Membuat Akun Admin Utama
         User::create([
             'name' => 'Admin Fantastic',
+            'phone' => '088139622615', 
             'email' => 'admin@fantastic.com',
             'password' => Hash::make('password123'),
             'role' => 'admin',
@@ -24,6 +25,7 @@ class DatabaseSeeder extends Seeder
         // Membuat Akun Customer Contoh (Untuk Tes)
         User::create([
             'name' => 'Customer Toko',
+            'phone' => '089876543210',
             'email' => 'customer@gmail.com',
             'password' => Hash::make('password123'),
             'role' => 'customer',

@@ -46,8 +46,79 @@
                 </div>
                 <div class="ml-auto flex items-center gap-5">
                     <div class="flex gap-5 text-xl">
-                        <a href="/keranjang" class="text-black no-underline transition-all duration-300 ease-in-out cursor-pointer inline-block hover:text-brandRed hover:scale-[1.1]" title="Keranjang"><i class="fa fa-shopping-cart"></i></a>
-                        <a href="/notifikasi" class="text-black no-underline transition-all duration-300 ease-in-out cursor-pointer inline-block hover:text-brandRed hover:scale-[1.1]" title="Notifikasi"><i class="fa fa-bell"></i></a>
+                        @auth
+                            <div class="relative inline-block">
+                                <button onclick="toggleCartPopup()" class="text-black bg-transparent border-none p-0 transition-all duration-300 ease-in-out cursor-pointer inline-block hover:text-brandRed hover:scale-[1.1] relative" title="Keranjang">
+                                    <i class="fa fa-shopping-cart"></i>
+                                    <span class="absolute -top-1.5 -right-2 bg-brandRed text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+                                </button>
+
+                                <div id="cartDropdown" class="hidden absolute right-0 mt-3 w-[320px] bg-white rounded-[15px] shadow-[0_10px_25px_rgba(0,0,0,0.15)] border border-gray-100 z-[99999] flex flex-col overflow-hidden origin-top-right">
+                                    <div class="flex justify-between items-center p-4 border-b border-gray-100">
+                                        <span class="font-bold text-gray-800 text-sm">Keranjang</span>
+                                        <a href="#" class="text-brandRed text-xs font-semibold hover:underline">Lihat Semua</a>
+                                    </div>
+
+                                    <div class="flex flex-col items-center justify-center py-8 px-4">
+                                        <p class="text-gray-400 text-xs mb-3 font-medium">Keranjang Masih kosong</p>
+                                        <button class="bg-brandRed text-white text-xs font-bold p-[6px_20px] rounded-full hover:bg-red-700 transition">
+                                            Mulai Belanja
+                                        </button>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-4 flex gap-2 border-t border-gray-100">
+                                        <button class="flex-1 p-[8px_10px] border border-brandRed text-brandRed rounded-full text-xs font-bold hover:bg-red-50 transition">
+                                            Lanjut Order
+                                        </button>
+                                        <button class="flex-1 p-[8px_10px] bg-brandRed text-white rounded-full text-xs font-bold hover:bg-red-700 transition">
+                                            Checkout
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endauth
+
+                        @guest
+                            <button onclick="openLoginModal()" class="text-black bg-transparent border-none p-0 transition-all duration-300 ease-in-out cursor-pointer inline-block hover:text-brandRed hover:scale-[1.1]" title="Keranjang">
+                                <i class="fa fa-shopping-cart"></i>
+                            </button>
+                        @endguest
+                        <div class="relative inline-block mx-2">
+                            <button onclick="toggleNotificationPopup()" class="text-black bg-transparent border-none p-0 transition-all duration-300 ease-in-out cursor-pointer inline-block hover:text-brandRed hover:scale-[1.1] relative" title="Notifikasi">
+                                <i class="fa fa-bell text-xl"></i>
+                                <span class="absolute top-0 right-0 bg-brandRed w-2 h-2 rounded-full"></span>
+                            </button>
+
+                            <div id="notificationDropdown" class="hidden absolute right-0 mt-3 w-[340px] bg-white rounded-[15px] shadow-[0_10px_25px_rgba(0,0,0,0.15)] border border-gray-100 z-[99999] flex flex-col overflow-hidden origin-top-right">
+                                <div class="flex justify-between items-center p-4 border-b border-gray-100">
+                                    <span class="font-bold text-gray-800 text-sm">Notifikasi</span>
+                                    <a href="#" class="text-brandRed text-xs font-semibold hover:underline">Lihat Semua</a>
+                                </div>
+
+                                <div class="flex justify-around items-center py-6 px-2 bg-white">
+                                    <a href="#" class="flex flex-col items-center gap-2 group decoration-none">
+                                        <div class="w-12 h-12 rounded-full bg-brandRed flex items-center justify-center transition group-hover:scale-105 shadow-sm">
+                                            <i class="fa fa-shopping-bag text-white text-lg"></i> 
+                                        </div>
+                                        <span class="text-[11px] font-medium text-gray-700 text-center">Pesanan</span>
+                                    </a>
+
+                                    <a href="#" class="flex flex-col items-center gap-2 group decoration-none">
+                                        <div class="w-12 h-12 rounded-full bg-brandRed flex items-center justify-center transition group-hover:scale-105 shadow-sm">
+                                            <i class="fa fa-info-circle text-white text-lg"></i>
+                                        </div>
+                                        <span class="text-[11px] font-medium text-gray-700 text-center">Informasi Terbaru</span>
+                                    </a>
+
+                                    <a href="#" class="flex flex-col items-center gap-2 group decoration-none">
+                                        <div class="w-12 h-12 rounded-full bg-brandRed flex items-center justify-center transition group-hover:scale-105 shadow-sm">
+                                            <i class="fa fa-tags text-white text-lg"></i>
+                                        </div>
+                                        <span class="text-[11px] font-medium text-gray-700 text-center">Promo</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="hidden md:flex items-center gap-5">
                         @auth
@@ -89,10 +160,10 @@
                 </div>
                 <ul class="hidden md:flex list-none gap-[50px] ml-30 flex-1 pl-8">
                     <li><a href="/" class="text-white no-underline text-sm cursor-pointer inline-block">Beranda</a></li>
-                    <li><a href="semua-produk.html" class="text-white no-underline text-sm cursor-pointer inline-block">Semua Produk</a></li>
-                    <li><a href="/promo" class="text-white no-underline text-sm cursor-pointer inline-block">Promo</a></li>
-                    <li><a href="/layanan" class="text-white no-underline text-sm cursor-pointer inline-block">Jam Layanan</a></li>
-                    <li><a href="/tentang" class="text-white no-underline text-sm cursor-pointer inline-block">Tentang Kami</a></li>
+                    <li><a href="{{ route('customer.semua-produk') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Semua Produk</a></li>
+                    <li><a href="{{ route('customer.promo') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Promo</a></li>
+                    <li><a href="{{ route('customer.jam-layanan') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Jam Layanan</a></li>
+                    <li><a href="{{ route('customer.tentang-kami') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Tentang Kami</a></li>
                 </ul>
                 <div class="hidden md:flex items-center gap-[10px] text-white ml-auto">
                     <img src="{{ asset('assets/icons/wa-icon.png') }}" alt="WA" class="w-5 h-5">
@@ -103,88 +174,81 @@
         </nav>
     </div> 
 
-    <main class="pt-[140px]">
-        <div class="max-w-[1350px] mx-auto px-[15px] w-full flex flex-col md:flex-row gap-5 items-stretch mb-5">
-            <aside class="hidden md:flex w-[280px] shrink-0 bg-white rounded-[0_0_20px_20px] shadow-[6px_10px_20px_rgba(0,0,0,0.05)] flex-col">
+    <main class="pt-[125px]">
+        
+        <div class="max-w-[1350px] mx-auto px-[15px] w-full flex flex-col md:flex-row gap-5 items-start mb-12">
+            
+            <aside class="hidden md:flex w-[280px] shrink-0 bg-white rounded-[0_0_20px_20px] shadow-[0_10px_20px_rgba(0,0,0,0.05)] flex-col border border-t-0 border-[#f0f0f0] overflow-hidden">
                 <ul class="list-none m-0 p-0">
-                    <li class="flex justify-between items-center p-[6.3px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5]">
+                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
                         <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-file-alt text-brandRed text-[18px] w-5 text-center"></i> 
+                            <i class="fas fa-file-alt text-brandRed text-[16px] w-5 text-center"></i> 
                             <span class="text-[13px] font-medium text-brandTextDark">Print On Paper</span>
                         </div>
-                        <i class="fa fa-chevron-right text-[12px] text-[#999]"></i>
+                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
                     </li>
-
-                    <li class="flex justify-between items-center p-[6.3px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5]">
+                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
                         <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-sticky-note text-brandRed text-[18px] w-5 text-center"></i> 
+                            <i class="fas fa-sticky-note text-brandRed text-[16px] w-5 text-center"></i> 
                             <span class="text-[13px] font-medium text-brandTextDark">Print Stiker</span>
                         </div>
-                        <i class="fa fa-chevron-right text-[12px] text-[#999]"></i>
+                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
                     </li>
-
-                    <li class="flex justify-between items-center p-[6.3px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5]">
+                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
                         <div class="flex items-center gap-[15px]">
-                            <i class="far fa-calendar-alt text-brandRed text-[18px] w-5 text-center"></i> 
+                            <i class="far fa-calendar-alt text-brandRed text-[16px] w-5 text-center"></i> 
                             <span class="text-[13px] font-medium text-brandTextDark">Kalender</span>
                         </div>
-                        <i class="fa fa-chevron-right text-[12px] text-[#999]"></i>
+                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
                     </li>
-
-                    <li class="flex justify-between items-center p-[6.3px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5]">
+                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
                         <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-scroll text-brandRed text-[18px] w-5 text-center"></i> 
+                            <i class="fas fa-scroll text-brandRed text-[16px] w-5 text-center"></i> 
                             <span class="text-[13px] font-medium text-brandTextDark">Banner & Spanduk</span>
                         </div>
-                        <i class="fa fa-chevron-right text-[12px] text-[#999]"></i>
+                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
                     </li>
-
-                    <li class="flex justify-between items-center p-[6.3px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5]">
+                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
                         <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-tshirt text-brandRed text-[18px] w-5 text-center"></i> 
+                            <i class="fas fa-tshirt text-brandRed text-[16px] w-5 text-center"></i> 
                             <span class="text-[13px] font-medium text-brandTextDark">Sablon</span>
                         </div>
-                        <i class="fa fa-chevron-right text-[12px] text-[#999]"></i>
+                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
                     </li>
-
-                    <li class="flex justify-between items-center p-[6.3px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5]">
+                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
                         <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-gift text-brandRed text-[18px] w-5 text-center"></i> 
+                            <i class="fas fa-gift text-brandRed text-[16px] w-5 text-center"></i> 
                             <span class="text-[13px] font-medium text-brandTextDark">Sovenir</span>
                         </div>
-                        <i class="fa fa-chevron-right text-[12px] text-[#999]"></i>
+                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
                     </li>
-
-                    <li class="flex justify-between items-center p-[6.3px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5]">
+                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
                         <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-envelope-open-text text-brandRed text-[18px] w-5 text-center"></i>
+                            <i class="fas fa-envelope-open-text text-brandRed text-[16px] w-5 text-center"></i>
                             <span class="text-[13px] font-medium text-brandTextDark">Undangan</span>
                         </div>
-                        <i class="fa fa-chevron-right text-[12px] text-[#999]"></i>
+                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
                     </li>
-
-                    <li class="flex justify-between items-center p-[6.3px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5]">
+                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
                         <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-info-circle text-brandRed text-[18px] w-5 text-center"></i> 
+                            <i class="fas fa-info-circle text-brandRed text-[16px] w-5 text-center"></i> 
                             <span class="text-[13px] font-medium text-brandTextDark">Papan Informasi</span>
                         </div>
-                        <i class="fa fa-chevron-right text-[12px] text-[#999]"></i>
+                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
                     </li>
-
-                    <li class="flex justify-between items-center p-[6.3px_20px] border-none cursor-pointer hover:bg-[#fff5f5]">
+                    <li class="flex justify-between items-center p-[10px_20px] cursor-pointer hover:bg-[#fff5f5] transition-colors">
                         <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-id-card text-brandRed text-[18px] w-5 text-center"></i> 
+                            <i class="fas fa-id-card text-brandRed text-[16px] w-5 text-center"></i> 
                             <span class="text-[13px] font-medium text-brandTextDark">Tanda Pengenal</span>
                         </div>
-                        <i class="fa fa-chevron-right text-[12px] text-[#999]"></i>
+                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
                     </li>
                 </ul>
             </aside>
 
-            <!-- SLIDER & PROMO BANNER CONTAINER -->
-            <div class="flex-1 flex p-0 h-[300px]">
+            <div class="flex-1 flex p-0 h-[350px] md:mt-[30px]">
                 <div class="w-full h-full">
-                    <div class="h-full rounded-[20px] overflow-hidden relative bg-[#e0e0e0]">
+                    <div class="h-full rounded-[20px] overflow-hidden relative bg-[#e0e0e0] shadow-[0_10px_20px_rgba(0,0,0,0.05)]">
                         <img src="{{ asset('assets/view/iklan.jpg') }}" alt="Promo Utama" class="w-full h-full object-cover">
                         
                         <button class="absolute top-1/2 -translate-y-1/2 w-[35px] h-[35px] bg-black/70 text-white border-none rounded-full flex items-center justify-center cursor-pointer z-10 transition duration-300 hover:bg-black/95 left-[15px]" aria-label="Previous">
@@ -196,6 +260,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <div class="max-w-[1350px] mx-auto px-[15px] w-full">
@@ -367,5 +432,62 @@
             </div>
         </footer>
     </main>
+    <div id="loginAlertModal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-white w-[90%] max-w-[400px] rounded-[25px] p-8 flex flex-col items-center text-center shadow-[0_10px_30px_rgba(0,0,0,0.2)] animate-fade-in">
+            <div class="w-16 h-16 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-3xl mb-4">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Belum Login</h3>
+            <p class="text-sm text-gray-500 mb-6 leading-relaxed">Silakan login terlebih dahulu untuk mengakses menu keranjang belanja Anda.</p>
+            
+            <div class="flex gap-3 w-full">
+                <button onclick="closeLoginModal()" class="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-[15px] text-sm font-semibold cursor-pointer transition hover:bg-gray-50">
+                    Batal
+                </button>
+                <a href="{{ route('login') }}" class="flex-1 py-2.5 bg-brandRed text-white rounded-[15px] text-sm font-semibold text-center cursor-pointer transition hover:bg-red-700 shadow-md shadow-red-600/10">
+                    Log In
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fungsi Toggle Dropdown Keranjang
+        function toggleCartPopup() {
+            const cart = document.getElementById('cartDropdown');
+            const notif = document.getElementById('notificationDropdown');
+            
+            cart.classList.toggle('hidden');
+            if (!notif.classList.contains('hidden')) {
+                notif.classList.add('hidden');
+            }
+        }
+
+        // Fungsi Toggle Dropdown Notifikasi
+        function toggleNotificationPopup() {
+            const notif = document.getElementById('notificationDropdown');
+            const cart = document.getElementById('cartDropdown');
+            
+            notif.classList.toggle('hidden');
+            if (!cart.classList.contains('hidden')) {
+                cart.classList.add('hidden');
+            }
+        }
+
+        // Fungsi jika user yang belum login mencoba klik keranjang
+        function openLoginModal() {
+            alert('Silakan login terlebih dahulu untuk melihat keranjang belanja Anda.');
+            window.location.href = "{{ route('login') }}";
+        }
+
+        // Menutup dropdown otomatis jika klik di luar menu
+        window.onclick = function(event) {
+            if (!event.target.closest('.relative')) {
+                document.getElementById('cartDropdown').classList.add('hidden');
+                document.getElementById('notificationDropdown').classList.add('hidden');
+            }
+        }
+    </script>
 </body>
 </html>

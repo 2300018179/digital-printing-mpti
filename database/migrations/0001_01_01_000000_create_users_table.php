@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('phone')->unique(); // 1. Wajib ditambahkan agar sinkron dengan form registrasi
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             
-            // Ditambahkan di sini (Baris 20):
+            // 2. Kolom role pilihan Anda dengan default 'customer'
             $table->string('role')->default('customer'); 
             
             $table->rememberToken();

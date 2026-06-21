@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-class CustomerController extends Controller
+class AuthController extends Controller
 {
     // Menampilkan halaman Dashboard utama
     public function index()
@@ -88,13 +88,14 @@ class CustomerController extends Controller
     // Memproses penyimpanan data pendaftaran pengguna baru
     public function register(Request $request)
     {
-        // 1. Validasi inputan form sesuai dengan ketentuan di mockup Figma
+        // 1. Validasi inputan form (Sudah ditambahkan unique untuk phone)
         $request->validate([
             'name'     => ['required', 'string', 'max:255'],
-            'phone'    => ['required', 'string', 'max:20'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:6'], // Minimal 6 karakter sesuai teks mockup
+            'phone'    => ['required', 'string', 'max:20', 'unique:users,phone'], // <-- DIGANTI DI SINI
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:6'], 
         ], [
+            'phone.unique' => 'Nomor Handphone ini sudah terdaftar, silakan gunakan nomor lain.', // <-- DITAMBAHKAN
             'email.unique' => 'Email ini sudah terdaftar, silakan gunakan email lain.',
             'password.min' => 'Password minimal harus 6 karakter.',
         ]);
@@ -121,12 +122,10 @@ class CustomerController extends Controller
     // Memproses simulasi klik tombol KIRIM (Hanya aksi visual)
     public function sendResetLink(Request $request)
     {
-        // Validasi format email saja
         $request->validate([
             'email' => ['required', 'email'],
         ]);
 
-        // Langsung kembalikan efek sukses agar alert hijau muncul di layar
-        return back()->with('success', 'Link reset password berhasil dikirim ke email Anda! Silakan cek kotak masuk Anda.');
+        return back()->with('status', 'Link reset password berhasil dikirim ke email Anda!');
     }
 }

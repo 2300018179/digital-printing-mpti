@@ -155,7 +155,7 @@
 
         <nav class="bg-brandRed h-[50px]">
             <div class="max-w-[1350px] mx-auto px-[15px] w-full flex h-full items-center">
-                <div class="bg-brandRed text-white h-full w-[280px] flex items-center font-bold text-sm rounded-[15px_15px_0_0] gap-15 cursor-default pointer-events-none user-select-none shadow-[6px_0_10px_rgba(0,0,0,0.15)] relative z-10 pl-5">
+                <div class="bg-brandRed text-white h-full w-[280px] flex items-center font-bold text-sm rounded-[15px_15px_0_0] gap-15 cursor-default pointer-events-none user-select-none] relative z-10 pl-5">
                     <i class="fa fa-bars mr-3"></i> Pilih Kategori
                 </div>
                 <ul class="hidden md:flex list-none gap-[50px] ml-30 flex-1 pl-8">
@@ -174,114 +174,34 @@
         </nav>
     </div> 
 
-    <main class="pt-[125px]">
-        
-        <div class="max-w-[1350px] mx-auto px-[15px] w-full flex flex-col md:flex-row gap-5 items-start mb-12">
+    <main class="pt-[140px]">
+        <div class="max-w-[1350px] mx-auto px-[15px] w-full flex flex-col items-center mb-16 mt-4">
             
-            <aside class="hidden md:flex w-[280px] shrink-0 bg-white rounded-[0_0_20px_20px] shadow-[0_10px_20px_rgba(0,0,0,0.05)] flex-col border border-t-0 border-[#f0f0f0] overflow-hidden">
-                <ul class="list-none m-0 p-0">
-                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
-                        <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-file-alt text-brandRed text-[16px] w-5 text-center"></i> 
-                            <span class="text-[13px] font-medium text-brandTextDark">Print On Paper</span>
-                        </div>
-                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
-                    </li>
-                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
-                        <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-sticky-note text-brandRed text-[16px] w-5 text-center"></i> 
-                            <span class="text-[13px] font-medium text-brandTextDark">Print Stiker</span>
-                        </div>
-                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
-                    </li>
-                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
-                        <div class="flex items-center gap-[15px]">
-                            <i class="far fa-calendar-alt text-brandRed text-[16px] w-5 text-center"></i> 
-                            <span class="text-[13px] font-medium text-brandTextDark">Kalender</span>
-                        </div>
-                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
-                    </li>
-                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
-                        <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-scroll text-brandRed text-[16px] w-5 text-center"></i> 
-                            <span class="text-[13px] font-medium text-brandTextDark">Banner & Spanduk</span>
-                        </div>
-                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
-                    </li>
-                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
-                        <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-tshirt text-brandRed text-[16px] w-5 text-center"></i> 
-                            <span class="text-[13px] font-medium text-brandTextDark">Sablon</span>
-                        </div>
-                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
-                    </li>
-                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
-                        <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-gift text-brandRed text-[16px] w-5 text-center"></i> 
-                            <span class="text-[13px] font-medium text-brandTextDark">Sovenir</span>
-                        </div>
-                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
-                    </li>
-                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
-                        <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-envelope-open-text text-brandRed text-[16px] w-5 text-center"></i>
-                            <span class="text-[13px] font-medium text-brandTextDark">Undangan</span>
-                        </div>
-                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
-                    </li>
-                    <li class="flex justify-between items-center p-[10px_20px] border-b border-[#f0f0f0] cursor-pointer hover:bg-[#fff5f5] transition-colors">
-                        <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-info-circle text-brandRed text-[16px] w-5 text-center"></i> 
-                            <span class="text-[13px] font-medium text-brandTextDark">Papan Informasi</span>
-                        </div>
-                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
-                    </li>
-                    <li class="flex justify-between items-center p-[10px_20px] cursor-pointer hover:bg-[#fff5f5] transition-colors">
-                        <div class="flex items-center gap-[15px]">
-                            <i class="fas fa-id-card text-brandRed text-[16px] w-5 text-center"></i> 
-                            <span class="text-[13px] font-medium text-brandTextDark">Tanda Pengenal</span>
-                        </div>
-                        <i class="fa fa-chevron-right text-[11px] text-[#ccc]"></i>
-                    </li>
-                </ul>
-            </aside>
-
-            <section class="flex-1 flex flex-col justify-between self-stretch">
+            <div class="w-full bg-brandRed text-white rounded-[20px] p-6 flex items-center justify-center gap-4 shadow-[0_4px_15px_rgba(196,0,0,0.15)] mb-8">
                 <div>
+                    <h1 class="text-2xl font-bold tracking-wide leading-tight">Tentang Kami</h1>
+                </div>
+            </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-5">
-                        @foreach ($products as $p)
-                        <a href="{{ route('customer.detail-produk') }}" class="block bg-white rounded-[20px] overflow-hidden border border-[#c40000] flex flex-col relative transition-all duration-300 ease-in-out cursor-pointer hover:-translate-y-[5px] hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]">
-                            
-                            <div class="w-full aspect-square flex items-center justify-center p-[5px] bg-white">
-                                <img src="{{ asset($p['img']) }}" alt="{{ $p['title'] }}" class="w-full h-full object-contain">
-                            </div>
-                            
-                            <div class="bg-[#c40000] text-white p-[15px] rounded-[0_0_15px_15px] -mt-[1px] flex flex-col justify-between min-h-[105px] relative">
-                                <span class="text-sm font-semibold text-left w-full break-words flex-grow flex items-start mb-3">
-                                    {{ $p['title'] }}
-                                </span> 
-                                
-                                <div class="font-inder bg-white text-black p-[5px_20px] rounded-[20px] text-[13px] font-normal shadow-[0_2px_4px_rgba(0,0,0,0.1)] whitespace-nowrap inline-block leading-none shrink-0 mx-auto">
-                                    {{ $p['price'] }}
-                                </div> 
-                            </div>
-
-                        </a> @endforeach
+            <div class="w-full max-w-[850px] bg-white border border-gray-200 rounded-[30px] p-10 md:p-14 shadow-[0_4px_25px_rgba(0,0,0,0.03)] flex flex-col items-center">
+                
+                <div class="flex items-center gap-4 mb-10 w-full justify-center border-b border-gray-100 pb-6">
+                    <div class="w-14 h-14 bg-brandRed rounded-full flex items-center justify-center text-white text-2xl shadow-sm">
+                        <i class="fas fa-store"></i>
                     </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 tracking-wide text-center">
+                        Fantastic Digital Printing
+                    </h2>
                 </div>
 
-                <!-- Bagian Pagination -->
-                <div class="flex justify-center items-center gap-2 text-xs font-semibold mt-12 mb-4 text-gray-600">
-                    <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-brandBgGray transition"><i class="fa fa-chevron-left text-[10px]"></i></button>
-                    <button class="w-8 h-8 flex items-center justify-center rounded-lg bg-brandRed text-white font-bold">1</button>
-                    <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-brandBgGray transition">2</button>
-                    <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-brandBgGray transition">3</button>
-                    <span class="px-1 text-gray-400">...</span>
-                    <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-brandBgGray transition">10</button>
-                    <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-brandBgGray transition"><i class="fa fa-chevron-right text-[10px]"></i></button>
+                <div class="w-full max-w-[750px] text-center">
+                    <p class="text-gray-600 text-base md:text-lg leading-relaxed font-inder">
+                        Fantastic Digital Printing adalah penyedia layanan percetakan digital terdepan yang berkomitmen memberikan solusi cetak berkualitas tinggi, cepat, dan terjangkau untuk segala kebutuhan bisnis maupun personal Anda. Berlokasi strategis di Wanadadi, kami menggunakan teknologi mesin cetak mutakhir demi memastikan ketajaman warna dan daya tahan hasil cetak terbaik di setiap lembar karya Anda.
+                    </p>
                 </div>
-            </section>
+
+            </div>
+
         </div>
 
         <footer class="bg-[#c40000] text-white py-[25px] mt-[50px] text-[13px] [line-height:1.6] font-sans">

@@ -1,52 +1,59 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminProductController; 
 use App\Http\Controllers\AdminKategoriController;
 use App\Http\Controllers\AdminPesananController;
 use App\Http\Controllers\AdminPembayaranController;
 use App\Http\Controllers\AdminPromoController;
+use App\Http\Controllers\Customer\ProductController;
 
 // =========================================================================
 // 1. HALAMAN UTAMA & UMUM (Bisa diakses siapa saja, kapan saja)
 // =========================================================================
-Route::get('/', [CustomerController::class, 'index'])->name('customer.dashboard');
-Route::get('/jam-layanan', [CustomerController::class, 'jamLayanan'])->name('customer.jam-layanan');
 
-// *** INI KUNCINYA *** // Kita taruh rute logout di sini (bebas hambatan), supaya pas session dihancurkan, 
-// Laravel tidak kebingungan dan tidak nge-redirect paksa kamu ke halaman login.
-Route::post('/logout', [CustomerController::class, 'logout'])->name('logout');
+// Menampilkan dashboard utama customer via AuthController
+Route::get('/', [AuthController::class, 'index'])->name('customer.dashboard');
 
+// Fitur Katalog Produk & Informasi Toko
+Route::get('/customer/semua-produk', [ProductController::class, 'semuaProduk'])->name('customer.semua-produk');
+Route::get('/customer/detail-produk', [ProductController::class, 'detailProduk'])->name('customer.detail-produk');
+Route::get('/promo', [ProductController::class, 'halamanPromo'])->name('customer.promo');
+Route::get('/jam-layanan', [ProductController::class, 'jamLayanan'])->name('customer.jam-layanan');
+Route::view('/tentang', 'customer.tentang-kami')->name('customer.tentang-kami');
 
 // =========================================================================
 // 2. RUTE AUTENTIKASI (Hanya bisa diakses kalau BELUM LOGIN)
 // =========================================================================
 Route::middleware('guest')->group(function () {
-    // Form Login & Prosesnya
-    Route::get('/login', [CustomerController::class, 'showLogin'])->name('login');
-    Route::post('/login', [CustomerController::class, 'login'])->name('login.submit');
+    // Form Login & Proses Masuk
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 
-    // Form Daftar Akun & Prosesnya
-    Route::get('/register', [CustomerController::class, 'showRegister'])->name('register');
-    Route::post('/register', [CustomerController::class, 'register'])->name('register.submit');
+    // Form Daftar Akun & Proses Registrasi
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
-    // Fitur Lupa Password
-    Route::get('/forgot-password', [CustomerController::class, 'showForgotPassword'])->name('password.request');
-    Route::post('/forgot-password', [CustomerController::class, 'sendResetLink'])->name('password.email');
+    // Fitur Reset Lupa Password
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
 });
 
+// Proses Keluar Akun / Log Out
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // =========================================================================
-// 3. RUTE CUSTOMER YANG WAJIB LOGIN (Taruh di sini kalau ada nanti)
+// 3. RUTE CUSTOMER YANG WAJIB LOGIN (Akses khusus member terdaftar)
 // =========================================================================
 Route::middleware('auth')->group(function () {
-    // Contoh: Route::get('/checkout', [CustomerController::class, 'checkout']);
+    // Contoh tempat menaruh rute checkout atau riwayat transaksi nanti:
+    // Route::get('/checkout', [ProductController::class, 'checkout']);
 });
 
 
 // =========================================================================
-// 4. RUTE KHUSUS ADMIN (Wajib Login & Wajib punya role Admin)
+// 4. RUTE KHUSUS ADMIN (Wajib Login & Wajib memiliki role Admin)
 // =========================================================================
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
 
@@ -57,12 +64,13 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
 
     // --- MANAJEMEN PRODUK & KATEGORI ---
     Route::resource('produk', AdminProductController::class)->names(['index' => 'produk']);
+    
     Route::get('/kategori', [AdminKategoriController::class, 'index'])->name('kategori');
-    Route::delete('/kategori/{id}', [AdminKategoriController::class, 'destroy'])->name('kategori.destroy');
-    Route::get('/kategori/tambah', function () { return view('admin.form-kategori'); })->name('kategori.tambah');
     Route::post('/kategori/tambah', [AdminKategoriController::class, 'store'])->name('kategori.store');
+    Route::get('/kategori/tambah', function () { return view('admin.form-kategori'); })->name('kategori.tambah');
     Route::get('/kategori/{id}/edit', [AdminKategoriController::class, 'edit'])->name('kategori.edit');
     Route::put('/kategori/{id}', [AdminKategoriController::class, 'update'])->name('kategori.update');
+    Route::delete('/kategori/{id}', [AdminKategoriController::class, 'destroy'])->name('kategori.destroy');
     
     // --- MANAJEMEN PESANAN ---
     Route::get('/pesanan', [AdminPesananController::class, 'index'])->name('pesanan');
