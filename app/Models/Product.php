@@ -6,16 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    // Daftarkan semua nama kolom database kamu di properti $fillable ini:
+    protected $table = 'products'; 
+
     protected $fillable = [
-        'name',
-        'slug',
-        'kategori',
-        'price',
-        'stock',
-        'unit',
-        'description',
-        'image',
-        'status'
+        'name', 'slug', 'kategori', 'price', 'stock', 'unit', 'description', 'image', 'status'
     ];
 }

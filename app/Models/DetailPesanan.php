@@ -16,4 +16,9 @@ class DetailPesanan extends Model
         'jumlah',
         'keterangan'
     ];
+
+    public function pesanan()
+    {
+        return $this->belongsTo(Pesanan::class, 'pesanan_id');
+    }
 }

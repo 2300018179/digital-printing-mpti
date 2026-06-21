@@ -8,6 +8,7 @@ use App\Http\Controllers\AdminPesananController;
 use App\Http\Controllers\AdminPembayaranController;
 use App\Http\Controllers\AdminPromoController;
 use App\Http\Controllers\AdminPelangganController;
+use App\Http\Controllers\AdminLaporanController;
 use App\Http\Controllers\Customer\ProductController;
 
 
@@ -97,6 +98,6 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::get('/admin/pelanggan/detail/{id}', [AdminPelangganController::class, 'show'])->name('pelanggan.detail');
 
     // --- LAPORAN & PENGATURAN ---
-    Route::get('/laporan', function () { return view('admin.laporan'); })->name('laporan');
+    Route::get('/admin/laporan', [AdminLaporanController::class, 'index'])->name('laporan');
     Route::get('/pengaturan', function () { return view('admin.pengaturan'); })->name('pengaturan');
 });
