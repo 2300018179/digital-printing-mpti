@@ -72,21 +72,20 @@
                 </a>
             </div>
 
-            <div class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between text-xs">
+            <form action="{{ route('admin.promo') }}" method="GET" class="flex gap-4">
                 <div class="w-full sm:w-72 relative">
-                    <input type="text" id="inputCari" onkeyup="jalankanFilter()" placeholder="Cari nama atau kode promo..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500 font-normal">
-                    <span class="absolute left-3.5 top-3 text-gray-400">🔍</span>
+                    <input type="text" name="cari" value="{{ request('cari') }}" placeholder="Cari nama atau kode..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none">
+                    <span class="absolute left-3.5 top-3">🔍</span>
                 </div>
                 
-                <div class="w-full sm:w-auto flex items-center gap-2 justify-end">
-                    <span class="text-gray-500 font-medium">Status:</span>
-                    <select id="filterStatus" onchange="jalankanFilter()" class="border border-gray-200 p-2.5 rounded-xl focus:outline-none focus:border-red-500 bg-white font-semibold text-gray-700 cursor-pointer">
-                        <option value="Semua">Semua Status</option>
-                        <option value="Aktif">Aktif</option>
-                        <option value="Nonaktif">Nonaktif</option>
+                <div class="w-full sm:w-auto">
+                    <select name="status" onchange="this.form.submit()" class="border border-gray-200 p-2.5 rounded-xl bg-white font-semibold">
+                        <option value="Semua" {{ request('status') == 'Semua' ? 'selected' : '' }}>Semua Status</option>
+                        <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="Nonaktif" {{ request('status') == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                     </select>
                 </div>
-            </div>
+            </form>
 
             <div class="bg-white border border-red-400 rounded-2xl shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
@@ -102,114 +101,36 @@
                                 <th class="p-4 text-center w-28">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="bodyTabelPromo" class="divide-y divide-gray-100 text-xs">
-                            <tr class="hover:bg-gray-50/50 transition baris-promo">
-                                <td class="p-4 text-center text-gray-400 font-medium angka-no">1</td>
-                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Diskon 10%</td>
-                                <td class="p-4 font-mono font-bold text-red-700 bg-red-50/50 px-2 py-1 rounded inline-block mt-2 kolom-kode">ALLPROD10</td>
-                                <td class="p-4 font-medium text-gray-700">10%</td>
-                                <td class="p-4 text-gray-500 font-medium">01 Mei 2026 - 31 Mei 2026</td>
+                        <tbody class="divide-y divide-gray-100 text-xs">
+                            @foreach($promos as $index => $promo)
+                            <tr class="hover:bg-gray-50/50 transition">
+                                <td class="p-4 text-center">{{ $promos->firstItem() + $index }}</td>
+                                <td class="p-4 font-semibold">{{ $promo->nama }}</td>
+                                <td class="p-4 font-mono font-bold text-red-700">{{ $promo->kode }}</td>
+                                <td class="p-4">{{ $promo->diskon }}%</td>
+                                <td class="p-4">{{ $promo->tanggal_mulai }} - {{ $promo->tanggal_selesai }}</td>
                                 <td class="p-4 text-center">
-                                    <span class="px-3 py-1 bg-green-50 border border-green-200 text-green-600 rounded-full text-[10px] font-bold kolom-status">Aktif</span>
+                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold {{ $promo->status == 'Aktif' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500' }}">
+                                        {{ $promo->status }}
+                                    </span>
                                 </td>
                                 <td class="p-4 text-center">
-                                    <div class="flex justify-center gap-1.5">
-                                        <a href="{{ route('admin.promo.tambah', ['id' => 1]) }}" class="p-1.5 border border-gray-300 hover:border-blue-600 hover:text-blue-600 bg-white rounded-lg transition shadow-sm text-center flex items-center justify-center" title="Edit">📝</a>
-                                        <button onclick="hapusPromo(this, 'Diskon 10%')" class="p-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white rounded-lg transition shadow-sm" title="Hapus">🗑️</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-gray-50/50 transition baris-promo">
-                                <td class="p-4 text-center text-gray-400 font-medium angka-no">2</td>
-                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Gratis Ongkir</td>
-                                <td class="p-4 font-mono font-bold text-red-700 bg-red-50/50 px-2 py-1 rounded inline-block mt-2 kolom-kode">ONGKIRGRATIS</td>
-                                <td class="p-4 font-medium text-gray-700">-</td>
-                                <td class="p-4 text-gray-500 font-medium">01 Mei 2026 - 31 Mei 2026</td>
-                                <td class="p-4 text-center">
-                                    <span class="px-3 py-1 bg-green-50 border border-green-200 text-green-600 rounded-full text-[10px] font-bold kolom-status">Aktif</span>
-                                </td>
-                                <td class="p-4 text-center">
-                                    <div class="flex justify-center gap-1.5">
-                                        <a href="{{ route('admin.promo.tambah', ['id' => 2]) }}" class="p-1.5 border border-gray-300 hover:border-blue-600 hover:text-blue-600 bg-white rounded-lg transition shadow-sm text-center flex items-center justify-center" title="Edit">📝</a>
-                                        <button onclick="hapusPromo(this, 'Gratis Ongkir')" class="p-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white rounded-lg transition shadow-sm" title="Hapus">🗑️</button>
-                                    </div>
+                                    <form action="{{ route('admin.promo.destroy', $promo->id) }}" method="POST" onsubmit="return confirm('Yakin hapus?')">
+                                        @csrf @method('DELETE')
+                                        <a href="{{ route('admin.promo.edit', $promo->id) }}" class="p-1.5 border">📝</a>
+                                        <button type="submit" class="p-1.5 border">🗑️</button>
+                                    </form>
                                 </td>
                             </tr>
-                            <tr class="hover:bg-gray-50/50 transition baris-promo">
-                                <td class="p-4 text-center text-gray-400 font-medium angka-no">3</td>
-                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Cashback 5%</td>
-                                <td class="p-4 font-mono font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded inline-block mt-2 kolom-kode">CASHBACK5</td>
-                                <td class="p-4 font-medium text-gray-700">5%</td>
-                                <td class="p-4 text-gray-500 font-medium">01 Juni 2026 - 30 Juni 2026</td>
-                                <td class="p-4 text-center">
-                                    <span class="px-3 py-1 bg-gray-100 border border-gray-200 text-gray-500 rounded-full text-[10px] font-bold kolom-status">Nonaktif</span>
-                                </td>
-                                <td class="p-4 text-center">
-                                    <div class="flex justify-center gap-1.5">
-                                        <a href="{{ route('admin.promo.tambah', ['id' => 3]) }}" class="p-1.5 border border-gray-300 hover:border-blue-600 hover:text-blue-600 bg-white rounded-lg transition shadow-sm text-center flex items-center justify-center" title="Edit">📝</a>
-                                        <button onclick="hapusPromo(this, 'Cashback 5%')" class="p-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white rounded-lg transition shadow-sm" title="Hapus">🗑️</button>
-                                    </div>
-                                </td>
-                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
+                    <div class="mt-4 p-4">
+                        {{ $promos->links() }}
+                    </div>
                 </div>
-            </div>
-
-            <div class="flex items-center justify-center gap-1.5 text-xs pt-2">
-                <button class="w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded flex items-center justify-center transition shadow-sm font-bold">‹</button>
-                <button class="w-7 h-7 bg-red-700 text-white rounded flex items-center justify-center shadow-sm font-bold">1</button>
-                <button class="w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded flex items-center justify-center transition">2</button>
-                <button class="w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded flex items-center justify-center transition">3</button>
-                <span class="text-gray-400 px-1">...</span>
-                <button class="w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded flex items-center justify-center transition">10</button>
-                <button class="w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded flex items-center justify-center transition shadow-sm font-bold">›</button>
             </div>
         </main>
     </div>
-
-    <script>
-        // 1. FUNGSI FILTER PENCARIAN & STATUS
-        function jalankanFilter() {
-            let inputCari = document.getElementById("inputCari").value.toLowerCase();
-            let filterStatus = document.getElementById("filterStatus").value;
-            let barisPromo = document.getElementsByClassName("baris-promo");
-
-            for (let i = 0; i < barisPromo.length; i++) {
-                let namaPromo = barisPromo[i].getElementsByClassName("kolom-nama")[0].textContent.toLowerCase();
-                let kodePromo = barisPromo[i].getElementsByClassName("kolom-kode")[0].textContent.toLowerCase();
-                let statusPromo = barisPromo[i].getElementsByClassName("kolom-status")[0].textContent.trim();
-
-                let cocokKeyword = namaPromo.includes(inputCari) || kodePromo.includes(inputCari);
-                let cocokStatus = filterStatus === "Semua" || statusPromo === filterStatus;
-
-                if (cocokKeyword && cocokStatus) {
-                    barisPromo[i].style.display = "";
-                } else {
-                    barisPromo[i].style.display = "none";
-                }
-            }
-        }
-
-        // 2. FUNGSI BARU: HAPUS BARIS TABEL PROMO & UPDATE NOMOR OTOMATIS
-        function hapusPromo(button, namaPromo) {
-            // Memunculkan dialog konfirmasi terlebih dahulu
-            let konfirmasi = confirm("Apakah Anda yakin ingin menghapus promo '" + namaPromo + "'?");
-            
-            if (konfirmasi) {
-                // Mencari baris <tr> terdekat dari tombol yang diklik lalu menghapusnya
-                let baris = button.closest('.baris-promo');
-                baris.remove();
-                
-                // Menyusun kembali urutan nomor (No) pada kolom pertama agar tetap berurutan (1, 2, 3...)
-                let sisaBaris = document.getElementsByClassName("angka-no");
-                for (let i = 0; i < sisaBaris.length; i++) {
-                    sisaBaris[i].textContent = i + 1;
-                }
-
-                alert("Promo '" + namaPromo + "' berhasil dihapus!");
-            }
-        }
-    </script>
 </body>
 </html>

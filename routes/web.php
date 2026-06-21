@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminKategoriController;
 use App\Http\Controllers\AdminPesananController;
 use App\Http\Controllers\AdminPembayaranController;
+use App\Http\Controllers\AdminPromoController;
 
 // =========================================================================
 // 1. HALAMAN UTAMA & UMUM (Bisa diakses siapa saja, kapan saja)
@@ -73,8 +74,12 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::put('/pembayaran/update/{id}', [AdminPembayaranController::class, 'updateStatus'])->name('pembayaran.update');
 
     // --- MANAJEMEN PROMO ---
-    Route::get('/promo', function () { return view('admin.promo'); })->name('promo');
-    Route::get('/promo/tambah', function () { return view('admin.tambah-promo'); })->name('promo.tambah');
+    Route::get('/admin/promo', [AdminPromoController::class, 'index'])->name('promo');
+    Route::get('/admin/promo/tambah', function () { return view('admin.tambah-promo'); })->name('promo.tambah');
+    Route::post('/admin/promo/store', [AdminPromoController::class, 'store'])->name('promo.store');
+    Route::get('/promo/{id}/edit', [AdminPromoController::class, 'edit'])->name('promo.edit');
+    Route::put('/promo/{id}', [AdminPromoController::class, 'update'])->name('promo.update');
+    Route::delete('/admin/promo/{id}', [AdminPromoController::class, 'destroy'])->name('promo.destroy');
 
     // --- MANAJEMEN PELANGGAN ---
     Route::get('/pelanggan', function () { return view('admin.pelanggan'); })->name('pelanggan');
