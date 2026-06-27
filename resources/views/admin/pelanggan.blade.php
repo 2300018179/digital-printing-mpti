@@ -95,67 +95,20 @@
                                 <th class="p-4 text-center w-24">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="bodyTabelPelanggan" class="divide-y divide-gray-100 text-xs text-gray-700 font-medium">
-                            <tr class="hover:bg-gray-50/50 transition baris-pelanggan">
-                                <td class="p-4 text-center text-gray-400 font-normal">1</td>
-                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Budi Santoso</td>
-                                <td class="p-4 text-gray-500 kolom-email">budi@email.com</td>
-                                <td class="p-4 font-mono text-gray-600 kolom-telp">081234567890</td>
-                                <td class="p-4 text-center font-bold text-gray-800">12</td>
-                                <td class="p-4 text-center">
-                                    <button onclick="window.location.href='{{ route('admin.pelanggan.detail', ['id' => 1]) }}'" class="px-4 py-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white text-gray-600 rounded-lg text-[11px] font-bold shadow-sm transition">
+                        <tbody class="divide-y divide-gray-100 text-xs">
+                            @foreach($pelanggan as $index => $user)
+                            <tr class="hover:bg-gray-50/50 transition">
+                                <td class="p-4 text-center">{{ $pelanggan->firstItem() + $index }}</td>
+                                <td class="p-4 font-semibold">{{ $user->name }}</td>
+                                <td class="p-4">{{ $user->email }}</td>
+                                <td class="p-4">{{ $user->phone ?? '-' }}</td>
+                                <td class="p-4 font-bold text-center">{{ $user->orders_count }}</td> <td class="p-4 text-center">
+                                    <a href="{{ route('admin.pelanggan.show', $user->id) }}" class="px-4 py-2 border rounded-lg hover:bg-gray-100">
                                         Detail
-                                    </button>
+                                    </a>
                                 </td>
                             </tr>
-                            <tr class="hover:bg-gray-50/50 transition baris-pelanggan">
-                                <td class="p-4 text-center text-gray-400 font-normal">2</td>
-                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Siti Aisyah</td>
-                                <td class="p-4 text-gray-500 kolom-email">siti@email.com</td>
-                                <td class="p-4 font-mono text-gray-600 kolom-telp">081298765432</td>
-                                <td class="p-4 text-center font-bold text-gray-800">8</td>
-                                <td class="p-4 text-center">
-                                    <button onclick="window.location.href='{{ route('admin.pelanggan.detail', ['id' => 2]) }}'" class="px-4 py-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white text-gray-600 rounded-lg text-[11px] font-bold shadow-sm transition">
-                                        Detail
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-gray-50/50 transition baris-pelanggan">
-                                <td class="p-4 text-center text-gray-400 font-normal">3</td>
-                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Andi Wijaya</td>
-                                <td class="p-4 text-gray-500 kolom-email">andi@email.com</td>
-                                <td class="p-4 font-mono text-gray-600 kolom-telp">081278945612</td>
-                                <td class="p-4 text-center font-bold text-gray-800">5</td>
-                                <td class="p-4 text-center">
-                                    <button onclick="window.location.href='{{ route('admin.pelanggan.detail', ['id' => 3]) }}'" class="px-4 py-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white text-gray-600 rounded-lg text-[11px] font-bold shadow-sm transition">
-                                        Detail
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-gray-50/50 transition baris-pelanggan">
-                                <td class="p-4 text-center text-gray-400 font-normal">4</td>
-                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Dinda Amelia</td>
-                                <td class="p-4 text-gray-500 kolom-email">dinda@email.com</td>
-                                <td class="p-4 font-mono text-gray-600 kolom-telp">081212345678</td>
-                                <td class="p-4 text-center font-bold text-gray-800">7</td>
-                                <td class="p-4 text-center">
-                                    <button onclick="window.location.href='{{ route('admin.pelanggan.detail', ['id' => 4]) }}'" class="px-4 py-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white text-gray-600 rounded-lg text-[11px] font-bold shadow-sm transition">
-                                        Detail
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-gray-50/50 transition baris-pelanggan">
-                                <td class="p-4 text-center text-gray-400 font-normal">5</td>
-                                <td class="p-4 font-semibold text-gray-800 kolom-nama">Rian Pratama</td>
-                                <td class="p-4 text-gray-500 kolom-email">rian@email.com</td>
-                                <td class="p-4 font-mono text-gray-600 kolom-telp">081244556677</td>
-                                <td class="p-4 text-center font-bold text-gray-800">3</td>
-                                <td class="p-4 text-center">
-                                    <button onclick="window.location.href='{{ route('admin.pelanggan.detail', ['id' => 5]) }}'" class="px-4 py-1.5 border border-gray-300 hover:border-red-600 hover:text-red-600 bg-white text-gray-600 rounded-lg text-[11px] font-bold shadow-sm transition">
-                                        Detail
-                                    </button>
-                                </td>
-                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -172,28 +125,5 @@
             </div>
         </main>
     </div>
-
-    <script>
-        function cariPelanggan() {
-            // Ambil text input kunci pencarian
-            let input = document.getElementById("inputCariPelanggan").value.toLowerCase();
-            // Ambil semua elemen baris data tabel pelanggan
-            let barisPelanggan = document.getElementsByClassName("baris-pelanggan");
-
-            for (let i = 0; i < barisPelanggan.length; i++) {
-                // Ambil text content dari kolom nama, email, dan telepon
-                let nama = barisPelanggan[i].getElementsByClassName("kolom-nama")[0].textContent.toLowerCase();
-                let email = barisPelanggan[i].getElementsByClassName("kolom-email")[0].textContent.toLowerCase();
-                let telp = barisPelanggan[i].getElementsByClassName("kolom-telp")[0].textContent.toLowerCase();
-
-                // Cek jika kata kunci cocok dengan salah satu kolom data
-                if (nama.includes(input) || email.includes(input) || telp.includes(input)) {
-                    barisPelanggan[i].style.display = ""; // Tampilkan baris
-                } else {
-                    barisPelanggan[i].style.display = "none"; // Sembunyikan baris
-                }
-            }
-        }
-    </script>
 </body>
 </html>

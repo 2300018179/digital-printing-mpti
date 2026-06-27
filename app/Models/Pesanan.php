@@ -3,23 +3,33 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\DetailPesanan;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Pesanan extends Model
 {
-    public function items() {
-    return $this->hasMany(\App\Models\DetailPesanan::class, 'pesanan_id');
-    }
+    // Pastikan tabel sesuai dengan nama di database Anda
+    protected $table = 'pesanan'; 
 
     protected $fillable = [
+        'user_id',          // Penting untuk relasi ke User
         'order_id', 
         'nama_pelanggan', 
         'tanggal_pesanan', 
         'status', 
         'bukti_transfer',
         'total',
-        // tambahkan kolom lainnya di sini
     ];
 
-    protected $guarded = []; // Agar semua kolom bisa diisi
+    // Relasi ke detail item pesanan
+    public function items(): HasMany 
+    {
+        return $this->hasMany(DetailPesanan::class, 'pesanan_id');
+    }
+
+    // Relasi ke User (Pelanggan)
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

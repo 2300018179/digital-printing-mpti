@@ -6,7 +6,11 @@ use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminKategoriController;
 use App\Http\Controllers\AdminPesananController;
 use App\Http\Controllers\AdminPembayaranController;
+use App\Http\Controllers\AdminPromoController;
+use App\Http\Controllers\AdminPelangganController;
+use App\Http\Controllers\AdminLaporanController;
 use App\Http\Controllers\Customer\ProductController;
+
 
 // =========================================================================
 // 1. HALAMAN UTAMA & UMUM (Bisa diakses siapa saja, kapan saja)
@@ -81,14 +85,19 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::put('/pembayaran/update/{id}', [AdminPembayaranController::class, 'updateStatus'])->name('pembayaran.update');
 
     // --- MANAJEMEN PROMO ---
-    Route::get('/promo', function () { return view('admin.promo'); })->name('promo');
-    Route::get('/promo/tambah', function () { return view('admin.tambah-promo'); })->name('promo.tambah');
+    Route::get('/admin/promo', [AdminPromoController::class, 'index'])->name('promo');
+    Route::get('/admin/promo/tambah', function () { return view('admin.tambah-promo'); })->name('promo.tambah');
+    Route::post('/admin/promo/store', [AdminPromoController::class, 'store'])->name('promo.store');
+    Route::get('/promo/{id}/edit', [AdminPromoController::class, 'edit'])->name('promo.edit');
+    Route::put('/promo/{id}', [AdminPromoController::class, 'update'])->name('promo.update');
+    Route::delete('/admin/promo/{id}', [AdminPromoController::class, 'destroy'])->name('promo.destroy');
 
     // --- MANAJEMEN PELANGGAN ---
-    Route::get('/pelanggan', function () { return view('admin.pelanggan'); })->name('pelanggan');
-    Route::get('/pelanggan/detail/{id}', function ($id) { return view('admin.pelanggan-detail'); })->name('pelanggan.detail');
+    Route::get('/admin/pelanggan', [AdminPelangganController::class, 'index'])->name('pelanggan');
+    Route::get('/admin/pelanggan/{id}', [AdminPelangganController::class, 'show'])->name('pelanggan.show');
+    Route::get('/admin/pelanggan/detail/{id}', [AdminPelangganController::class, 'show'])->name('pelanggan.detail');
 
     // --- LAPORAN & PENGATURAN ---
-    Route::get('/laporan', function () { return view('admin.laporan'); })->name('laporan');
+    Route::get('/admin/laporan', [AdminLaporanController::class, 'index'])->name('laporan');
     Route::get('/pengaturan', function () { return view('admin.pengaturan'); })->name('pengaturan');
 });

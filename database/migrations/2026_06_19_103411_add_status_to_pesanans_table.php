@@ -8,12 +8,12 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('pesanans', function (Blueprint $table) {
+        Schema::table('pesanan', function (Blueprint $table) {
             // Tambahkan pengecekan if (!Schema::hasColumn(...))
-            if (!Schema::hasColumn('pesanans', 'status')) {
+            if (!Schema::hasColumn('pesanan', 'status')) {
                 $table->string('status')->default('Menunggu')->after('total');
             }
-            if (!Schema::hasColumn('pesanans', 'bukti_transfer')) {
+            if (!Schema::hasColumn('pesanan', 'bukti_transfer')) {
                 $table->string('bukti_transfer')->nullable()->after('status');
             }
         });

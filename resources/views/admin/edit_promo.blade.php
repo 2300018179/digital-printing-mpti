@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Promo - Fantastic Digital Printing</title>
+    <title>Edit Promo - Fantastic Digital Printing</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Poppins', sans-serif; }</style>
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen">
 
@@ -23,7 +21,6 @@
             </div>
         </div>
     </header>
-
     <div class="flex flex-1">
         <aside class="w-64 bg-red-700 text-white flex flex-col justify-between min-h-[calc(100vh-57px)] sticky top-[57px]">
             <div class="py-4">
@@ -65,67 +62,56 @@
         </aside>
 
         <main class="flex-1 p-8 space-y-6">
-            <div>
-                <h2 class="text-xl font-bold text-gray-800 tracking-wide">Tambah Promo Baru</h2>
-                <p class="text-[11px] text-gray-400 mt-1">Dashboard &nbsp;/&nbsp; Data Promo &nbsp;/&nbsp; Tambah Promo</p>
-            </div>
 
-            <div class="bg-white border border-red-400 rounded-2xl shadow-sm p-6 max-w-4xl">
-                <form action="{{ route('admin.promo.store') }}" method="POST">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-xl font-bold text-gray-800 mb-6">Edit Promo: {{ $promo->nama }}</h2>
+
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+                <form action="{{ route('admin.promo.update', $promo->id) }}" method="POST">
                     @csrf
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs font-medium text-gray-700">
+                    @method('PUT') <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs font-medium text-gray-700">
                         
                         <div class="md:col-span-2 flex flex-col gap-2">
-                            <label for="nama" class="font-semibold text-gray-800">Nama Promo</label>
-                            <input type="text" name="nama" id="nama" required class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500">
+                            <label class="font-semibold">Nama Promo</label>
+                            <input type="text" name="nama" value="{{ old('nama', $promo->nama) }}" required class="w-full p-3 border border-gray-200 rounded-xl">
                         </div>
 
                         <div class="flex flex-col gap-2">
-                            <label for="kode" class="font-semibold text-gray-800">Kode Promo</label>
-                            <input type="text" name="kode" id="kode" required class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500 uppercase">
+                            <label class="font-semibold">Kode Promo</label>
+                            <input type="text" name="kode" value="{{ old('kode', $promo->kode) }}" required class="w-full p-3 border border-gray-200 rounded-xl uppercase">
                         </div>
 
                         <div class="flex flex-col gap-2">
-                            <label for="diskon" class="font-semibold text-gray-800">Besar Diskon (%)</label>
-                            <input type="number" name="diskon" id="diskon" required class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500">
+                            <label class="font-semibold">Besar Diskon (%)</label>
+                            <input type="number" name="diskon" value="{{ old('diskon', $promo->diskon) }}" required class="w-full p-3 border border-gray-200 rounded-xl">
                         </div>
 
                         <div class="flex flex-col gap-2">
-                            <label for="tanggal_mulai" class="font-semibold text-gray-800">Tanggal Mulai</label>
-                            <input type="date" name="tanggal_mulai" id="tanggal_mulai" required class="w-full p-3 border border-gray-200 rounded-xl">
+                            <label class="font-semibold">Tanggal Mulai</label>
+                            <input type="date" name="tanggal_mulai" value="{{ $promo->tanggal_mulai }}" required class="w-full p-3 border border-gray-200 rounded-xl">
                         </div>
 
                         <div class="flex flex-col gap-2">
-                            <label for="tanggal_selesai" class="font-semibold text-gray-800">Tanggal Berakhir</label>
-                            <input type="date" name="tanggal_selesai" id="tanggal_selesai" required class="w-full p-3 border border-gray-200 rounded-xl">
+                            <label class="font-semibold">Tanggal Berakhir</label>
+                            <input type="date" name="tanggal_selesai" value="{{ $promo->tanggal_selesai }}" required class="w-full p-3 border border-gray-200 rounded-xl">
                         </div>
 
                         <div class="md:col-span-2 flex flex-col gap-2">
-                            <label class="font-semibold text-gray-800">Status Promo</label>
+                            <label class="font-semibold">Status Promo</label>
                             <select name="status" class="w-full p-3 border border-gray-200 rounded-xl">
-                                <option value="Aktif">Aktif</option>
-                                <option value="Nonaktif">Nonaktif</option>
+                                <option value="Aktif" {{ $promo->status == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="Nonaktif" {{ $promo->status == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="flex justify-end gap-2 border-t border-gray-100 mt-6 pt-4">
-                        <a href="{{ route('admin.promo') }}" class="px-5 py-2.5 border border-gray-300 text-gray-600 rounded-full hover:bg-gray-100 transition">Batal</a>
-                        <button type="submit" class="px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white rounded-full shadow-sm transition">
-                            Simpan Promo
-                        </button>
+                    <div class="flex justify-end gap-2 mt-6 pt-4 border-t">
+                        <a href="{{ route('admin.promo') }}" class="px-5 py-2.5 border border-gray-300 rounded-full hover:bg-gray-100">Batal</a>
+                        <button type="submit" class="px-6 py-2.5 bg-red-700 text-white rounded-full hover:bg-red-800">Simpan Perubahan</button>
                     </div>
                 </form>
             </div>
-        </main>
-    </div>
-
-    <div id="toast" class="fixed top-5 right-[-400px] bg-gray-900 text-white px-5 py-4 rounded-xl shadow-lg flex items-center gap-3 transition-all duration-300 z-50 text-xs">
-        <span class="text-green-400 text-base">✔</span>
-        <div>
-            <strong class="block text-white mb-0.5">Berhasil!</strong>
-            <span id="toast-text" class="text-gray-300">Data promo divalidasi oleh sistem view.</span>
         </div>
-    </div>
+        </main>    
 </body>
 </html>
