@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminProductController; 
 use App\Http\Controllers\AdminKategoriController;
 use App\Http\Controllers\AdminPesananController;
@@ -62,9 +63,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
 
     // --- DASHBOARD ADMIN ---
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // --- MANAJEMEN PRODUK & KATEGORI ---
     Route::resource('produk', AdminProductController::class)->names(['index' => 'produk']);

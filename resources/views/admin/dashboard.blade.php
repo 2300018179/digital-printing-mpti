@@ -79,20 +79,17 @@
                 <!-- Total Pesanan -->
                 <div class="bg-white p-6 border border-red-500 rounded-2xl shadow-sm">
                     <p class="text-[11px] font-bold text-gray-500 uppercase">Total Pesanan</p>
-                    <h3 class="text-4xl font-bold text-gray-800 mt-2">152</h3>
-                    <p class="text-[10px] text-green-600 font-semibold mt-1">▲ +12% dari bulan lalu</p>
+                    <h3 class="text-4xl font-bold text-gray-800 mt-2">{{ $totalOrder }}</h3>
                 </div>
                 <!-- Produk -->
                 <div class="bg-white p-6 border border-red-500 rounded-2xl shadow-sm">
                     <p class="text-[11px] font-bold text-gray-500 uppercase">Produk</p>
-                    <h3 class="text-4xl font-bold text-gray-800 mt-2">120</h3>
-                    <p class="text-[10px] text-gray-500 font-medium mt-1">Total Ragam Produk</p>
+                    <h3 class="text-4xl font-bold text-gray-800 mt-2">{{ $totalProduk }}</h3>
                 </div>
                 <!-- Pelanggan -->
                 <div class="bg-white p-6 border border-red-500 rounded-2xl shadow-sm">
                     <p class="text-[11px] font-bold text-gray-500 uppercase">Pelanggan</p>
-                    <h3 class="text-4xl font-bold text-gray-800 mt-2">342</h3>
-                    <p class="text-[10px] text-gray-500 font-medium mt-1">Total Pelanggan Terdaftar</p>
+                    <h3 class="text-4xl font-bold text-gray-800 mt-2">{{ $totalPelanggan }}</h3>
                 </div>
             </div>
 
@@ -107,70 +104,41 @@
                                 <th class="p-2.5">No</th>
                                 <th class="p-2.5">Order ID</th>
                                 <th class="p-2.5">Pelanggan</th>
-                                <th class="p-2.5">Tanggal</th>
                                 <th class="p-2.5">Total</th>
                                 <th class="p-2.5 text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 font-medium text-gray-600">
+                            @foreach($latestOrders as $index => $order)
                             <tr>
-                                <td class="p-2.5">1</td>
-                                <td class="p-2.5 font-semibold text-gray-800">#ORD-000152</td>
-                                <td class="p-2.5">Budi Santoso</td>
-                                <td class="p-2.5">20 Mei 2026</td>
-                                <td class="p-2.5 text-gray-800">Rp 350.000</td>
-                                <td class="p-2.5 text-center"><span class="bg-blue-100 text-blue-700 text-[10px] px-2.5 py-0.5 rounded-full font-bold">Menunggu</span></td>
+                                <td class="p-2.5">{{ $index + 1 }}</td>
+                                <td class="p-2.5 font-semibold text-gray-800">{{ $order->order_id }}</td>
+                                <td class="p-2.5">{{ $order->customer_name }}</td>
+                                <td class="p-2.5 text-gray-800">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
+                                <td class="p-2.5 text-center">
+                                    <span class="bg-blue-100 text-blue-700 text-[10px] px-2.5 py-0.5 rounded-full font-bold">
+                                        {{ ucfirst($order->status) }}
+                                    </span>
+                                </td>
                             </tr>
-                            <tr>
-                                <td class="p-2.5">2</td>
-                                <td class="p-2.5 font-semibold text-gray-800">#ORD-000151</td>
-                                <td class="p-2.5">Siti Atiyah</td>
-                                <td class="p-2.5">20 Mei 2026</td>
-                                <td class="p-2.5 text-gray-800">Rp 240.000</td>
-                                <td class="p-2.5 text-center"><span class="bg-yellow-100 text-yellow-700 text-[10px] px-2.5 py-0.5 rounded-full font-bold">Diproses</span></td>
-                            </tr>
-                            <tr>
-                                <td class="p-2.5">3</td>
-                                <td class="p-2.5 font-semibold text-gray-800">#ORD-000150</td>
-                                <td class="p-2.5">Andi Wijaya</td>
-                                <td class="p-2.5">18 Mei 2026</td>
-                                <td class="p-2.5 text-gray-800">Rp 125.000</td>
-                                <td class="p-2.5 text-center"><span class="bg-purple-100 text-purple-700 text-[10px] px-2.5 py-0.5 rounded-full font-bold">Dicetak</span></td>
-                            </tr>
-                            <tr>
-                                <td class="p-2.5">4</td>
-                                <td class="p-2.5 font-semibold text-gray-800">#ORD-000149</td>
-                                <td class="p-2.5">Dinda Amelia</td>
-                                <td class="p-2.5">15 Mei 2026</td>
-                                <td class="p-2.5 text-gray-800">Rp 670.000</td>
-                                <td class="p-2.5 text-center"><span class="bg-orange-100 text-orange-700 text-[10px] px-2.5 py-0.5 rounded-full font-bold">Dikirim</span></td>
-                            </tr>
-                            <tr>
-                                <td class="p-2.5">5</td>
-                                <td class="p-2.5 font-semibold text-gray-800">#ORD-000148</td>
-                                <td class="p-2.5">Rian Pratama</td>
-                                <td class="p-2.5">10 Mei 2026</td>
-                                <td class="p-2.5 text-gray-800">Rp 320.000</td>
-                                <td class="p-2.5 text-center"><span class="bg-green-100 text-green-700 text-[10px] px-2.5 py-0.5 rounded-full font-bold">Selesai</span></td>
-                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
+                    <div class="mt-4">
+                        {{ $latestOrders->links() }}
+                    </div>
                 </div>
 
                 <!-- Kanan: Status Pesanan (Donut Data Lingkaran) -->
                 <div class="bg-white p-5 border border-red-500 rounded-2xl shadow-sm">
                     <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-4">Status Pesanan</h4>
-                    <div class="flex flex-col items-center justify-center space-y-4">
-                        <div class="relative w-28 h-28 flex items-center justify-center rounded-full border-[12px] border-gray-100 border-t-red-600 border-r-yellow-500 border-l-blue-500">
-                            <span class="absolute text-center text-xs font-bold text-gray-800">152<br><span class="text-[8px] text-gray-400 uppercase font-normal">Total</span></span>
+                    <div class="w-full text-[11px] font-medium text-gray-600 space-y-1.5">
+                        @foreach($statusCounts as $label => $count)
+                        <div class="flex justify-between items-center">
+                            <p class="capitalize">{{ $label }}</p> 
+                            <span class="font-bold text-gray-800">{{ $count }}</span>
                         </div>
-                        <div class="w-full text-[11px] font-medium text-gray-600 space-y-1.5">
-                            <div class="flex justify-between items-center"><p class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-blue-500 rounded-full block"></span> Menunggu</p> <span class="font-bold text-gray-800">23</span></div>
-                            <div class="flex justify-between items-center"><p class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-yellow-500 rounded-full block"></span> Diproses</p> <span class="font-bold text-gray-800">45</span></div>
-                            <div class="flex justify-between items-center"><p class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-purple-500 rounded-full block"></span> Dicetak</p> <span class="font-bold text-gray-800">32</span></div>
-                            <div class="flex justify-between items-center"><p class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-orange-500 rounded-full block"></span> Dikirim</p> <span class="font-bold text-gray-800">28</span></div>
-                            <div class="flex justify-between items-center"><p class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-red-600 rounded-full block"></span> Selesai</p> <span class="font-bold text-gray-800">24</span></div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -179,56 +147,17 @@
             <div class="bg-white p-5 border border-red-500 rounded-2xl shadow-sm w-full">
                 <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-4">Produk Terlaris</h4>
                 <div class="grid grid-cols-1 sm:grid-cols-5 gap-6">
-                    <!-- Item 1 -->
+                    @foreach($produkTerlaris as $produk)
                     <div class="text-xs">
                         <div class="flex justify-between font-semibold text-gray-700 mb-1">
-                            <span>1. Kartu Nama</span>
-                            <span class="text-red-600">85%</span>
+                            <span>{{ $loop->iteration }}. {{ $produk->name }}</span>
+                            <span class="text-red-600">{{ $produk->total_sold }} Terjual</span>
                         </div>
                         <div class="w-full bg-gray-100 h-2 rounded-full">
-                            <div class="bg-red-600 h-2 rounded-full" style="width: 85%"></div>
+                            <div class="bg-red-600 h-2 rounded-full" style="width: {{ ($produk->total_sold / 100) * 100 }}%"></div>
                         </div>
                     </div>
-                    <!-- Item 2 -->
-                    <div class="text-xs">
-                        <div class="flex justify-between font-semibold text-gray-700 mb-1">
-                            <span>2. Brosur A4</span>
-                            <span class="text-red-600">70%</span>
-                        </div>
-                        <div class="w-full bg-gray-100 h-2 rounded-full">
-                            <div class="bg-red-600 h-2 rounded-full" style="width: 70%"></div>
-                        </div>
-                    </div>
-                    <!-- Item 3 -->
-                    <div class="text-xs">
-                        <div class="flex justify-between font-semibold text-gray-700 mb-1">
-                            <span>3. Banner</span>
-                            <span class="text-red-600">60%</span>
-                        </div>
-                        <div class="w-full bg-gray-100 h-2 rounded-full">
-                            <div class="bg-red-600 h-2 rounded-full" style="width: 60%"></div>
-                        </div>
-                    </div>
-                    <!-- Item 4 -->
-                    <div class="text-xs">
-                        <div class="flex justify-between font-semibold text-gray-700 mb-1">
-                            <span>4. Stiker</span>
-                            <span class="text-red-600">45%</span>
-                        </div>
-                        <div class="w-full bg-gray-100 h-2 rounded-full">
-                            <div class="bg-red-600 h-2 rounded-full" style="width: 45%"></div>
-                        </div>
-                    </div>
-                    <!-- Item 5 -->
-                    <div class="text-xs">
-                        <div class="flex justify-between font-semibold text-gray-700 mb-1">
-                            <span>5. Undangan</span>
-                            <span class="text-red-600">30%</span>
-                        </div>
-                        <div class="w-full bg-gray-100 h-2 rounded-full">
-                            <div class="bg-red-600 h-2 rounded-full" style="width: 30%"></div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
 
