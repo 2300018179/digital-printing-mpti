@@ -127,12 +127,35 @@
                                     <i class="fa-solid fa-user text-lg"></i>
                                 </div>
                                 
-                                <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin keluar?')" class="m-0 p-0">
-                                    @csrf
-                                    <button type="submit" class="p-[8px_20px] bg-[#c40000] text-white border border-[#c40000] rounded-[20px] cursor-pointer font-semibold transition-all duration-300 ease-in-out hover:bg-white hover:text-[#c40000] hover:border-[#c40000] hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 active:translate-y-0">
-                                        Logout
-                                    </button>
-                                </form>
+                                <button type="button" onclick="openLogoutModal()" class="p-[8px_20px] bg-[#c40000] text-white border border-[#c40000] rounded-[20px] cursor-pointer font-semibold transition-all duration-300 ease-in-out hover:bg-white hover:text-[#c40000] hover:border-[#c40000] hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 active:translate-y-0">
+                                    Logout
+                                </button>
+
+                                <div id="logoutModal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300 p-4">
+                                    <div class="bg-white w-full max-w-[400px] rounded-[25px] p-8 flex flex-col items-center text-center shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
+                                        
+                                        <div class="w-16 h-16 bg-red-50 text-[#c40000] rounded-full flex items-center justify-center text-3xl mb-4">
+                                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                        </div>
+                                        
+                                        <h3 class="text-xl font-bold text-gray-800 mb-2 font-inder">Konfirmasi Keluar</h3>
+                                        <p class="text-sm text-gray-500 mb-6 leading-relaxed">Apakah Anda yakin ingin keluar dari akun Fantastic Digital Printing?</p>
+                                        
+                                        <div class="flex gap-3 w-full">
+                                            <button type="button" onclick="closeLogoutModal()" class="flex-1 py-2.5 border border-gray-300 text-gray-600 rounded-[15px] text-sm font-semibold cursor-pointer transition hover:bg-gray-50">
+                                                Batal
+                                            </button>
+                                            
+                                            <form action="{{ route('logout') }}" method="POST" class="flex-1 m-0 p-0">
+                                                @csrf
+                                                <button type="submit" class="w-full py-2.5 bg-[#c40000] text-white rounded-[15px] text-sm font-semibold text-center cursor-pointer transition hover:bg-red-700 shadow-md shadow-red-600/10">
+                                                    Keluar
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                    </div>
+                                </div>
                             </div>
                         @endauth
 
@@ -306,7 +329,7 @@
                     
                     <div class="bg-white rounded-[20px] overflow-hidden border border-[#c40000] flex flex-col relative transition-all duration-300 ease-in-out cursor-pointer hover:-translate-y-[5px] hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]">
                         <div class="w-full aspect-square flex items-center justify-center p-[5px] bg-white">
-                            <img src="{{ asset('products/produk1.jpg') }}" alt="Banner" class="w-full h-full object-contain">
+                            <img src="{{ asset('assets/products/banner.png') }}" alt="Banner" class="w-full h-full object-contain">
                         </div>
                         <div class="bg-[#c40000] text-white p-[15px] rounded-[0_0_15px_15px] -mt-[1px] flex flex-col items-center justify-center min-h-[80px] relative">
                             <span class="text-sm font-semibold text-left mb-[15px] w-full">Banner</span> 
@@ -479,6 +502,19 @@
         function openLoginModal() {
             alert('Silakan login terlebih dahulu untuk melihat keranjang belanja Anda.');
             window.location.href = "{{ route('login') }}";
+        }
+
+        function openLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Fungsi untuk menutup modal logout custom
+        function closeLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
         }
 
         // Menutup dropdown otomatis jika klik di luar menu
