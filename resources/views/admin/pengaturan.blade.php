@@ -52,7 +52,8 @@
 
         <main class="flex-1 p-10 relative flex flex-col justify-between min-h-[calc(100vh-57px)]">
             
-            <form id="form-pengaturan" onsubmit="handleSimpan(event)" enctype="multipart/form-data" class="space-y-8 flex-1">
+            <form action="{{ route('admin.pengaturan.update') }}" method="POST" enctype="multipart/form-data" id="form-pengaturan">
+            @csrf
                 
                 <div id="content-informasi-toko" class="tab-content grid grid-cols-1 lg:grid-cols-2 gap-10">
                     <div class="space-y-6">
@@ -65,12 +66,17 @@
                         
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-gray-800">Nama Toko</label>
-                            <input type="text" name="nama_toko" placeholder="Masukkan Nama Toko" class="w-full px-4 py-3 bg-white border border-gray-300 focus:border-red-500 rounded-xl text-xs font-medium text-gray-700 placeholder-gray-400 focus:outline-none transition shadow-sm">
+                            <input type="text" name="nama_toko" 
+                                value="{{ $settings['nama_toko'] ?? '' }}" 
+                                placeholder="Masukkan Nama Toko" 
+                                class="w-full px-4 py-3 bg-white border border-gray-300 focus:border-red-500 rounded-xl text-xs font-medium text-gray-700 placeholder-gray-400 focus:outline-none transition shadow-sm">
                         </div>
 
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-gray-800">Deskripsi Toko</label>
-                            <textarea name="deskripsi_toko" rows="8" placeholder="Masukkan Deskripsi Toko" class="w-full px-4 py-3 bg-white border border-gray-300 focus:border-red-500 rounded-2xl text-xs font-medium text-gray-700 placeholder-gray-400 focus:outline-none transition shadow-sm resize-none"></textarea>
+                            <textarea name="deskripsi_toko" rows="8" 
+                                    placeholder="Masukkan Deskripsi Toko" 
+                                    class="w-full px-4 py-3 bg-white border border-gray-300 focus:border-red-500 rounded-2xl text-xs font-medium text-gray-700 placeholder-gray-400 focus:outline-none transition shadow-sm resize-none">{{ $settings['deskripsi_toko'] ?? '' }}</textarea>
                         </div>
                     </div>
 
@@ -80,12 +86,14 @@
                             <input type="file" id="input-logo" name="logo_toko" accept="image/png, image/jpeg" class="hidden" onchange="previewImage(this, 'drop-zone-logo')">
                             
                             <div id="drop-zone-logo" 
-                                 onclick="document.getElementById('input-logo').click()"
-                                 ondragover="handleDragOver(event, this)" 
-                                 ondragleave="handleDragLeave(this)" 
-                                 ondrop="handleDrop(event, this, 'input-logo')"
-                                 class="border-2 border-dashed border-red-400 rounded-2xl p-6 text-center bg-white hover:bg-red-50/30 transition cursor-pointer flex flex-col items-center justify-center h-36 relative overflow-hidden">
-                                <div class="preview-placeholder flex flex-col items-center justify-center">
+                                onclick="document.getElementById('input-logo').click()"
+                                class="border-2 border-dashed border-red-400 rounded-2xl p-6 text-center bg-white hover:bg-red-50/30 transition cursor-pointer flex flex-col items-center justify-center h-36 relative overflow-hidden">
+                                
+                                @if(isset($settings['logo_toko']))
+                                    <img src="{{ asset('storage/' . $settings['logo_toko']) }}" class="img-preview absolute inset-0 w-full h-full object-cover z-10">
+                                @endif
+                                
+                                <div class="preview-placeholder flex flex-col items-center justify-center {{ isset($settings['logo_toko']) ? 'opacity-0' : '' }}">
                                     <span class="text-lg mb-1">🖼️</span>
                                     <p class="text-[10px] font-medium text-gray-600 leading-relaxed">Klik atau drag file untuk upload<br><span class="text-gray-400">JPG dan PNG</span></p>
                                 </div>
@@ -97,12 +105,14 @@
                             <input type="file" id="input-banner" name="banner_toko" accept="image/png, image/jpeg" class="hidden" onchange="previewImage(this, 'drop-zone-banner')">
                             
                             <div id="drop-zone-banner" 
-                                 onclick="document.getElementById('input-banner').click()"
-                                 ondragover="handleDragOver(event, this)" 
-                                 ondragleave="handleDragLeave(this)" 
-                                 ondrop="handleDrop(event, this, 'input-banner')"
-                                 class="border-2 border-dashed border-red-400 rounded-2xl p-6 text-center bg-white hover:bg-red-50/30 transition cursor-pointer flex flex-col items-center justify-center h-36 relative overflow-hidden">
-                                <div class="preview-placeholder flex flex-col items-center justify-center">
+                                onclick="document.getElementById('input-banner').click()"
+                                class="border-2 border-dashed border-red-400 rounded-2xl p-6 text-center bg-white hover:bg-red-50/30 transition cursor-pointer flex flex-col items-center justify-center h-36 relative overflow-hidden">
+                                
+                                @if(isset($settings['banner_toko']))
+                                    <img src="{{ asset('storage/' . $settings['banner_toko']) }}" class="img-preview absolute inset-0 w-full h-full object-cover z-10">
+                                @endif
+                                
+                                <div class="preview-placeholder flex flex-col items-center justify-center {{ isset($settings['banner_toko']) ? 'opacity-0' : '' }}">
                                     <span class="text-lg mb-1">✨</span>
                                     <p class="text-[10px] font-medium text-gray-600 leading-relaxed">Klik atau drag file untuk upload<br><span class="text-gray-400">JPG dan PNG</span></p>
                                 </div>
@@ -121,17 +131,26 @@
                     
                     <div class="space-y-2 max-w-xl">
                         <label class="text-xs font-bold text-gray-800">Alamat Lengkap Toko</label>
-                        <input type="text" name="alamat_lengkap" placeholder="Jl. Raya Digital Printing No. 88, Kota" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500 transition shadow-sm">
+                        <input type="text" name="alamat_lengkap" 
+                            value="{{ $settings['alamat_lengkap'] ?? '' }}" 
+                            placeholder="Jl. Raya Digital Printing No. 88, Kota" 
+                            class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500 transition shadow-sm">
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4 max-w-xl">
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-gray-800">Kota / Kabupaten</label>
-                            <input type="text" name="kota" placeholder="Surabaya" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500 transition shadow-sm">
+                            <input type="text" name="kota" 
+                                value="{{ $settings['kota'] ?? '' }}" 
+                                placeholder="Surabaya" 
+                                class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500 transition shadow-sm">
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-gray-800">Kode Pos</label>
-                            <input type="text" name="kode_pos" placeholder="60111" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500 transition shadow-sm">
+                            <input type="text" name="kode_pos" 
+                                value="{{ $settings['kode_pos'] ?? '' }}" 
+                                placeholder="60111" 
+                                class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500 transition shadow-sm">
                         </div>
                     </div>
 
@@ -142,7 +161,10 @@
                         </label>
                         <div class="relative flex items-center">
                             <span class="absolute left-4 text-xs">🗺️</span>
-                            <input type="url" name="link_google_maps" placeholder="https://maps.google.com/..." class="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-xs font-mono text-gray-600 placeholder-gray-400 focus:outline-none focus:border-red-500 transition shadow-sm">
+                            <input type="url" name="link_google_maps" 
+                                value="{{ $settings['link_google_maps'] ?? '' }}" 
+                                placeholder="https://maps.google.com/..." 
+                                class="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-xs font-mono text-gray-600 placeholder-gray-400 focus:outline-none focus:border-red-500 transition shadow-sm">
                         </div>
                     </div>
                 </div>
@@ -158,55 +180,126 @@
                     <div class="space-y-3 max-w-xl">
                         <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl text-xs">
                             <span class="font-semibold text-gray-700">Senin - Jumat</span>
-                            <input type="text" value="08:00 - 21:00" class="border border-gray-300 rounded px-2 py-1 text-center w-32 focus:outline-none focus:border-red-500">
+                            <input type="text" 
+                                name="jam_senin_jumat" 
+                                value="{{ $settings['jam_senin_jumat'] ?? '08:00 - 21:00' }}" 
+                                class="border border-gray-300 rounded px-2 py-1 text-center w-32 focus:outline-none focus:border-red-500">
                         </div>
+
                         <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl text-xs">
                             <span class="font-semibold text-gray-700">Sabtu</span>
-                            <input type="text" value="09:00 - 17:00" class="border border-gray-300 rounded px-2 py-1 text-center w-32 focus:outline-none focus:border-red-500">
+                            <input type="text" 
+                                name="jam_sabtu" 
+                                value="{{ $settings['jam_sabtu'] ?? '09:00 - 17:00' }}" 
+                                class="border border-gray-300 rounded px-2 py-1 text-center w-32 focus:outline-none focus:border-red-500">
                         </div>
+
                         <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl text-xs">
                             <span class="font-semibold text-gray-700">Minggu / Hari Libur</span>
-                            <span class="text-red-600 font-bold uppercase tracking-wider text-[10px] bg-red-50 px-3 py-1 rounded-full">Tutup</span>
+                            <input type="text" 
+                                name="jam_minggu" 
+                                value="{{ $settings['jam_minggu'] ?? 'Tutup' }}" 
+                                class="border border-gray-300 rounded px-2 py-1 text-center w-32 focus:outline-none focus:border-red-500">
                         </div>
                     </div>
                 </div>
 
                 <div id="content-sosial-media" class="tab-content hidden space-y-6 max-w-4xl">
                     <div class="flex items-center justify-between gap-4 border-b border-gray-100 pb-3">
-                        <h2 class="text-xl font-bold text-gray-900 tracking-wide">Tautan Sosial Media</h2>
+                        <h2 class="text-xl font-bold text-gray-900 tracking-wide">Sosial Media</h2>
                         <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 border border-gray-300 hover:bg-gray-100 rounded-full text-xs font-bold text-gray-600 transition shadow-sm whitespace-nowrap">
                             ← Kembali ke Dashboard
                         </a>
                     </div>
                     
-                    <div class="space-y-4 max-w-xl">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-gray-800">WhatsApp Bisnis</label>
-                            <input type="text" value="https://wa.me/628123456789" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-xs font-mono text-gray-600">
+                            <label class="text-xs font-bold text-gray-800">Instagram</label>
+                            <div class="relative flex items-center">
+                                <span class="absolute left-4 text-xs">📷</span>
+                                <input type="text" name="ig_link" 
+                                    value="{{ $settings['ig_link'] ?? '' }}" 
+                                    placeholder="@username_toko" 
+                                    class="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500 transition shadow-sm">
+                            </div>
                         </div>
+
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-gray-800">Instagram Toko</label>
-                            <input type="text" value="@fantastic.print" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-xs font-mono text-gray-600">
+                            <label class="text-xs font-bold text-gray-800">WhatsApp</label>
+                            <div class="relative flex items-center">
+                                <span class="absolute left-4 text-xs">💬</span>
+                                <input type="text" name="wa_number" 
+                                    value="{{ $settings['wa_number'] ?? '' }}" 
+                                    placeholder="628123456789" 
+                                    class="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500 transition shadow-sm">
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-800">Facebook</label>
+                            <div class="relative flex items-center">
+                                <span class="absolute left-4 text-xs">👥</span>
+                                <input type="text" name="fb_link" 
+                                    value="{{ $settings['fb_link'] ?? '' }}" 
+                                    placeholder="facebook.com/namatoko" 
+                                    class="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500 transition shadow-sm">
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-800">TikTok</label>
+                            <div class="relative flex items-center">
+                                <span class="absolute left-4 text-xs">🎵</span>
+                                <input type="text" name="tiktok_link" 
+                                    value="{{ $settings['tiktok_link'] ?? '' }}" 
+                                    placeholder="@username_tiktok" 
+                                    class="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:border-red-500 transition shadow-sm">
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div id="content-metode-pembayaran" class="tab-content hidden space-y-6 max-w-4xl">
                     <div class="flex items-center justify-between gap-4 border-b border-gray-100 pb-3">
-                        <h2 class="text-xl font-bold text-gray-900 tracking-wide">Metode Pembayaran Aktif</h2>
+                        <h2 class="text-xl font-bold text-gray-900 tracking-wide">Metode Pembayaran (QRIS)</h2>
                         <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 border border-gray-300 hover:bg-gray-100 rounded-full text-xs font-bold text-gray-600 transition shadow-sm whitespace-nowrap">
                             ← Kembali ke Dashboard
                         </a>
                     </div>
-                    
-                    <div class="space-y-2 max-w-xl">
-                        <p class="text-xs text-gray-500 mb-2">Pilih gerbang pembayaran yang dapat digunakan pelanggan di sistem utama.</p>
-                        <label class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer text-xs font-semibold">
-                            <input type="checkbox" checked class="accent-red-600 w-4 h-4"> Transfer Bank Manual (BCA, Mandiri, BNI)
-                        </label>
-                        <label class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer text-xs font-semibold">
-                            <input type="checkbox" checked class="accent-red-600 w-4 h-4"> QRIS Otomatis (Gopay, OVO, Dana)
-                        </label>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl">
+                        <div class="space-y-4">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-gray-800">Nama Pemilik Akun / Toko</label>
+                                <input type="text" name="qris_nama_pemilik" 
+                                    value="{{ $settings['qris_nama_pemilik'] ?? '' }}" 
+                                    placeholder="Contoh: Toko Digital Printing" 
+                                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-xs focus:border-red-500 outline-none transition shadow-sm">
+                            </div>
+                            
+                            <p class="text-[11px] text-gray-500 leading-relaxed bg-blue-50 p-3 rounded-lg">
+                                <strong>Tips:</strong> Nama yang dimasukkan di sini akan muncul saat pelanggan melakukan pembayaran melalui QRIS untuk memverifikasi bahwa pembayaran ditujukan ke pihak yang benar.
+                            </p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-800">Upload QRIS</label>
+                            <input type="file" id="input-qris" name="qris_image" accept="image/png, image/jpeg" class="hidden" onchange="previewImage(this, 'drop-zone-qris')">
+                            
+                            <div id="drop-zone-qris" 
+                                onclick="document.getElementById('input-qris').click()"
+                                class="border-2 border-dashed border-red-400 rounded-2xl p-6 text-center bg-white hover:bg-red-50/30 transition cursor-pointer flex flex-col items-center justify-center h-48 relative overflow-hidden">
+                                
+                                @if(isset($settings['qris_image']))
+                                    <img src="{{ asset('storage/' . $settings['qris_image']) }}" class="absolute inset-0 w-full h-full object-contain p-2 z-10">
+                                @endif
+                                
+                                <div class="preview-placeholder flex flex-col items-center justify-center {{ isset($settings['qris_image']) ? 'opacity-0' : '' }}">
+                                    <span class="text-2xl mb-2">📸</span>
+                                    <p class="text-[10px] font-medium text-gray-600 leading-relaxed">Klik untuk upload gambar QRIS<br><span class="text-gray-400">JPG atau PNG</span></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -219,11 +312,20 @@
                     </div>
                     
                     <div class="space-y-2 max-w-xl">
+                        <input type="hidden" name="notif_struk_email" value="0">
                         <label class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer text-xs font-semibold">
-                            <input type="checkbox" checked class="accent-red-600 w-4 h-4"> Kirim struk otomatis ke email pelanggan setelah bayar
+                            <input type="checkbox" name="notif_struk_email" value="1" 
+                                {{ ($settings['notif_struk_email'] ?? 0) == 1 ? 'checked' : '' }} 
+                                class="accent-red-600 w-4 h-4"> 
+                            Kirim struk otomatis ke email pelanggan setelah bayar
                         </label>
+
+                        <input type="hidden" name="notif_admin_order" value="0">
                         <label class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer text-xs font-semibold">
-                            <input type="checkbox" checked class="accent-red-600 w-4 h-4"> Beritahu Admin via email jika ada orderan masuk baru
+                            <input type="checkbox" name="notif_admin_order" value="1" 
+                                {{ ($settings['notif_admin_order'] ?? 0) == 1 ? 'checked' : '' }} 
+                                class="accent-red-600 w-4 h-4"> 
+                            Beritahu Admin via email jika ada orderan masuk baru
                         </label>
                     </div>
                 </div>
