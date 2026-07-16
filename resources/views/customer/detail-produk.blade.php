@@ -1,271 +1,421 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Produk - Fantastic Digital Printing</title>
+@extends('layouts.customer')
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital@0;1&family=Inder&display=swap" rel="stylesheet">
+@section('title', 'Detail Produk - Fantastic Digital Printing')
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+@section('content')
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brandRed: '#c40000',
-                        brandBgGray: '#f0f0f0',
-                        brandTextDark: '#444444'
-                    },
-                    fontFamily: {
-                        sans: ['Inclusive Sans', 'sans-serif'],
-                        inder: ['Inder', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="font-sans m-0 p-0 box-border text-gray-800 bg-white">
-
-    <!-- HEADER & NAVBAR FIXED -->
-    <div class="fixed top-0 left-0 w-full z-[9999] shadow-[0_4px_10px_rgba(0,0,0,0.1)]">
-        <header class="bg-white py-[10px]">
-            <div class="max-w-[1350px] mx-auto px-[15px] w-full flex items-center gap-5">
-                <div class="flex-shrink-0">
-                    <img src="{{ asset('assets/logo.png') }}" alt="Logo Fantastic" class="h-[55px] w-auto">
+<div class="max-w-[1350px] mx-auto px-[15px] w-full pt-12">
+            
+    {{-- PART 1: DETAIL PRODUK (DINAMIS) --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
+        <div class="w-full aspect-[4/3] max-w-[500px] border border-brandRed rounded-[25px] p-6 flex items-center justify-center bg-white shadow-[0_4px_12px_rgba(0,0,0,0.02)] mx-auto lg:ml-0">
+            {{-- CEK APAKAH PRODUK MEMILIKI GAMBAR DI DATABASE --}}
+            @if($product->image)
+                <img src="{{ asset('assets/products/' . $product->image) }}" alt="{{ $product->name }}" class="max-w-full max-h-full object-contain">
+            @else
+                <div class="text-gray-300 flex flex-col items-center">
+                    <i class="fa fa-image text-5xl mb-2"></i>
+                    <span class="text-xs">Tidak ada gambar</span>
                 </div>
-                <div class="hidden md:flex flex-[0_1_320px] bg-brandBgGray rounded-[25px] p-[0_5px] border border-[#ddd] ml-5 items-center">
-                    <input type="text" placeholder="Mau Print Apa Hari ini?" class="flex-1 border-none bg-transparent p-[8px_15px] outline-none">
-                    <button aria-label="Cari" class="bg-brandRed text-white w-[35px] h-[35px] rounded-full flex items-center justify-center cursor-pointer">
-                        <i class="fa fa-search"></i>
-                    </button>
-                </div>
-                
-                <!-- POPUP NOTIFIKASI SUKSES (Sesuai gambar image_7982e0.png) -->
-                <div class="absolute top-[65px] right-[10%] bg-white border border-gray-200 text-gray-800 font-medium p-[12px_30px] rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.15)] z-[10000] flex items-center justify-center min-w-[220px]">
-                    <span class="text-sm tracking-wide">Pemesanan Berhasil</span>
-                </div>
+            @endif
+        </div>
 
-                <div class="ml-auto flex items-center gap-5">
-                    <div class="flex gap-5 text-xl">
-                        <a href="/keranjang" class="text-black no-underline transition-all duration-300 ease-in-out cursor-pointer inline-block hover:text-brandRed hover:scale-[1.1]" title="Keranjang"><i class="fa fa-shopping-cart"></i></a>
-                        <a href="/notifikasi" class="text-black no-underline transition-all duration-300 ease-in-out cursor-pointer inline-block hover:text-brandRed hover:scale-[1.1]" title="Notifikasi"><i class="fa fa-bell"></i></a>
-                    </div>
-                    <div class="hidden md:flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 bg-gray-100 text-lg">
-                            <i class="fa fa-user"></i>
-                        </div>
-                        <button class="p-[8px_20px] bg-[#c40000] text-white border border-[#c40000] rounded-[20px] cursor-pointer font-semibold transition-all duration-300 ease-in-out hover:bg-white hover:text-[#c40000]">
-                            Logout
-                        </button>
-                    </div>
-                </div>
+        <div class="flex flex-col items-start pt-2">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4 font-inder">{{ $product->name }}</h1>
+            
+            <div class="bg-brandRed text-white font-semibold text-sm p-[8px_25px] rounded-[20px] mb-5 shadow-sm">
+                Rp. {{ number_format($product->price ?? 0, 0, ',', '.') }}/{{ $product->unit ?? 'pcs' }}
             </div>
-        </header>
 
-        <nav class="bg-brandRed h-[50px]">
-            <div class="max-w-[1350px] mx-auto px-[15px] w-full flex h-full items-center relative">
-                
-                <div class="bg-brandRed text-white h-full w-[280px] flex items-center font-bold text-sm rounded-tr-[25px] gap-15 cursor-default pointer-events-none user-select-none shadow-[6px_0_10px_rgba(0,0,0,0.15)] relative z-20 pl-5">
-                    <i class="fa fa-bars mr-3"></i> Pilih Kategori
-                </div>
-                
-                <div class="absolute top-[50px] left-[15px] w-[280px] bg-white border border-t-0 border-gray-200 shadow-[0_8px_15px_rgba(0,0,0,0.1)] rounded-bl-[20px] rounded-br-[20px] p-[8px_20px] text-xs z-10">
-                    <div class="flex items-center text-gray-500 font-medium">
-                        <span class="font-inder text-[11px] text-gray-400">Brosur Art Paper</span> 
-                        <i class="fa fa-chevron-right text-[9px] mx-2 text-gray-400"></i> 
-                        <span class="text-gray-800 font-bold font-inder">Brosur</span>
-                    </div>
-                </div>
-
-                <ul class="hidden md:flex list-none gap-[50px] ml-30 flex-1 pl-8">
-                    <li><a href="/" class="text-white no-underline text-sm cursor-pointer inline-block">Beranda</a></li>
-                    <li><a href="{{ route('customer.semua-produk') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Semua Produk</a></li>
-                    <li><a href="{{ route('customer.promo') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Promo</a></li>
-                    <li><a href="{{ route('customer.jam-layanan') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Jam Layanan</a></li>
-                    <li><a href="{{ route('customer.tentang-kami') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Tentang Kami</a></li>
-                </ul>
-                <div class="hidden md:flex items-center gap-[10px] text-white ml-auto">
-                    <img src="{{ asset('assets/icons/wa-icon.png') }}" alt="WA" class="w-5 h-5">
-                    <span class="text-xs">Pusat Bantuan :</span>
-                    <button class="p-[6px_15px] bg-brandRed text-white border border-white rounded-[20px] text-xs font-bold cursor-pointer transition-all duration-300 ease-in-out ml-5 hover:bg-white hover:text-brandRed hover:border-brandRed hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 active:translate-y-0">Customer Service</button>
-                </div>
+            <h3 class="text-sm font-bold text-gray-700 mb-2">Spesifikasi Produk</h3>
+            <div class="prose prose-sm text-sm text-gray-600 font-medium">
+                @if(!empty($product->description))
+                    <ul class="list-disc pl-5 space-y-1">
+                        {{-- Memecah teks berdasarkan koma (,) menjadi array, lalu di-looping --}}
+                        @foreach(explode(',', $product->description) as $item)
+                            <li class="capitalize-first">{{ trim($item) }}</li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p>Tidak ada spesifikasi produk.</p>
+                @endif
             </div>
-        </nav>
+        </div>
     </div>
 
-    <!-- MAIN CONTENT AREA -->
-<main class="pt-[140px]">
-    <div class="max-w-[1350px] mx-auto px-[15px] w-full pt-12">
+    {{-- PART 2: FORM ORDER & INTEGRASI MEDIA UPLOAD --}}
+    <form id="orderForm" action="{{ route('customer.pembayaran') }}" method="POST" enctype="multipart/form-data" onsubmit="clearAllSessionCache()" class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch mb-16">
+        @csrf
+        {{-- Input tersembunyi untuk mengirimkan ID produk --}}
+        <input type="hidden" name="product_id" value="{{ $product->id }}">
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
-            <div class="w-full aspect-[4/3] max-w-[500px] border border-brandRed rounded-[25px] p-6 flex items-center justify-center bg-white shadow-[0_4px_12px_rgba(0,0,0,0.02)] mx-auto lg:ml-0">
-                <img src="{{ asset('assets/products/brosur.png') }}" alt="Brosur" class="max-w-full max-h-full object-contain">
-            </div>
-
-                <!-- Info Produk -->
-                <div class="flex flex-col items-start pt-2">
-                    <h1 class="text-3xl font-bold text-gray-800 mb-4 font-inder">Brosur</h1>
+        {{-- ADDON EDIT MODE: Input tersembunyi untuk menampung ID Keranjang yang sedang diedit --}}
+        <input type="hidden" name="cart_id_edit" value="{{ $editCartData->id ?? '' }}">
+        
+        {{-- KOLOM KIRI: Parameter Cetak --}}
+        <div class="bg-white border border-gray-200 rounded-[20px] p-6 shadow-[0_4px_15px_rgba(0,0,0,0.05)] flex flex-col justify-between">
+            <div>
+                <h2 class="text-center font-bold text-gray-700 border-b border-gray-100 pb-3 mb-5 text-sm tracking-wide">
+                    {{ isset($editCartData) ? 'Form Edit Order' : 'Form Order' }}
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">
+                            Jumlah 
+                            @if(($product->minimum_order ?? 1) > 1)
+                                <span class="text-brandRed text-[11px] font-normal">(Minimal pembelian: {{ $product->minimum_order }} {{ $product->unit ?? 'pcs' }})</span>
+                            @endif
+                        </label>
+                        {{-- VALUE VALUE DIUBAH: Mengutamakan quantity dari keranjang lama jika ada --}}
+                        <input type="number" 
+                            required 
+                            min="{{ $product->minimum_order ?? 1 }}" 
+                            value="{{ $editCartData->quantity ?? ($product->minimum_order ?? 1) }}" 
+                            name="jumlah" 
+                            id="inputJumlah" 
+                            class="w-full border border-gray-300 rounded-[10px] p-[8px_12px] text-sm outline-none focus:border-brandRed">
+                    </div>
                     
-                    <!-- Tag Harga -->
-                    <div class="bg-brandRed text-white font-semibold text-sm p-[8px_25px] rounded-[20px] mb-5 shadow-sm">
-                        Rp. 10.000
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Catatan Tambahan</label>
+                        {{-- TEXTAREA DIUBAH: Otomatis memuat notes dari keranjang lama jika ada --}}
+                        <textarea name="catatan" rows="4" placeholder="Tuliskan instruksi pemotongan, jenis bahan, atau laminasi di sini..." class="w-full border border-gray-300 rounded-[10px] p-[8px_12px] text-sm outline-none focus:border-brandRed resize-none">{{ $editCartData->notes ?? '' }}</textarea>
                     </div>
-
-                    <!-- Spesifikasi -->
-                    <h3 class="text-sm font-bold text-gray-700 mb-2">Spesifikasi Produk</h3>
-                    <ol class="list-decimal pl-5 text-sm text-gray-600 space-y-1 font-medium">
-                        <li>ahddghddj</li>
-                        <li>ahajdbjdjsje</li>
-                        <li>agdgjbjmabja</li>
-                        <li>ajjnsbhsekjaka</li>
-                        <li>ahghjlsk</li>
-                    </ol>
                 </div>
             </div>
+        </div>
 
-            <!-- Bagian Bawah: Form Order dan Upload Desain -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch mb-16">
+        {{-- KOLOM KANAN: Manajemen Berkas Desain --}}
+        <div class="bg-white border border-gray-200 rounded-[20px] p-6 shadow-[0_4px_15px_rgba(0,0,0,0.05)] flex flex-col justify-between">
+            <div>
+                <h2 class="text-center font-bold text-gray-700 border-b border-gray-100 pb-3 mb-5 text-sm tracking-wide">Upload Desain</h2>
                 
-                <!-- KIRI: Form Order -->
-                <div class="bg-white border border-gray-200 rounded-[20px] p-6 shadow-[0_4px_15px_rgba(0,0,0,0.05)] flex flex-col justify-between">
-                    <div>
-                        <h2 class="text-center font-bold text-gray-700 border-b border-gray-100 pb-3 mb-5 text-sm tracking-wide">Form Order</h2>
-                        <form class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Bahan</label>
-                                <input type="text" class="w-full border border-gray-300 rounded-[10px] p-[8px_12px] text-sm outline-none focus:border-brandRed">
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Jumlah</label>
-                                    <input type="text" class="w-full border border-gray-300 rounded-[10px] p-[8px_12px] text-sm outline-none focus:border-brandRed">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Harga Satuan</label>
-                                    <input type="text" class="w-full border border-gray-300 rounded-[10px] p-[8px_12px] text-sm outline-none focus:border-brandRed">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Catatan</label>
-                                <textarea rows="4" class="w-full border border-gray-300 rounded-[10px] p-[8px_12px] text-sm outline-none focus:border-brandRed resize-none"></textarea>
-                            </div>
-                        </form>
-                    </div>
+                {{-- Switcher Tab Desain --}}
+                <div class="grid grid-cols-2 gap-2 bg-gray-100 rounded-[10px] p-1 mb-5">
+                    <button type="button" id="tabUpload" onclick="switchTab('upload')" class="bg-gray-300 text-gray-700 font-semibold text-xs py-2 rounded-[8px] shadow-sm transition-all cursor-pointer">Upload File</button>
+                    <button type="button" id="tabLink" onclick="switchTab('link')" class="text-gray-500 font-semibold text-xs py-2 rounded-[8px] hover:text-gray-700 transition-all cursor-pointer">Link Desain</button>
                 </div>
 
-                <!-- KANAN: Upload Desain -->
-                <div class="bg-white border border-gray-200 rounded-[20px] p-6 shadow-[0_4px_15px_rgba(0,0,0,0.05)] flex flex-col justify-between">
-                    <div>
-                        <h2 class="text-center font-bold text-gray-700 border-b border-gray-100 pb-3 mb-5 text-sm tracking-wide">Upload Desain</h2>
-                        
-                        <!-- Tab Pilihan -->
-                        <div class="grid grid-cols-2 gap-2 bg-gray-100 rounded-[10px] p-1 mb-5">
-                            <button class="bg-gray-300 text-gray-700 font-semibold text-xs py-2 rounded-[8px] shadow-sm">Upload File</button>
-                            <button class="text-gray-500 font-semibold text-xs py-2 rounded-[8px] hover:text-gray-700">Link Desain</button>
-                        </div>
+                {{-- Panel A: Berkas Fisik --}}
+                <div id="contentUpload" class="border border-dashed border-gray-300 rounded-[15px] p-6 flex flex-col items-center justify-center text-center space-y-3 bg-white h-[170px] w-full transition-all relative">
+                    <div id="uploadInitial" class="flex flex-col items-center justify-center space-y-3 w-full">
+                        <i class="fa fa-cloud-arrow-up text-2xl text-gray-400"></i>
+                        <p class="text-xs font-medium text-gray-500 max-w-[240px] leading-relaxed">
+                            Drag & Drop file desain Anda di sini atau klik untuk memilih file
+                        </p>
+                        <button type="button" onclick="document.getElementById('file-upload').click()" class="bg-brandRed text-white text-[11px] font-semibold p-[5px_20px] rounded-[15px] shadow-sm cursor-pointer hover:bg-red-700 transition">
+                            Pilih File
+                        </button>
+                    </div>
 
-                        <!-- Dropzone Box -->
-                        <div class="border border-gray-300 rounded-[15px] p-8 flex flex-col items-center justify-center text-center space-y-3 bg-white">
-                            <p class="text-xs font-medium text-gray-500 max-w-[240px] leading-relaxed">
-                                Drag & Drop file desain Anda di sini atau klik untuk memilih file
-                            </p>
-                            <button class="bg-brandRed text-white text-[11px] font-semibold p-[5px_20px] rounded-[15px] shadow-sm">
-                                Pilih file
+                    <div id="uploadSuccess" class="hidden w-full flex items-center justify-center">
+                        <div class="border border-gray-200 rounded-lg p-3 flex items-center gap-3 bg-white shadow-sm max-w-[280px]">
+                            <i class="fa-solid fa-file-pdf text-red-500 text-lg" id="fileIcon"></i>
+                            <span id="fileNameDisplay" class="text-xs text-gray-700 font-medium truncate max-w-[180px]">Nama_File.pdf</span>
+                            <button type="button" onclick="clearUpload('upload')" class="text-gray-400 hover:text-brandRed font-bold text-sm cursor-pointer ml-auto transition-colors px-1">
+                                <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Tombol Kirim / Submit Terbawah -->
-                    <div class="mt-8 text-center">
-                        <button type="submit" class="w-full max-w-[200px] p-[10px_35px] bg-brandRed text-white border border-brandRed rounded-[25px] font-bold text-sm tracking-wide transition-all duration-300 ease-in-out hover:bg-white hover:text-brandRed hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
-                            Kirim
-                        </button>
-                    </div>
+                    <input type="file" name="desain_file" id="file-upload" class="hidden" onchange="handleFileSelect(this)">
                 </div>
 
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <footer class="bg-[#c40000] text-white py-[25px] mt-[50px] text-[13px] [line-height:1.6] font-sans">
-            <div class="max-w-[1350px] mx-auto px-[20px] grid grid-cols-1 md:grid-cols-5 gap-[30px] items-start">
-                
-                <div class="w-full">
-                    <img src="{{ asset('assets/logo.png') }}" alt="Fantastic Digital Printing" class="w-[180px] mb-[20px] p-[5px] rounded-[5px]">
-                    <p class="text-white/90">Fantastic Digital Printing adalah layanan digital printing online terpercaya yang melayani berbagai kebutuhan cetak Anda dengan kualitas terbaik dan harga terjangkau.</p>
-                </div>
-
-                <div class="w-full">
-                    <h3 class="text-[16px] mb-[20px] font-bold text-left">Kategori</h3>
-                    <div class="flex gap-[20px] text-left">
-                        <ul class="list-none p-0 flex-1">
-                            <li class="mb-[8px]"><a href="#" class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px]">Print On Paper</a></li>
-                            <li class="mb-[8px]"><a href="#" class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px]">Print Stiker</a></li>
-                            <li class="mb-[8px]"><a href="#" class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px]">Kalender</a></li>
-                            <li class="mb-[8px]"><a href="#" class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px]">Banner & Spanduk</a></li>
-                            <li class="mb-[8px]"><a href="#" class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px]">Sablon</a></li>
-                        </ul>
-                        <ul class="list-none p-0 flex-1">
-                            <li class="mb-[8px]"><a href="#" class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px] inline-block">Sovenir</a></li>
-                            <li class="mb-[8px]"><a href="#" class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px] inline-block">Undangan</a></li>
-                            <li class="mb-[8px]"><a href="#" class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px] inline-block">Papan Informasi</a></li>
-                            <li class="mb-[8px]"><a href="#" class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px] inline-block">Tanda Pengenal</a></li>
-                        </ul>
+                {{-- Panel B: Tautan Eksternal (Cloud) --}}
+                <div id="contentLink" class="hidden border border-dashed border-gray-300 rounded-[15px] p-6 flex flex-col items-center justify-center text-center bg-white h-[170px] w-full transition-all relative">
+                    <div id="linkInitial" class="w-full max-w-[320px] flex flex-col items-center justify-center space-y-3 my-auto">
+                        <label class="block text-center text-xs font-semibold text-gray-700">Link Google Drive / Dropbox / Canva</label>
+                        {{-- VALUE DIUBAH: Jika desain lama berupa URL, langsung pasang di input ini --}}
+                        <input type="url" id="link-input" name="desain_link" 
+                            value="{{ ($editCartData && (filter_var($editCartData->desain, FILTER_VALIDATE_URL) || str_contains($editCartData->desain, 'http'))) ? $editCartData->desain : '' }}"
+                            placeholder="https://drive.google.com/..." oninput="handleLinkInput(this)" class="w-full border border-gray-300 rounded-[12px] p-[10px_15px] text-xs outline-none focus:border-brandRed text-center">
                     </div>
-                </div>
 
-                <div class="w-full">
-                    <h3 class="text-[16px] mb-[20px] font-bold text-left">Tentang Kami</h3>
-                    <ul class="list-none p-0 mb-[20px]">
-                        <li class="mb-[8px]"><a href="#" class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px]">Profil Perusahaan</a></li>
-                    </ul>
-                    <h3 class="text-[16px] mb-[20px] font-bold text-left">Ikuti Kami</h3>
-                    <div class="mt-[10px]">
-                        <a href="https://www.instagram.com/akun_kamu" target="_blank" aria-label="Ikuti kami di Instagram" class="inline-block transition-all duration-300 hover:scale-[1.1]">
-                            <img src="{{ asset('assets/icons/instagram_.png') }}" alt="Instagram" class="w-[30px] h-[30px] align-middle">
-                        </a>
-                    </div>
-                </div>
-
-                <div class="w-full">
-                    <h3 class="text-[16px] mb-[20px] font-bold text-left">Jam Layanan</h3>
-                    <div class="flex gap-[12px] mb-[15px] items-start">
-                        <i class="far fa-clock text-[16px] mt-[3px]"></i>
-                        <span>Senin - Sabtu<br>09.00 - 21.00</span>
-                    </div>
-                    <div class="flex gap-[12px] mb-[15px] items-start">
-                        <i class="far fa-clock text-[16px] mt-[3px]"></i>
-                        <span>Minggu<br>Tutup</span>
-                    </div>
-                </div>
-
-                <div class="w-full">
-                    <h3 class="text-[16px] mb-[20px] font-bold text-left">Hubungi Kami</h3>
-                    <div class="flex gap-[12px] mb-[15px] items-start">
-                        <i class="fas fa-map-marker-alt text-[16px] mt-[3px]"></i>
-                        <span class="text-white/90">Fantastic Digital Printing<br>Jl. Raya Timur Wanadadi, Dusun Dua, Wanadadi, Kec. Wanadadi, Kab. Banjarnegara, Jawa Tengah</span>
-                    </div>
-                    <div class="flex gap-[12px] mb-[15px] items-start">
-                        <img src="{{ asset('assets/icons/wa-icon.png') }}" alt="WA" class="w-[16px] h-[16px] align-middle mt-[3px]"> 
-                        <div>
-                            <span>+62 881-3962-2615</span><br>
-                            <span>+62 812-2973-5247</span>
+                    <div id="linkSuccess" class="hidden w-full flex items-center justify-center">
+                        <div class="border border-gray-200 rounded-lg p-3 flex items-center gap-3 bg-white shadow-sm w-full max-w-[300px]">
+                            <i class="fa-solid fa-link text-blue-500 text-sm"></i>
+                            <span id="linkNameDisplay" class="text-xs text-gray-700 font-medium truncate max-w-[200px]">https://link-kamu...</span>
+                            <button type="button" onclick="clearUpload('link')" class="text-gray-400 hover:text-brandRed font-bold text-sm cursor-pointer ml-auto transition-colors px-1">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
                         </div>
                     </div>
-                    <div class="flex gap-[12px] mb-[15px] items-start">
-                        <i class="far fa-envelope text-[16px] mt-[3px]"></i>
-                        <span>fantasticwnd@gmail.com</span>
-                    </div>
                 </div>
 
+                {{-- ADDON INFO DESAIN LAMA + FITUR HAPUS --}}
+                @if($editCartData && $editCartData->desain)
+                    <div id="containerDesainLama" class="mt-3 p-2 bg-gray-50 border border-gray-100 rounded-lg flex items-center justify-between text-[11px] text-gray-500">
+                        <div class="flex items-center gap-2 truncate">
+                            <i class="fa-solid fa-circle-info text-brandRed text-xs shrink-0"></i>
+                            <span class="truncate"> Desain saat ini: 
+                                <strong class="text-gray-700" id="namaFileLama">{{ basename($editCartData->desain) }}</strong> 
+                            </span>
+                        </div>
+                        
+                        {{-- Tombol X untuk hapus file/link lama --}}
+                        <button type="button" onclick="hapusDesainLama()" class="text-gray-400 hover:text-brandRed font-bold transition-colors px-1 cursor-pointer" title="Hapus desain ini">
+                            <i class="fa-solid fa-xmark text-sm"></i>
+                        </button>
+                    </div>
+
+                    {{-- Input hidden penanda status hapus --}}
+                    <input type="hidden" name="hapus_desain_lama" id="hapusDesainLamaInput" value="0">
+                @endif
             </div>
-        </footer>
-    </main>
-</body>
-</html>
+
+            {{-- Tombol Kirim Form / Keranjang --}}
+            <div class="mt-8 flex items-center justify-center gap-4">
+                <button type="button" onclick="addToCart()" class="w-full max-w-[160px] p-[10px_0] bg-white text-brandRed border border-brandRed rounded-[25px] font-bold text-sm tracking-wide text-center transition-all duration-300 hover:bg-brandRed hover:text-white hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] cursor-pointer">
+                    {{ isset($editCartData) ? 'Simpan Edit' : '+ Keranjang' }}
+                </button>
+                
+                <button type="submit" class="w-full max-w-[160px] p-[10px_0] bg-brandRed text-white border border-brandRed rounded-[25px] font-bold text-sm tracking-wide text-center transition-all duration-300 hover:bg-white hover:text-brandRed hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] cursor-pointer">
+                    Beli Sekarang
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<div id="customConfirmModal" class="hidden fixed top-0 left-0 right-0 bottom-0 w-full h-full min-h-screen z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-white rounded-[20px] shadow-[0_10px_30px_rgba(0,0,0,0.2)] w-full max-w-[400px] p-6 text-center transform scale-95 transition-transform duration-300 mx-4">
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 text-brandRed mb-4">
+            <i class="fa-solid fa-trash-can text-2xl"></i>
+        </div>
+        
+        <h3 class="text-base font-bold text-gray-800 mb-2">Hapus Berkas Desain?</h3>
+        <p class="text-xs text-gray-500 leading-relaxed mb-6">
+            Apakah Anda yakin ingin menghapus berkas desain lama dari item keranjang ini? Tindakan ini tidak dapat dibatalkan.
+        </p>
+        
+        <div class="flex items-center justify-center gap-3">
+            <button type="button" onclick="closeConfirmModal()" class="w-1/2 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold text-xs rounded-[15px] transition cursor-pointer">
+                Batal
+            </button>
+            <button type="button" onclick="executeHapusDesainLama()" class="w-1/2 py-2.5 bg-brandRed hover:bg-red-700 text-white font-semibold text-xs rounded-[15px] shadow-sm shadow-red-200 transition cursor-pointer">
+                Ya, Hapus
+            </button>
+        </div>
+    </div>
+</div>
+{{-- SCRIPT INTERAKTIF JAVASCRIPT --}}
+<script>
+    // Panggil fungsi pengecekan session saat halaman pertama kali dimuat (setelah refresh)
+    document.addEventListener("DOMContentLoaded", function() {
+        checkPersistedData();
+    });
+
+        // 1. Fungsi Mengubah Tab Upload vs Link Desain (Sudah Bersih & Digabung)
+        function switchTab(tab) {
+            const btnUpload = document.getElementById('tabUpload');
+            const btnLink = document.getElementById('tabLink');
+            const panelUpload = document.getElementById('contentUpload');
+            const panelLink = document.getElementById('contentLink');
+            const fileInput = document.getElementById('file-upload');
+            const linkInput = document.getElementById('link-input');
+
+            if (tab === 'upload') {
+                btnUpload.className = "bg-gray-300 text-gray-700 font-semibold text-xs py-2 rounded-[8px] shadow-sm transition-all cursor-pointer";
+                btnLink.className = "text-gray-500 font-semibold text-xs py-2 rounded-[8px] hover:text-gray-700 transition-all cursor-pointer";
+                panelUpload.classList.remove('hidden');
+                panelLink.classList.add('hidden');
+                
+                // Hapus input link cadangan jika sedang tidak aktif
+                if(linkInput && !sessionStorage.getItem('cached_link_url')) linkInput.value = ''; 
+            } else {
+                btnLink.className = "bg-gray-300 text-gray-700 font-semibold text-xs py-2 rounded-[8px] shadow-sm transition-all cursor-pointer";
+                btnUpload.className = "text-gray-500 font-semibold text-xs py-2 rounded-[8px] hover:text-gray-700 transition-all cursor-pointer";
+                panelLink.classList.remove('hidden');
+                panelUpload.classList.add('hidden');
+                
+                // Hapus input file fisik jika sedang tidak aktif
+                if(fileInput && !sessionStorage.getItem('cached_file_name')) fileInput.value = '';
+            }
+        }
+
+        // 2. Jalur Handle Pilihan File Fisik
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                sessionStorage.setItem('cached_file_name', file.name);
+                sessionStorage.setItem('cached_page_url', window.location.href); 
+                
+                showUploadSuccess(file.name);
+            }
+        }
+
+        // 3. Jalur Input Link URL
+        function handleLinkInput(input) {
+            if (input.value.trim() !== "") {
+                sessionStorage.setItem('cached_link_url', input.value);
+                sessionStorage.setItem('cached_page_url', window.location.href);
+                
+                showLinkSuccess(input.value);
+            }
+        }
+
+        // 4. Menampilkan UI Sukses File
+        function showUploadSuccess(fileName) {
+            document.getElementById('uploadInitial').classList.add('hidden');
+            document.getElementById('uploadSuccess').classList.remove('hidden');
+            document.getElementById('fileNameDisplay').innerText = fileName;
+
+            const ext = fileName.split('.').pop().toLowerCase();
+            const iconEl = document.getElementById('fileIcon');
+            if (['jpg', 'jpeg', 'png'].includes(ext)) {
+                iconEl.className = "fa-solid fa-file-image text-emerald-500 text-lg";
+            } else if (ext === 'pdf') {
+                iconEl.className = "fa-solid fa-file-pdf text-red-500 text-lg";
+            } else {
+                iconEl.className = "fa-solid fa-file-zipper text-amber-500 text-lg";
+            }
+        }
+
+        // 5. Menampilkan UI Sukses Link
+        function showLinkSuccess(url) {
+            document.getElementById('linkInitial').classList.add('hidden');
+            document.getElementById('linkSuccess').classList.remove('hidden');
+            document.getElementById('linkNameDisplay').innerText = url;
+        }
+
+        // 6. Fungsi Pengecekan Cache Setelah Halaman Direfresh
+        function checkPersistedData() {
+            const cachedFile = sessionStorage.getItem('cached_file_name');
+            const cachedLink = sessionStorage.getItem('cached_link_url');
+            const cachedUrl = sessionStorage.getItem('cached_page_url');
+            const currentUrl = window.location.href;
+
+            // JIKA KETAHUAN PINDAH HALAMAN
+            if (cachedUrl && cachedUrl !== currentUrl) {
+                clearAllSessionCache();
+                return;
+            }
+
+            if (cachedFile) {
+                switchTab('upload');
+                showUploadSuccess(cachedFile);
+            } else if (cachedLink) {
+                switchTab('link');
+                showLinkSuccess(cachedLink);
+                const linkInput = document.getElementById('link-input');
+                if(linkInput) linkInput.value = cachedLink;
+            }
+        }
+
+        // 7. Fungsi Tombol Silang (X) Untuk Reset Data Form Unggahan Baru
+        function clearUpload(type) {
+            if (type === 'upload') {
+                sessionStorage.removeItem('cached_file_name');
+                const fileInput = document.getElementById('file-upload');
+                if(fileInput) fileInput.value = "";
+                document.getElementById('uploadSuccess').classList.add('hidden');
+                document.getElementById('uploadInitial').classList.remove('hidden');
+            } else if (type === 'link') {
+                sessionStorage.removeItem('cached_link_url');
+                const linkInput = document.getElementById('link-input');
+                if(linkInput) linkInput.value = "";
+                document.getElementById('linkSuccess').classList.add('hidden');
+                document.getElementById('linkInitial').classList.remove('hidden');
+            }
+            
+            // Jika dua-duanya kosong, hapus kunci URL halamannya
+            if (!sessionStorage.getItem('cached_file_name') && !sessionStorage.getItem('cached_link_url')) {
+                sessionStorage.removeItem('cached_page_url');
+            }
+        }
+
+        // Helper: Bersihkan session total
+        function clearAllSessionCache() {
+            sessionStorage.removeItem('cached_file_name');
+            sessionStorage.removeItem('cached_link_url');
+            sessionStorage.removeItem('cached_page_url');
+        }
+
+        // =========================================================================
+        // ADDON PERBAIKAN: SEKARANG HANYA ADA 1 FUNGSI ADD TO CART + SUBMIT FLAG
+        // =========================================================================
+        let isSubmittingOrder = false;
+
+        function addToCart() {
+            const form = document.getElementById('orderForm');
+            const inputJumlah = document.getElementById('inputJumlah');
+            
+            if (!inputJumlah.value || parseInt(inputJumlah.value) < parseInt(inputJumlah.min)) {
+                alert('Jumlah pembelian kurang dari batas minimum order!');
+                inputJumlah.focus();
+                return;
+            }
+
+            // Tandai sedang melakukan submit resmi ke Laravel agar cache dibersihkan pasca-reload
+            isSubmittingOrder = true; 
+
+            form.action = "{{ url('keranjang/tambah') }}/{{ $product->id }}"; 
+            form.submit();
+        }
+
+        // 1. Fungsi untuk memicu munculnya Modal Custom (Menggantikan confirm() bawaan browser)
+        function hapusDesainLama() {
+            const modal = document.getElementById('customConfirmModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                // Sedikit delay agar efek transisi scale/opacity Tailwind terasa smooth
+                setTimeout(() => {
+                    modal.querySelector('.transform').classList.remove('scale-95');
+                }, 10);
+            }
+        }
+
+        // 2. Fungsi yang dieksekusi saat user menekan tombol "Ya, Hapus" di dalam modal kustom
+        function executeHapusDesainLama() {
+            const hapusInput = document.getElementById('hapusDesainLamaInput');
+            const containerLama = document.getElementById('containerDesainLama');
+            
+            // Atur bendera ke nilai 1 untuk Controller
+            if (hapusInput) hapusInput.value = "1";
+            
+            // Sembunyikan balok info berkas lama di UI
+            if (containerLama) containerLama.classList.add('hidden');
+            
+            // Tutup modal kembali
+            closeConfirmModal();
+        }
+
+        // 3. Fungsi untuk menutup modal jika user menekan tombol "Batal"
+        function closeConfirmModal() {
+            const modal = document.getElementById('customConfirmModal');
+            if (modal) {
+                modal.querySelector('.transform').classList.add('scale-95');
+                modal.classList.add('hidden');
+            }
+        }
+
+        // B. Amankan form utama saat tombol "Beli Sekarang" dicentang/diklik
+        document.getElementById('orderForm').addEventListener('submit', function() {
+            isSubmittingOrder = true;
+        });
+
+        // C. Eksekusi Gerbang Terakhir Sebelum Halaman Berubah / Reload
+        window.addEventListener('beforeunload', function (e) {
+            // KONDISI 1: Jika user klik tombol + Keranjang atau Beli Sekarang
+            if (isSubmittingOrder) {
+                clearAllSessionCache();
+            } 
+            // KONDISI 2: Jika user me-refresh halaman (F5 / Ctrl+R)
+            else if (performance.navigation.type === performance.navigation.TYPE_RELOAD || 
+                    (performance.getEntriesByType("navigation")[0] && performance.getEntriesByType("navigation")[0].type === "reload")) {
+                // Biarkan cache tetap ada (Data Tidak Hilang saat F5)
+            } 
+            // KONDISI 3: User pindah halaman (Klik dashboard, menu lain, dll)
+            else {
+                clearAllSessionCache();
+            }
+        });
+
+        // Mengatasi duplikasi history di browser mobile
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted) {
+                checkPersistedData();
+            }
+        });
+    </script>
+@endsection

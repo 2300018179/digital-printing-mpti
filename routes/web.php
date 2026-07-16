@@ -9,7 +9,9 @@ use App\Http\Controllers\AdminPembayaranController;
 use App\Http\Controllers\AdminPromoController;
 use App\Http\Controllers\AdminPelangganController;
 use App\Http\Controllers\AdminLaporanController;
-use App\Http\Controllers\Customer\ProductController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Customer\PembayaranController;
+use App\Http\Controllers\Customer\KeranjangController;
 
 
 // =========================================================================
@@ -20,11 +22,12 @@ use App\Http\Controllers\Customer\ProductController;
 Route::get('/', [AuthController::class, 'index'])->name('customer.dashboard');
 
 // Fitur Katalog Produk & Informasi Toko
-Route::get('/customer/semua-produk', [ProductController::class, 'semuaProduk'])->name('customer.semua-produk');
-Route::get('/customer/detail-produk', [ProductController::class, 'detailProduk'])->name('customer.detail-produk');
+Route::get('/semua-produk', [ProductController::class, 'semuaProduk'])->name('customer.semua-produk');
+Route::get('/customer/detail-produk/{id}', [ProductController::class, 'detailProduk'])->name('customer.detail-produk');
 Route::get('/promo', [ProductController::class, 'halamanPromo'])->name('customer.promo');
 Route::get('/jam-layanan', [ProductController::class, 'jamLayanan'])->name('customer.jam-layanan');
 Route::view('/tentang', 'customer.tentang-kami')->name('customer.tentang-kami');
+Route::match(['get', 'post'], '/pembayaran', [PembayaranController::class, 'prosesPembayaran'])->name('customer.pembayaran');
 
 // =========================================================================
 // 2. RUTE AUTENTIKASI (Hanya bisa diakses kalau BELUM LOGIN)
@@ -50,8 +53,33 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // 3. RUTE CUSTOMER YANG WAJIB LOGIN (Akses khusus member terdaftar)
 // =========================================================================
 Route::middleware('auth')->group(function () {
-    // Contoh tempat menaruh rute checkout atau riwayat transaksi nanti:
-    // Route::get('/checkout', [ProductController::class, 'checkout']);
+    // --- FITUR DINAMIS DROPDOWN NOTIFIKASI ---
+    
+    // Halaman pusat semua notifikasi (Tombol 'Lihat Semua')
+    Route::get('/notifikasi', [ProductController::class, 'halamanNotifikasi'])->name('customer.notifikasi');
+    
+    // Halaman riwayat transaksi/pesanan cetak (Tombol 'Pesanan')
+    Route::get('/pesanan-saya', [ProductController::class, 'halamanPesanan'])->name('customer.pesanan');
+    
+    // Halaman informasi update dari sistem/toko (Tombol 'Informasi Terbaru')
+    Route::get('/informasi-terbaru', [ProductController::class, 'halamanInformasi'])->name('customer.informasi');
+
+
+    // --- FITUR DINAMIS KERANJANG BELANJA ---
+    
+    // Memproses tambah produk ke keranjang belanja
+    Route::post('/keranjang/tambah/{productId}', [KeranjangController::class, 'tambah'])->name('customer.keranjang.tambah');
+    
+    // Memproses hapus item dari daftar keranjang belanja
+    Route::delete('/keranjang/hapus/{id}', [KeranjangController::class, 'hapus'])->name('customer.keranjang.hapus');
+
+    // =========================================================================
+    // TAMBAHKAN DI SINI (Dalam Middleware Auth):
+    // =========================================================================
+    Route::post('/pembayaran/simpan', [PembayaranController::class, 'simpanPembayaran'])->name('proses.simpan-pembayaran');
+
+    // Contoh tempat menaruh rute checkout nanti:
+    // Route::get('/checkout', [ProductController::class, 'checkout'])->name('customer.checkout');
 });
 
 

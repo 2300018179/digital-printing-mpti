@@ -5,20 +5,25 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
     // Menampilkan halaman Dashboard utama
     public function index()
     {
-        $products = [
-            ['name' => 'Cetak Banner / Spanduk', 'price' => 'Rp 25.000 / m²', 'icon' => '🎨'],
-            ['name' => 'Cetak Stiker A3+', 'price' => 'Rp 10.000 / lembar', 'icon' => '🏷️'],
-            ['name' => 'Brosur / Flyer (Art Paper)', 'price' => 'Rp 1.500 / lembar', 'icon' => '📄'],
-            ['name' => 'Kartu Nama (Isi 100 pcs)', 'price' => 'Rp 35.000 / box', 'icon' => '🪪'],
-        ];
+        // 1. Ambil data kategori untuk sidebar
+        $categories = \Illuminate\Support\Facades\DB::table('kategoris')->get();
 
-        return view('customer.dashboard', compact('products'));
+        // 2. Ambil 5 produk unggulan (Terlaris/Terbanyak Dilihat)
+        // Ganti 'total_sold' dengan kolom yang sesuai di databasemu (misal: 'id' atau 'created_at' jika belum ada)
+        $products = \App\Models\Product::where('status', '1')
+                        ->orderBy('total_sold', 'desc') 
+                        ->take(5)
+                        ->get(); 
+
+        // 3. Kirimkan variabel ke view dashboard
+        return view('customer.dashboard', compact('categories', 'products'));
     }
 
     // Menampilkan halaman Login form
