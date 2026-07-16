@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminProductController; 
 use App\Http\Controllers\AdminKategoriController;
 use App\Http\Controllers\AdminPesananController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\AdminLaporanController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Customer\PembayaranController;
 use App\Http\Controllers\Customer\KeranjangController;
+use App\Http\Controllers\AdminPengaturanController;
 
 
 // =========================================================================
@@ -89,9 +91,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
 
     // --- DASHBOARD ADMIN ---
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // --- MANAJEMEN PRODUK & KATEGORI ---
     Route::resource('produk', AdminProductController::class)->names(['index' => 'produk']);
@@ -126,6 +126,7 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::get('/admin/pelanggan/detail/{id}', [AdminPelangganController::class, 'show'])->name('pelanggan.detail');
 
     // --- LAPORAN & PENGATURAN ---
+    Route::get('/pengaturan', [AdminPengaturanController::class, 'index'])->name('pengaturan');
+    Route::post('/pengaturan/update', [AdminPengaturanController::class, 'update'])->name('pengaturan.update');
     Route::get('/admin/laporan', [AdminLaporanController::class, 'index'])->name('laporan');
-    Route::get('/pengaturan', function () { return view('admin.pengaturan'); })->name('pengaturan');
 });
