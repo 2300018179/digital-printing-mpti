@@ -1,73 +1,72 @@
 @extends('layouts.customer')
 
+@section('title', 'Informasi Toko - Fantastic Digital Printing')
+
 @section('content')
-<div class="py-12 bg-gray-50 min-h-screen">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="max-w-[1350px] mx-auto px-[15px] w-full pt-4 pb-16">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
+        {{-- Header Judul (KEMBALI KE UKURAN NORMAL / BESAR) --}}
         <div class="mb-8">
-            <nav class="text-sm font-medium text-gray-500 mb-2">
-                <a href="{{ route('customer.dashboard') }}" class="hover:text-brandRed">Home</a> &gt; 
-                <span class="text-gray-800">Informasi Terbaru</span>
-            </nav>
             <h1 class="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
                 <i class="fa fa-info-circle text-brandRed"></i> Informasi & Pengumuman Toko
             </h1>
+            <p class="text-xs text-gray-500 mt-1">Dapatkan pembaruan kabar dan pengumuman resmi seputar operasional toko kami.</p>
         </div>
 
-        <div class="space-y-6">
+        {{-- CEK DATA PENGUMUMAN --}}
+        @if(isset($pengumumans) && $pengumumans->count() > 0)
+            <div class="space-y-4">
+                @foreach($pengumumans as $info)
+                    {{-- Kartu Utama: Tetap dibuat ringkas & pipih (p-4 md:p-5) agar tidak makan tempat ke bawah --}}
+                    <div class="bg-white rounded-2xl p-4 md:p-5 border border-gray-100 border-l-[5px] border-l-brandRed shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition duration-300 w-full">
+                        
+                        {{-- 1. Baris Badge & Tanggal --}}
+                        <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-0.5 bg-red-50 text-brandRed text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                <span class="w-1.5 h-1.5 rounded-full bg-brandRed"></span>
+                                Pengumuman Resmi
+                            </span>
+                            
+                            <span class="text-[11px] text-gray-400 font-medium flex items-center gap-1">
+                                <i class="far fa-calendar-alt text-gray-400"></i>
+                                {{ \Carbon\Carbon::parse($info->tanggal ?? $info->created_at)->format('d M Y') }}
+                            </span>
+                        </div>
 
-            {{-- INFORMASI 1: PENTING / OPERASIONAL TOKO --}}
-            <div class="bg-white rounded-[20px] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition duration-300">
-                <div class="p-6">
-                    <div class="flex flex-wrap items-center gap-2 mb-3">
-                        <span class="px-2.5 py-1 bg-red-100 text-brandRed text-[10px] font-bold rounded-full uppercase tracking-wider">Penting</span>
-                        <span class="text-xs text-gray-400 font-medium">Diposting pada: 6 Juli 2026</span>
+                        {{-- 2. Judul Merah (Margin mb-2.5) --}}
+                        <h2 class="text-base md:text-lg font-extrabold text-brandRed mb-2.5 leading-snug">
+                            {{ $info->judul }}
+                        </h2>
+
+                        {{-- 3. Kotak Abu-Abu Isi Pengumuman (Padding tipis p-3.5 md:p-4) --}}
+                        <div class="bg-[#F8F9FA] border border-gray-100/80 rounded-xl p-3.5 md:p-4 text-xs md:text-sm text-gray-600 leading-relaxed whitespace-pre-line mb-3">
+                            {{ $info->isi }}
+                        </div>
+
+                        {{-- 4. Footer Card --}}
+                        <div class="flex items-center justify-between text-[11px] md:text-xs">
+                            <span class="text-gray-400 font-normal">Ada pertanyaan terkait pengumuman ini?</span>
+                            <a href="https://wa.me/6281234567890" target="_blank" class="inline-flex items-center gap-1 text-brandRed font-bold hover:underline no-underline">
+                                <i class="fab fa-whatsapp text-xs md:text-sm"></i> Tanya Tim Kami
+                            </a>
+                        </div>
+
                     </div>
-                    <h2 class="text-lg font-bold text-gray-900 mb-2 hover:text-brandRed transition">
-                        Pemberitahuan Jadwal Perawatan Mesin Cetak Outdoor (Maintenance)
-                    </h2>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4">
-                        Yth. Pelanggan Fantastic Digital Printing, kami ingin menginformasikan bahwa akan dilakukan perawatan berkala (maintenance) pada mesin cetak Large Format kami pada hari Sabtu besok. Untuk pesanan spanduk/banner berukuran besar kemungkinan akan mengalami sedikit keterlambatan pengerjaan selama 1x24 jam.
-                    </p>
-                    <div class="border-t border-gray-100 pt-4 flex justify-between items-center text-xs text-gray-500">
-                        <span>Oleh: Admin Utama</span>
-                        <span class="font-semibold text-brandRed">Mesin Aktif Kembali: Senin, 8 Juli</span>
-                    </div>
+                @endforeach
+            </div>
+        @else
+            {{-- EMPTY STATE --}}
+            <div class="bg-white rounded-[20px] shadow-sm border border-gray-100 py-12 px-4 flex flex-col items-center justify-center min-h-[250px]">
+                <div class="w-14 h-14 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-3">
+                    <i class="fa fa-folder-open text-2xl"></i>
                 </div>
+                <h3 class="text-sm font-bold text-gray-800 mb-1">Belum Ada Informasi Baru</h3>
+                <p class="text-xs text-gray-400 text-center max-w-xs">
+                    Hubungi kami via kontak jika ada pertanyaan seputar operasional toko.
+                </p>
             </div>
-
-            {{-- INFORMASI 2: TIPS & TRICKS DESAIN --}}
-            <div class="bg-white rounded-[20px] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition duration-300">
-                <div class="p-6">
-                    <div class="flex flex-wrap items-center gap-2 mb-3">
-                        <span class="px-2.5 py-1 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full uppercase tracking-wider">Edukasi</span>
-                        <span class="text-xs text-gray-400 font-medium">Diposting pada: 3 Juli 2026</span>
-                    </div>
-                    <h2 class="text-lg font-bold text-gray-900 mb-2 hover:text-brandRed transition">
-                        Tips Menyiapkan File Cetak Agar Tidak Pecah (Gunakan Mode Warna CMYK)
-                    </h2>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4">
-                        Seringkali hasil cetakan berbeda warna dengan layar HP? Pastikan file desain brosur atau stiker kamu sudah diatur menggunakan format warna CMYK sebelum dikirim ke tim desainer kami, bukan RGB. Selain itu, pastikan resolusi minimal file adalah 300 DPI agar gambar tetap tajam saat dicetak.
-                    </p>
-                    <div class="border-t border-gray-100 pt-4 flex justify-between items-center text-xs text-gray-500">
-                        <span>Oleh: Tim Kreatif</span>
-                        <a href="#" class="font-bold text-brandRed hover:underline flex items-center gap-1">Baca Selengkapnya <i class="fa fa-chevron-right text-[9px]"></i></a>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        {{-- JIKA DATA PENGUMUMAN KOSONG --}}
-        {{-- 
-        <div class="bg-white rounded-[20px] shadow-sm border border-gray-100 py-16 px-4 flex flex-col items-center justify-center">
-            <div class="w-20 h-20 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-4">
-                <i class="fa fa-folder-open text-3xl"></i>
-            </div>
-            <h3 class="text-sm font-bold text-gray-800 mb-1">Belum Ada Informasi Baru</h3>
-            <p class="text-xs text-gray-400 text-center max-w-xs">Hubungi kami via kontak jika ada pertanyaan seputar operasional toko.</p>
-        </div> 
-        --}}
+        @endif
 
     </div>
 </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Fantastic Digital Printing')</title>
+    <title>{{ $settings['nama_toko'] ?? '' }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,6 +12,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}" sizes="32x32">
     <script>
         tailwind.config = {
             theme: {
@@ -22,13 +23,17 @@
                         brandTextDark: '#444444'
                     },
                     fontFamily: {
-                        sans: ['Inclusive Sans', 'sans-serif'],
-                        inder: ['Inder', 'sans-serif']
+                        fontFamily: {
+                            sans: ['Inder', 'sans-serif'], 
+                            // Tambahkan tanda kutip ganda didalam kutip tunggal ('"Inclusive Sans"')
+                            harga: ['"Inclusive Sans"', 'sans-serif'] 
+                        }
                     }
                 }
             }
         }
     </script>
+    @stack('styles')
 </head>
 <body class="font-sans m-0 p-0 box-border text-gray-800 bg-white">
 
@@ -36,9 +41,13 @@
         <header class="bg-white py-[10px]">
             <div class="max-w-[1350px] mx-auto px-[15px] w-full flex items-center gap-5">
                 <div class="flex-shrink-0">
-                    <img src="{{ asset('assets/logo.png') }}" alt="Logo Fantastic" class="h-[55px] w-auto">
+                    <a href="{{ route('customer.dashboard') }}">
+                        <img src="{{ asset('storage/' . $appSettings['logo_toko']) }}" 
+                            alt="{{ $appSettings['nama_toko'] ?? '' }}" 
+                            class="h-[48px] w-auto object-contain"> {{-- Pas untuk navbar --}}
+                    </a>
                 </div>
-                <form action="{{ route('customer.semua-produk') }}" method="GET" class="hidden md:flex flex-[0_1_320px] bg-brandBgGray rounded-[25px] p-[0_5px] border border-[#ddd] ml-5 items-center">
+                <form action="{{ route('customer.semua-produk') }}" method="GET" onsubmit="return this.search.value.trim() !== ''" class="hidden md:flex flex-[0_1_320px] bg-brandBgGray rounded-[25px] p-[0_5px] border border-[#ddd] ml-5 items-center">
                     <input 
                         type="text" 
                         name="search" 
@@ -67,9 +76,16 @@
                                         <span class="font-bold text-gray-800 text-sm">Keranjang ({{ $cartCount ?? 0 }})</span>
                                     </div>
 
+                                    {{-- PERBAIKAN: Tampilan Tombol Interaksi Saat Keranjang Kosong --}}
                                     @if(empty($cartItemsData) || $cartItemsData->isEmpty())
-                                        <div class="flex flex-col items-center justify-center py-8 px-4">
-                                            <p class="text-gray-400 text-xs mb-3 font-medium">Keranjang masih kosong</p>
+                                        <div class="flex flex-col items-center justify-center py-10 px-4 text-center">
+                                            <div class="w-12 h-12 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mb-3">
+                                                <i class="fa fa-shopping-basket text-lg"></i>
+                                            </div>
+                                            <p class="text-gray-400 text-xs mb-4 font-medium">Keranjang belanja Anda masih kosong</p>
+                                            <a href="{{ route('customer.semua-produk') }}" class="px-5 py-2 bg-brandRed text-white text-[11px] font-bold rounded-full hover:bg-red-700 transition no-underline shadow-sm">
+                                                Mulai Order Produk
+                                            </a>
                                         </div>
                                     @else
                                         <form action="{{ route('customer.pembayaran') }}" method="POST" id="formCheckoutPopUp">
@@ -77,7 +93,6 @@
                                             
                                             <div class="flex flex-col max-h-[340px] overflow-y-auto p-3 gap-3 divide-y divide-gray-100">
                                                 @foreach($cartItemsData as $item)
-                                                    {{-- Diubah ke items-start agar saat data memanjang ke bawah, checkbox & trash icon tetap rapi di atas --}}
                                                     <div class="flex items-start gap-3 pt-3 first:pt-0 justify-between group">
                                                         
                                                         <div class="flex items-center mt-1.5 shrink-0">
@@ -99,31 +114,26 @@
                                                             <h4 class="text-xs font-bold text-gray-800 line-clamp-1 mb-0.5">{{ $item->product->name }}</h4>
                                                             <p class="text-[11px] text-gray-500 font-semibold">{{ $item->quantity }} x Rp {{ number_format($item->product->price ?? 0, 0, ',', '.') }}</p>
                                                             
-                                                            {{-- ========================================================================= --}}
-                                                            {{-- ADDON: MENAMPILKAN CATATAN TAMBAHAN (NOTES) --}}
-                                                            {{-- ========================================================================= --}}
+                                                            {{-- MENAMPILKAN CATATAN TAMBAHAN (NOTES) --}}
                                                             @if(!empty($item->notes))
                                                                 <div class="mt-1 bg-gray-50 border border-gray-100 rounded-md p-1.5 text-[10px] text-gray-600 leading-relaxed break-words">
                                                                     <span class="font-bold text-gray-700">Note:</span> {{ $item->notes }}
                                                                 </div>
                                                             @endif
 
-                                                            {{-- ========================================================================= --}}
-                                                            {{-- ADDON: MENAMPILKAN DESAIN (FILE / LINK) --}}
-                                                            {{-- ========================================================================= --}}
+                                                            {{-- MENAMPILKAN DESAIN (FILE / LINK) --}}
                                                             @if(!empty($item->desain))
                                                                 <div class="mt-1 max-w-full">
-                                                                    {{-- Kondisi 1: Jika data berupa Link Eksternal (Mengandung http/drive/dll) --}}
                                                                     @if(filter_var($item->desain, FILTER_VALIDATE_URL) || str_contains($item->desain, 'http'))
+                                                                        {{-- Jika berupa Tautan Drive / Eksternal Link --}}
                                                                         <a href="{{ $item->desain }}" target="_blank" class="inline-flex items-center gap-1 bg-blue-50 text-blue-600 border border-blue-100 text-[10px] font-medium px-2 py-0.5 rounded hover:underline max-w-full">
                                                                             <i class="fa-solid fa-link text-[9px] shrink-0"></i>
                                                                             <span class="truncate max-w-[150px]">{{ $item->desain }}</span>
                                                                         </a>
-                                                                    {{-- Kondisi 2: Jika data berupa Unggahan Berkas Fisik --}}
                                                                     @else
+                                                                        {{-- Jika berupa Berkas Dokumen Terunggah --}}
                                                                         <div class="inline-flex items-center gap-1 bg-red-50 text-brandRed border border-red-100 text-[10px] font-medium px-2 py-0.5 rounded max-w-full" title="{{ basename($item->desain) }}">
                                                                             <i class="fa-solid fa-file-pdf text-[10px] shrink-0"></i>
-                                                                            {{-- Mengambil nama file asli dari path yang tersimpan --}}
                                                                             <span class="truncate max-w-[150px]">{{ basename($item->desain) }}</span>
                                                                         </div>
                                                                     @endif
@@ -131,8 +141,8 @@
                                                             @endif
 
                                                             <div class="mt-1.5">
-                                                                <a href="{{ route('customer.detail-produk', $item->product_id) }}?edit_cart={{ $item->id }}" class="text-[10px] text-blue-500 hover:underline inline-flex items-center gap-1 font-semibold">
-                                                                    <i class="fa-solid fa-pen text-[9px]"></i> Edit
+                                                                <a href="{{ route('customer.detail-produk', $item->product->id) }}?edit_cart={{ $item->id }}" class="text-[10px] text-blue-500 hover:underline inline-flex items-center gap-1 font-semibold">
+                                                                    <i class="fa-solid fa-pen text-[9px]"></i> Edit Detail
                                                                 </a>
                                                             </div>
                                                         </div>
@@ -285,7 +295,7 @@
 
         <nav class="bg-brandRed h-[50px]">
             <div class="max-w-[1350px] mx-auto px-[15px] w-full flex h-full items-center">
-                @if(!Route::is('customer.jam-layanan') && !Route::is('customer.tentang-kami') && !Route::is('customer.detail-produk') && !Route::is('customer.pembayaran'))
+                @if(!Route::is('customer.jam-layanan') && !Route::is('customer.tentang-kami') && !Route::is('customer.detail-produk') && !Route::is('customer.pembayaran') && !Route::is('customer.pesanan') && !Route::is('customer.informasi') && !Route::is('customer.promo') && !Route::is('customer.notifikasi'))
                     <div class="bg-brandRed text-white h-full w-[280px] flex items-center font-bold text-sm rounded-[15px_15px_0_0] gap-15 cursor-default pointer-events-none user-select-none shadow-[6px_0_10px_rgba(0,0,0,0.15)] relative z-10 pl-5">
                         <i class="fa fa-bars mr-3"></i> Pilih Kategori
                     </div>
@@ -294,16 +304,33 @@
                     <div class="w-[280px] h-full hidden md:block"></div>
                 @endif
                 <ul class="hidden md:flex list-none gap-[50px] ml-30 flex-1 pl-8">
-                    <li><a href="/" class="text-white no-underline text-sm cursor-pointer inline-block">Beranda</a></li>
-                    <li><a href="{{ route('customer.semua-produk') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Semua Produk</a></li>
-                    <li><a href="{{ route('customer.promo') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Promo</a></li>
-                    <li><a href="{{ route('customer.jam-layanan') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Jam Layanan</a></li>
-                    <li><a href="{{ route('customer.tentang-kami') }}" class="text-white no-underline text-sm cursor-pointer inline-block">Tentang Kami</a></li>
+                    <li><a href="/" class="text-white no-underline text-sm font-semibold cursor-pointer inline-block">Beranda</a></li>
+                    <li><a href="{{ route('customer.semua-produk') }}" class="text-white no-underline text-sm font-semibold cursor-pointer inline-block">Semua Produk</a></li>
+                    <li><a href="{{ route('customer.promo') }}" class="text-white no-underline text-sm font-semibold cursor-pointer inline-block">Promo</a></li>
+                    <li><a href="{{ route('customer.jam-layanan') }}" class="text-white no-underline text-sm font-semibold cursor-pointer inline-block">Jam Layanan</a></li>
+                    <li><a href="{{ route('customer.tentang-kami') }}" class="text-white no-underline text-sm font-semibold cursor-pointer inline-block">Tentang Kami</a></li>
                 </ul>
+                @php
+                    $settingsData = $settings ?? $appSettings ?? [];
+
+                    // Cleaning WA 1 & WA 2 agar valid untuk link wa.me
+                    $rawWa1 = $settingsData['wa_number_1'] ?? '+62 851-1962-2615';
+                    $rawWa2 = $settingsData['wa_number_2'] ?? '';
+
+                    $cleanWa1 = preg_replace('/[^0-9]/', '', $rawWa1);
+                    if (str_starts_with($cleanWa1, '0')) {
+                        $cleanWa1 = '62' . substr($cleanWa1, 1);
+                    }
+
+                    $cleanWa2 = preg_replace('/[^0-9]/', '', $rawWa2);
+                    if (str_starts_with($cleanWa2, '0')) {
+                        $cleanWa2 = '62' . substr($cleanWa2, 1);
+                    }
+                @endphp
                 <div class="hidden md:flex items-center gap-[10px] text-white ml-auto">
                     <img src="{{ asset('assets/icons/wa-icon.png') }}" alt="WA" class="w-5 h-5">
                     <span class="text-xs">Pusat Bantuan :</span>
-                    <a href="https://wa.me/6285119622615?text=Halo%20Fantastic%20Digital%20Printing%2C%20saya%20butuh%20bantuan%20mengenai..." 
+                    <a href="https://wa.me/{{ $cleanWa1 }}?text=Halo%20{{ urlencode($settingsData['nama_toko'] ?? '') }}%2C%20saya%20butuh%20bantuan%20mengenai..." 
                     target="_blank" 
                     class="p-[6px_15px] bg-brandRed text-white border border-white rounded-[20px] text-xs font-bold cursor-pointer transition-all duration-300 ease-in-out ml-5 text-none hover:bg-white hover:text-brandRed hover:border-brandRed hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 active:translate-y-0 block">
                         Customer Service
@@ -319,20 +346,28 @@
 
     <footer class="bg-[#c40000] text-white py-[25px] mt-[50px] text-[13px] [line-height:1.6] font-sans">
         <div class="max-w-[1350px] mx-auto px-[20px] grid grid-cols-1 md:grid-cols-5 gap-[30px] items-start">
+            
+            {{-- 1. LOGO & DESKRIPSI --}}
             <div class="w-full">
-                <img src="{{ asset('assets/logo.png') }}" alt="Fantastic Digital Printing" class="w-[180px] mb-[20px] p-[5px] rounded-[5px]">
+                @if(!empty($appSettings['logo_toko']))
+                    <a href="{{ route('customer.dashboard') }}">
+                        <img src="{{ asset('storage/' . $appSettings['logo_toko']) }}" 
+                            alt="{{ $appSettings['nama_toko'] ?? '' }}" 
+                            class="w-[180px] mb-[20px] p-[5px] rounded-[5px] object-contain">
+                    </a>
+                @endif
+                
                 <p class="text-white/90 text-justify">
-                    Fantastic Digital Printing adalah layanan digital printing online terpercaya yang melayani berbagai kebutuhan cetak Anda dengan kualitas terbaik dan harga terjangkau.
+                    {{ $appSettings['deskripsi_toko'] ?? '' }}
                 </p>
             </div>
+
+            {{-- 2. KATEGORI --}}
             <div class="w-full">
                 <h3 class="text-[16px] mb-[20px] font-bold text-left">Kategori</h3>
                 <div class="flex gap-[20px] text-left">
                     @php
-                        // Mengambil semua kategori dari database jika variabel global $categories belum dilempar ke layout
                         $footerCategories = DB::table('kategoris')->get();
-                        
-                        // Membagi kategori menjadi 2 kolom secara seimbang
                         $chunks = $footerCategories->chunk(ceil($footerCategories->count() / 2));
                     @endphp
 
@@ -340,7 +375,6 @@
                         <ul class="list-none p-0 flex-1">
                             @foreach($chunk as $cat)
                                 <li class="mb-[8px]">
-                                    {{-- Mengarahkan ke halaman semua produk dengan memfilter berdasarkan kategori ID --}}
                                     <a href="{{ route('customer.semua-produk', ['kategori' => $cat->id]) }}" 
                                     class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px] inline-block">
                                         {{ $cat->name }}
@@ -351,55 +385,112 @@
                     @endforeach
                 </div>
             </div>
+
+            {{-- 3. TENTANG KAMI & INSTAGRAM DINAMIS --}}
             <div class="w-full">
                 <h3 class="text-[16px] mb-[20px] font-bold text-left">Tentang Kami</h3>
                 <ul class="list-none p-0 mb-[20px]">
                     <li class="mb-[8px]">
-                        {{-- Mengarahkan href ke route tentang kami --}}
                         <a href="{{ route('customer.tentang-kami') }}" class="text-white/80 no-underline text-[13px] transition-all duration-300 hover:text-white hover:pl-[5px]">
                             Profil Perusahaan
                         </a>
                     </li>
                 </ul>
+
                 <h3 class="text-[16px] mb-[20px] font-bold text-left">Ikuti Kami</h3>
-                <div class="mt-[10px]">
-                    <a href="https://www.instagram.com/fantastic.printing" target="_blank" aria-label="Ikuti kami di Instagram" class="inline-block transition-all duration-300 hover:scale-[1.1]">
-                        <img src="{{ asset('assets/icons/instagram_.png') }}" alt="Instagram" class="w-[30px] h-[30px] align-middle">
+                <div class="mt-[10px] flex items-center gap-3">
+                    {{-- Instagram --}}
+                    @php
+                        $rawIg = $settingsData['instagram_url'] ?? '';
+                        $cleanIg = str_replace(['https://', 'http://', 'instagram.com/', 'www.instagram.com/', '@'], '', $rawIg);
+                        $cleanIg = trim($cleanIg, '/ ');
+                        $finalIgUrl = !empty($cleanIg) ? 'https://www.instagram.com/' . $cleanIg . '/' : '#';
+                    @endphp
+
+                    @if(!empty($cleanIg))
+                        <a href="{{ $finalIgUrl }}" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        aria-label="Ikuti kami di Instagram" 
+                        class="inline-block transition-all duration-300 hover:scale-[1.1]">
+                            <img src="{{ asset('assets/icons/instagram_.png') }}" alt="Instagram" class="w-[30px] h-[30px] align-middle">
+                        </a>
+                    @endif
+
+                    {{-- Google Maps (dengan background putih) --}}
+                    @php
+                        // Ambil langsung sesuai nama key di database: 'link_google_maps'
+                        $mapsUrl = $settingsData['link_google_maps'] ?? '#';
+                    @endphp
+
+                    <a href="{{ $mapsUrl }}" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    aria-label="Lokasi Kami di Google Maps" 
+                    class="w-[30px] h-[30px] bg-white rounded-[8px] flex items-center justify-center transition-all duration-300 hover:scale-[1.1] shadow-sm"
+                    title="Lokasi Kami">
+                        <img src="{{ asset('assets/icons/maps.png') }}" 
+                            alt="Google Maps" 
+                            class="w-[22px] h-[22px] object-contain" 
+                            onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/2991/2991231.png';">
                     </a>
                 </div>
             </div>
+
+            {{-- 4. JAM LAYANAN --}}
             <div class="w-full">                    
                 <h3 class="text-[16px] mb-[20px] font-bold text-left">Jam Layanan</h3>
                 <div class="flex gap-[12px] mb-[15px] items-start">
-                    <i class="far fa-clock text-[16px] mt-[3px]"></i>
-                    <span>Senin - Sabtu<br>09.00 - 21.00</span>
+                    <i class="far fa-clock text-[16px] mt-[5px]"></i>
+                    <span>Senin - Sabtu<br>{{ $settings['jam_senin_sabtu'] ?? ($appSettings['jam_senin_sabtu'] ?? '') }}</span>
                 </div>
                 <div class="flex gap-[12px] mb-[15px] items-start">
-                    <i class="far fa-clock text-[16px] mt-[3px]"></i>
-                    <span>Minggu<br>Tutup</span>
+                    <i class="far fa-clock text-[16px] mt-[5px]"></i>
+                    <span>Minggu<br>{{ $settings['jam_minggu'] ?? ($appSettings['jam_minggu'] ?? '') }}</span>
                 </div>
             </div>
+
+            {{-- 5. HUBUNGI KAMI --}}
             <div class="w-full">
                 <h3 class="text-[16px] mb-[20px] font-bold text-left">Hubungi Kami</h3>
+                
+                {{-- Alamat --}}
                 <div class="flex gap-[12px] mb-[15px] items-start">
-                    <i class="fas fa-map-marker-alt text-[16px] mt-[3px]"></i>
-                    <span class="text-white/90">Fantastic Digital Printing<br>Jl. Raya Timur Wanadadi, Dusun Dua, Wanadadi, Kec. Wanadadi, Kab. Banjarnegara, Jawa Tengah</span>
+                    <i class="fas fa-map-marker-alt text-[16px] mt-[5px]"></i>
+                    <span class="text-white/90">
+                        <strong>{{ $appSettings['nama_toko'] ?? $settings['nama_toko'] ?? '' }}</strong><br>
+                        {{ $appSettings['jalan_detail'] ?? $settings['jalan_detail'] ?? '' }},
+                        {{ $appSettings['desa_dusun'] ?? $settings['desa_dusun'] ?? '' }},
+                        Kec. {{ $appSettings['kecamatan'] ?? $settings['kecamatan'] ?? '' }},
+                        Kab. {{ $appSettings['kota'] ?? $settings['kota'] ?? '' }},
+                        {{ $appSettings['provinsi'] ?? $settings['provinsi'] ?? '' }}
+                        {{ $appSettings['kode_pos'] ?? $settings['kode_pos'] ?? '' }}
+                    </span>
                 </div>
+
+                {{-- WhatsApp --}}
                 <div class="flex gap-[12px] mb-[15px] items-start">
                     <img src="{{ asset('assets/icons/wa-icon.png') }}" alt="WA" class="w-[16px] h-[16px] align-middle mt-[3px]"> 
                     <div>
-                        <span>+62 851-1962-2615</span><br>
-                        <span>+62 812-2978-3247</span>
+                        <span>{{ $settingsData['wa_number_1'] ?? '' }}</span>
+                        @if(!empty($settingsData['wa_number_2']))
+                            <br>
+                            <span>{{ $settingsData['wa_number_2'] }}</span>
+                        @endif
                     </div>
                 </div>
+
+                {{-- Email --}}
                 <div class="flex gap-[12px] mb-[15px] items-start">
                     <i class="far fa-envelope text-[16px] mt-[3px]"></i>
-                    <span>fantasticwnd@gmail.com</span>
+                    <span>{{ $settingsData['email_toko'] ?? '' }}</span>
                 </div>
+
             </div>
         </div>
     </footer>
 
+    <!-- Modal Alert Login -->
     <div id="loginAlertModal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300">
         <div class="bg-white w-[90%] max-w-[400px] rounded-[30px] p-8 flex flex-col items-center text-center shadow-[0_10px_30px_rgba(0,0,0,0.15)] transform scale-95 transition-transform duration-300">
             <div class="w-16 h-16 bg-brandRed/10 text-brandRed rounded-full flex items-center justify-center text-3xl mb-4 shadow-sm">
@@ -423,8 +514,9 @@
     </div>
 
     @auth
-    <div id="logoutModal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-        <div class="bg-white w-full max-w-[400px] rounded-[25px] p-8 flex flex-col items-center text-center shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
+    <!-- Modal Konfirmasi Logout -->
+    <div id="logoutModal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300 p-4">
+        <div class="bg-white w-full max-w-[400px] rounded-[25px] p-8 flex flex-col items-center text-center shadow-[0_10px_30px_rgba(0,0,0,0.2)] transform scale-95 transition-transform duration-300">
             <div class="w-16 h-16 bg-red-50 text-[#c40000] rounded-full flex items-center justify-center text-3xl mb-4">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </div>
@@ -446,151 +538,163 @@
     @endauth
 
     <script>
-            function toggleCartPopup() {
-                const cart = document.getElementById('cartDropdown');
-                const notif = document.getElementById('notificationDropdown');
-                const userMenu = document.getElementById('userDropdown'); // Tambahan pencegahan tabrakan
-                
-                if(cart) cart.classList.toggle('hidden');
-                if(notif && !notif.classList.contains('hidden')) notif.classList.add('hidden');
-                if(userMenu && !userMenu.classList.contains('hidden')) userMenu.classList.add('hidden');
-            }
+        // === TOGGLE DROPDOWN ===
+        function toggleCartPopup() {
+            const cart = document.getElementById('cartDropdown');
+            const notif = document.getElementById('notificationDropdown');
+            const userMenu = document.getElementById('userDropdown');
+            
+            if(cart) cart.classList.toggle('hidden');
+            if(notif) notif.classList.add('hidden');
+            if(userMenu) userMenu.classList.add('hidden');
+        }
 
-            function hitungTotalPopup() {
-                let total = 0;
-                // Cari semua checkbox yang sedang dicentang di dalam popup
-                const checkboxes = document.querySelectorAll('.cart-checkbox:checked');
+        function toggleNotificationPopup() {
+            const notif = document.getElementById('notificationDropdown');
+            const cart = document.getElementById('cartDropdown');
+            const userMenu = document.getElementById('userDropdown');
+            
+            if(notif) notif.classList.toggle('hidden');
+            if(cart) cart.classList.add('hidden');
+            if(userMenu) userMenu.classList.add('hidden');
+        }
+
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('userDropdown');
+            const cart = document.getElementById('cartDropdown');
+            const notif = document.getElementById('notificationDropdown');
+            
+            if(userMenu) userMenu.classList.toggle('hidden');
+            if(cart) cart.classList.add('hidden');
+            if(notif) notif.classList.add('hidden');
+        }
+
+        // === HITUNG TOTAL POPUP KERANJANG ===
+        function hitungTotalPopup() {
+            let total = 0;
+            const checkboxes = document.querySelectorAll('.cart-checkbox:checked');
+            
+            checkboxes.forEach(cb => {
+                const price = parseFloat(cb.getAttribute('data-price')) || 0;
+                const qty = parseInt(cb.getAttribute('data-qty')) || 0;
+                total += price * qty;
+            });
+            
+            const totalElem = document.getElementById('totalHargaPopup');
+            if(totalElem) {
+                totalElem.innerText = 'Rp ' + total.toLocaleString('id-ID');
+            }
+        }
+
+        // === SUBMENU (MOBILE) ===
+        function toggleSubMenu(element, event) {
+            if (window.innerWidth < 768) {
+                if (event.target.closest('a')) return;
+                const submenu = element.querySelector('.submenu-box');
+                const arrow = element.querySelector('.arrow-icon');
+                if(!submenu) return;
+
+                const isHidden = submenu.classList.contains('hidden');
                 
-                checkboxes.forEach(cb => {
-                    const price = parseFloat(cb.getAttribute('data-price'));
-                    const qty = parseInt(cb.getAttribute('data-qty'));
-                    total += price * qty;
+                document.querySelectorAll('.submenu-box').forEach(box => {
+                    box.classList.add('hidden');
+                    box.classList.remove('block');
                 });
-                
-                // Format angka ke format Rupiah rupiah (e.g. Rp 12.000)
-                document.getElementById('totalHargaPopup').innerText = 'Rp ' + total.toLocaleString('id-ID');
-            }
+                document.querySelectorAll('.arrow-icon').forEach(arr => {
+                    arr.classList.remove('rotate-90', 'text-brandRed');
+                });
 
-            function toggleNotificationPopup() {
-                const notif = document.getElementById('notificationDropdown');
-                const cart = document.getElementById('cartDropdown');
-                const userMenu = document.getElementById('userDropdown'); // Tambahan pencegahan tabrakan
-                
-                if(notif) notif.classList.toggle('hidden');
-                if(cart && !cart.classList.contains('hidden')) cart.classList.add('hidden');
-                if(userMenu && !userMenu.classList.contains('hidden')) userMenu.classList.add('hidden');
-            }
-
-            // === FITUR BARU: TOGGLE DROPDOWN USER ===
-            function toggleUserMenu() {
-                const userMenu = document.getElementById('userDropdown');
-                const cart = document.getElementById('cartDropdown');
-                const notif = document.getElementById('notificationDropdown');
-                
-                if(userMenu) userMenu.classList.toggle('hidden');
-                if(cart && !cart.classList.contains('hidden')) cart.classList.add('hidden');
-                if(notif && !notif.classList.contains('hidden')) notif.classList.add('hidden');
-            }
-
-            function toggleSubMenu(element, event) {
-                if (window.innerWidth < 768) {
-                    if (event.target.closest('a')) return;
-                    const submenu = element.querySelector('.submenu-box');
-                    const arrow = element.querySelector('.arrow-icon');
-                    const isHidden = submenu.classList.contains('hidden');
-                    
-                    document.querySelectorAll('.submenu-box').forEach(box => {
-                        box.classList.add('hidden');
-                        box.classList.remove('block');
-                    });
-                    document.querySelectorAll('.arrow-icon').forEach(arr => {
-                        arr.classList.remove('rotate-90', 'text-brandRed');
-                    });
-
-                    if (isHidden) {
-                        submenu.classList.remove('hidden');
-                        submenu.classList.add('block');
-                        arrow.classList.add('rotate-90', 'text-brandRed'); 
-                    }
+                if (isHidden) {
+                    submenu.classList.remove('hidden');
+                    submenu.classList.add('block');
+                    if(arrow) arrow.classList.add('rotate-90', 'text-brandRed'); 
                 }
             }
+        }
 
-            function openLoginModal(fitur) {
-                const modal = document.getElementById('loginAlertModal');
-                const message = document.getElementById('loginAlertMessage');
-                if(!modal) return;
+        // === UTILS HELPER UNTUK ANIMASI MODAL ===
+        function showModalAnimated(modalId) {
+            const modal = document.getElementById(modalId);
+            if(!modal) return;
 
-                if (message) {
-                    if (fitur === 'keranjang') {
-                        message.innerText = "Silakan login terlebih dahulu ke akun Anda untuk mengakses fitur keranjang belanja.";
-                    } else if (fitur === 'notifikasi') {
-                        message.innerText = "Silakan login terlebih dahulu ke akun Anda untuk melihat notifikasi terbaru.";
-                    } else {
-                        message.innerText = "Silakan login terlebih dahulu ke akun Anda.";
-                    }
-                }
-
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    const innerCard = modal.querySelector('.transform');
-                    if(innerCard) {
-                        innerCard.classList.remove('scale-95');
-                        innerCard.classList.add('scale-100');
-                    }
-                }, 10);
-            }
-
-            function closeLoginModal() {            
-                const modal = document.getElementById('loginAlertModal');
-                if(!modal) return;
-                modal.classList.add('opacity-0');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
                 const innerCard = modal.querySelector('.transform');
                 if(innerCard) {
-                    innerCard.classList.remove('scale-100'); innerCard.classList.add('scale-95');
+                    innerCard.classList.remove('scale-95');
+                    innerCard.classList.add('scale-100');
                 }
-                setTimeout(() => {
-                    modal.classList.remove('flex');
-                    modal.classList.add('hidden');
-                }, 300);
+            }, 10);
+        }
+
+        function hideModalAnimated(modalId) {
+            const modal = document.getElementById(modalId);
+            if(!modal) return;
+
+            modal.classList.add('opacity-0');
+            const innerCard = modal.querySelector('.transform');
+            if(innerCard) {
+                innerCard.classList.remove('scale-100'); 
+                innerCard.classList.add('scale-95');
             }
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 300);
+        }
 
-            function openLogoutModal() {
-                const modal = document.getElementById('logoutModal');
-                if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
-            }
-
-            function closeLogoutModal() {
-                const modal = document.getElementById('logoutModal');
-                if(modal) { modal.classList.remove('flex'); modal.classList.add('hidden'); }
-            }
-
-            // === MODIFIKASI FITUR CLOSING: MENUTUP SEMUA DROPDOWN JIKA NYASAR KLIK LUAR ===
-            window.onclick = function(event) {
-                // 1. Ambil elemen pembungkus utama masing-masing dropdown
-                const cartWrapper = document.getElementById('cartMenuWrapper');
-                const notifWrapper = document.getElementById('notifMenuWrapper');
-                const userWrapper = document.getElementById('userMenuWrapper');
-
-                // 2. Jika yang diklik berada di luar pembungkus keranjang, sembunyikan dropdown keranjang
-                if (cartWrapper && !cartWrapper.contains(event.target)) {
-                    const cartDropdown = document.getElementById('cartDropdown');
-                    if (cartDropdown) cartDropdown.classList.add('hidden');
-                }
-
-                // 3. Jika yang diklik berada di luar pembungkus notifikasi, sembunyikan dropdown notifikasi
-                if (notifWrapper && !notifWrapper.contains(event.target)) {
-                    const notifDropdown = document.getElementById('notificationDropdown');
-                    if (notifDropdown) notifDropdown.classList.add('hidden');
-                }
-
-                // 4. Jika yang diklik berada di luar pembungkus profil user, sembunyikan dropdown profil
-                if (userWrapper && !userWrapper.contains(event.target)) {
-                    const userDropdown = document.getElementById('userDropdown');
-                    if (userDropdown) userDropdown.classList.add('hidden');
+        // === MODAL LOGIN ===
+        function openLoginModal(fitur) {
+            const message = document.getElementById('loginAlertMessage');
+            if (message) {
+                if (fitur === 'keranjang') {
+                    message.innerText = "Silakan login terlebih dahulu ke akun Anda untuk mengakses fitur keranjang belanja.";
+                } else if (fitur === 'notifikasi') {
+                    message.innerText = "Silakan login terlebih dahulu ke akun Anda untuk melihat notifikasi terbaru.";
+                } else {
+                    message.innerText = "Silakan login terlebih dahulu ke akun Anda.";
                 }
             }
+            showModalAnimated('loginAlertModal');
+        }
+
+        function closeLoginModal() { 
+            hideModalAnimated('loginAlertModal');
+        }
+
+        // === MODAL LOGOUT ===
+        function openLogoutModal() {
+            showModalAnimated('logoutModal');
+        }
+
+        function closeLogoutModal() {
+            hideModalAnimated('logoutModal');
+        }
+
+        // === CLOSE DROPDOWNS ON OUTSIDE CLICK ===
+        window.addEventListener('click', function(event) {
+            const cartWrapper = document.getElementById('cartMenuWrapper');
+            const notifWrapper = document.getElementById('notifMenuWrapper');
+            const userWrapper = document.getElementById('userMenuWrapper');
+
+            if (cartWrapper && !cartWrapper.contains(event.target)) {
+                const cartDropdown = document.getElementById('cartDropdown');
+                if (cartDropdown) cartDropdown.classList.add('hidden');
+            }
+
+            if (notifWrapper && !notifWrapper.contains(event.target)) {
+                const notifDropdown = document.getElementById('notificationDropdown');
+                if (notifDropdown) notifDropdown.classList.add('hidden');
+            }
+
+            if (userWrapper && !userWrapper.contains(event.target)) {
+                const userDropdown = document.getElementById('userDropdown');
+                if (userDropdown) userDropdown.classList.add('hidden');
+            }
+        });
     </script>
+@stack('scripts')
 </body>
 </html>

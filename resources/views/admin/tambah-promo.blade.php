@@ -1,131 +1,150 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Promo - Fantastic Digital Printing</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Poppins', sans-serif; }</style>
-</head>
-<body class="bg-gray-50 flex flex-col min-h-screen">
+@extends('layouts.admin')
 
-    <header class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-        <div class="flex items-center">
-            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-10 object-contain">
-        </div>
-        <div class="flex items-center gap-3">
-            <span class="text-xs font-semibold text-gray-700">Selamat Datang, <strong class="text-gray-900">Admin</strong></span>
-            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center border border-gray-300">
-                <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
-            </div>
-        </div>
-    </header>
+@section('title', 'Tambah Promo Baru - Fantastic Digital Printing')
 
-    <div class="flex flex-1">
-        <aside class="w-64 bg-red-700 text-white flex flex-col justify-between min-h-[calc(100vh-57px)] sticky top-[57px]">
-            <div class="py-4">
-                <nav class="space-y-1 px-2">
-                    <a href="{{ route('admin.dashboard') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>🏠</span> Dashboard
-                    </a>
-                    <a href="{{ route('admin.produk') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>🛍️</span> Produk
-                    </a>
-                    <a href="{{ route('admin.kategori') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>🏷️</span> Kategori
-                    </a>
-                    <a href="{{ route('admin.pesanan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>📦</span> Pesanan
-                    </a>
-                    <a href="{{ route('admin.pembayaran') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>💳</span> Pembayaran
-                    </a>
-                    <a href="{{ route('admin.promo') }}" class="bg-red-800 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition">
-                        <span>%</span> Promo
-                    </a>
-                    <a href="{{ route('admin.pelanggan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>👥</span> Pelanggan
-                    </a>
-                    <a href="{{ route('admin.laporan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>📊</span> Laporan
-                    </a>
-                    <a href="{{ route('admin.pengaturan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>⚙️</span> Pengaturan
-                    </a>
-                </nav>
+@section('content')
+<div class="flex flex-col max-w-4xl space-y-6">
+    
+    {{-- Header Halaman & Deskripsi --}}
+    <div>
+        <h2 class="text-xl font-bold text-gray-800 tracking-wide">
+            Tambah Promo Baru
+        </h2>
+        <p class="text-xs text-gray-500 mt-1">
+            Buat kode diskon baru untuk memberikan potongan harga khusus kepada pelanggan.
+        </p>
+    </div>
+
+    {{-- Form Box Putih --}}
+    <div class="bg-white border border-red-300 rounded-2xl shadow-sm p-6">
+        <form action="{{ route('admin.promo.store') }}" method="POST">
+            @csrf
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs font-medium text-gray-700">
+                
+                {{-- Nama Promo (Full 2 Kolom) --}}
+                <div class="md:col-span-2 space-y-2">
+                    <label for="nama" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                        Nama Promo <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           name="nama" 
+                           id="nama"
+                           value="{{ old('nama') }}" 
+                           required 
+                           placeholder="Contoh: Promo Diskon Kemerdekaan"
+                           class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition">
+                    
+                    @error('nama')
+                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Kode Promo --}}
+                <div class="space-y-2">
+                    <label for="kode" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                        Kode Promo <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           name="kode" 
+                           id="kode"
+                           value="{{ old('kode') }}" 
+                           required 
+                           placeholder="Contoh: MERDEKA79"
+                           class="w-full px-4 py-2.5 text-xs font-medium uppercase font-mono bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition">
+                    
+                    @error('kode')
+                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Besar Diskon (%) --}}
+                <div class="space-y-2">
+                    <label for="diskon" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                        Besar Diskon (%) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" 
+                           name="diskon" 
+                           id="diskon"
+                           min="1" 
+                           max="100" 
+                           value="{{ old('diskon') }}" 
+                           required 
+                           placeholder="Contoh: 15"
+                           class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition">
+                    
+                    @error('diskon')
+                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Tanggal Mulai --}}
+                <div class="space-y-2">
+                    <label for="tanggal_mulai" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                        Tanggal Mulai <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" 
+                           name="tanggal_mulai" 
+                           id="tanggal_mulai"
+                           value="{{ old('tanggal_mulai') }}" 
+                           required 
+                           class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition cursor-pointer">
+                    
+                    @error('tanggal_mulai')
+                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Tanggal Berakhir --}}
+                <div class="space-y-2">
+                    <label for="tanggal_selesai" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                        Tanggal Berakhir <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" 
+                           name="tanggal_selesai" 
+                           id="tanggal_selesai"
+                           value="{{ old('tanggal_selesai') }}" 
+                           required 
+                           class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition cursor-pointer">
+                    
+                    @error('tanggal_selesai')
+                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Status Promo (Full 2 Kolom) --}}
+                <div class="md:col-span-2 space-y-2">
+                    <label for="status" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                        Status Promo <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <select name="status" 
+                                id="status" 
+                                class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition appearance-none cursor-pointer">
+                            <option value="Aktif" {{ old('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                            <option value="Nonaktif" {{ old('status') == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-500 text-[10px]">▼</span>
+                    </div>
+
+                    @error('status')
+                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
             </div>
-            <div class="p-3 border-t border-red-800">
-                <a href="#" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold bg-red-900 hover:bg-red-950 transition text-center justify-center uppercase tracking-wider">
-                    <span>🚪</span> Log Out
+
+            {{-- Tombol Aksi --}}
+            <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+                <a href="{{ route('admin.promo', ['tab' => 'promo']) }}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full text-xs font-bold transition shadow-sm no-underline flex items-center justify-center">
+                    Batal
                 </a>
+                <button type="submit" class="px-5 py-2.5 bg-red-700 hover:bg-red-800 text-white rounded-full text-xs font-bold transition shadow-sm active:scale-95 cursor-pointer">
+                    Simpan Promo
+                </button>
             </div>
-        </aside>
-
-        <main class="flex-1 p-8 space-y-6">
-            <div>
-                <h2 class="text-xl font-bold text-gray-800 tracking-wide">Tambah Promo Baru</h2>
-                <p class="text-[11px] text-gray-400 mt-1">Dashboard &nbsp;/&nbsp; Data Promo &nbsp;/&nbsp; Tambah Promo</p>
-            </div>
-
-            <div class="bg-white border border-red-400 rounded-2xl shadow-sm p-6 max-w-4xl">
-                <form action="{{ route('admin.promo.store') }}" method="POST">
-                    @csrf
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs font-medium text-gray-700">
-                        
-                        <div class="md:col-span-2 flex flex-col gap-2">
-                            <label for="nama" class="font-semibold text-gray-800">Nama Promo</label>
-                            <input type="text" name="nama" id="nama" required class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500">
-                        </div>
-
-                        <div class="flex flex-col gap-2">
-                            <label for="kode" class="font-semibold text-gray-800">Kode Promo</label>
-                            <input type="text" name="kode" id="kode" required class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500 uppercase">
-                        </div>
-
-                        <div class="flex flex-col gap-2">
-                            <label for="diskon" class="font-semibold text-gray-800">Besar Diskon (%)</label>
-                            <input type="number" name="diskon" id="diskon" required class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500">
-                        </div>
-
-                        <div class="flex flex-col gap-2">
-                            <label for="tanggal_mulai" class="font-semibold text-gray-800">Tanggal Mulai</label>
-                            <input type="date" name="tanggal_mulai" id="tanggal_mulai" required class="w-full p-3 border border-gray-200 rounded-xl">
-                        </div>
-
-                        <div class="flex flex-col gap-2">
-                            <label for="tanggal_selesai" class="font-semibold text-gray-800">Tanggal Berakhir</label>
-                            <input type="date" name="tanggal_selesai" id="tanggal_selesai" required class="w-full p-3 border border-gray-200 rounded-xl">
-                        </div>
-
-                        <div class="md:col-span-2 flex flex-col gap-2">
-                            <label class="font-semibold text-gray-800">Status Promo</label>
-                            <select name="status" class="w-full p-3 border border-gray-200 rounded-xl">
-                                <option value="Aktif">Aktif</option>
-                                <option value="Nonaktif">Nonaktif</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end gap-2 border-t border-gray-100 mt-6 pt-4">
-                        <a href="{{ route('admin.promo') }}" class="px-5 py-2.5 border border-gray-300 text-gray-600 rounded-full hover:bg-gray-100 transition">Batal</a>
-                        <button type="submit" class="px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white rounded-full shadow-sm transition">
-                            Simpan Promo
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </main>
+        </form>
     </div>
 
-    <div id="toast" class="fixed top-5 right-[-400px] bg-gray-900 text-white px-5 py-4 rounded-xl shadow-lg flex items-center gap-3 transition-all duration-300 z-50 text-xs">
-        <span class="text-green-400 text-base">✔</span>
-        <div>
-            <strong class="block text-white mb-0.5">Berhasil!</strong>
-            <span id="toast-text" class="text-gray-300">Data promo divalidasi oleh sistem view.</span>
-        </div>
-    </div>
-</body>
-</html>
+</div>
+@endsection

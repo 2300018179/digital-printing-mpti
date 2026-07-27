@@ -29,7 +29,7 @@ class User extends Authenticatable
     public function pesanan(): HasMany
     {
         // Sesuaikan 'user_id' jika nama kolom foreign key Anda berbeda
-        return $this->hasMany(Pesanan::class, 'user_id');
+        return $this->hasMany(Pesanan::class, 'user_id', 'id');
     }
 
     public function keranjangs()

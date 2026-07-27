@@ -11,13 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-            Schema::create('pesanan', function (Blueprint $table) {
+        Schema::create('pesanan', function (Blueprint $table) {
             $table->id();
+            // 1. Kolom Relasi User (Wajib Login)
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            
+            // 2. Data Unik & Identitas Pesanan
             $table->string('order_id')->unique();
             $table->string('nama_pelanggan');
             $table->date('tanggal_pesanan');
+            
+            // 3. Rincian Biaya & Pembayaran
             $table->decimal('total', 15, 2);
-            $table->string('status'); // Menunggu, Diproses, Dicetak, Dikirim, Selesai
+            $table->string('bukti_transfer')->nullable(); // Menampung foto bukti transfer dari customer
+            
+            // 4. Status Transaksi
+            $table->string('status')->default('Menunggu'); // Default awal jika belum terverifikasi
+            
             $table->timestamps();
         });
     }

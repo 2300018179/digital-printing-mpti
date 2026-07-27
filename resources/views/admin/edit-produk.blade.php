@@ -1,143 +1,225 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Produk - Fantastic Digital Printing</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Poppins', sans-serif; }</style>
-</head>
-<body class="bg-gray-50 flex flex-col min-h-screen">
+@extends('layouts.admin')
 
-    <header class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-        <div class="flex items-center">
-            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-10 object-contain">
-        </div>
-        <div class="flex items-center gap-3">
-            <span class="text-xs font-semibold text-gray-700">Selamat Datang, <strong class="text-gray-900">Admin</strong></span>
-        </div>
-    </header>
+@section('title', 'Edit Produk - Fantastic Digital Printing')
 
-    <div class="flex flex-1">
-        <aside class="w-64 bg-red-700 text-white flex flex-col justify-between min-h-[calc(100vh-57px)] sticky top-[57px]">
-            <div class="py-4">
-                <nav class="space-y-1 px-2">
-                    <a href="{{ route('admin.dashboard') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>🏠</span> Dashboard
-                    </a>
-                    <a href="{{ route('admin.produk') }}" class="bg-red-800 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition">
-                        <span>🛍️</span> Produk
-                    </a>
-                    <a href="{{ route('admin.kategori') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>🏷️</span> Kategori
-                    </a>
-                    <a href="{{ route('admin.pesanan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>📦</span> Pesanan
-                    </a>
-                    <a href="{{ route('admin.pembayaran') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>💳</span> Pembayaran
-                    </a>
-                    <a href="{{ route('admin.promo') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>🏷️</span> Promo
-                    </a>
-                    <a href="{{ route('admin.pelanggan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>👥</span> Pelanggan
-                    </a>
-                    <a href="{{ route('admin.laporan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>📊</span> Laporan
-                    </a>
-                    <a href="{{ route('admin.pengaturan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>⚙️</span> Pengaturan
-                    </a>
-                </nav>
-            </div>
-
-            <div class="p-3 border-t border-red-800">
-                <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar?')">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold bg-red-900 hover:bg-red-950 transition text-center justify-center uppercase tracking-wider text-white">
-                        <span>🚪</span> Log Out
-                    </button>
-                </form>
-            </div>
-        </aside>
-
-        <main class="flex-1 p-8">
-            <div class="max-w-3xl bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
-                <h2 class="text-xl font-bold text-gray-800 mb-6">Edit Produk: {{ $product->name }}</h2>
-
-                <form action="{{ route('admin.produk.update', $product->id) }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-2">Nama Produk</label>
-                            <input type="text" name="name" value="{{ old('name', $product->name) }}" class="w-full px-4 py-2 border rounded-xl text-sm" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-2">Kategori</label>
-                            <select name="kategori" class="w-full px-4 py-2 border rounded-xl text-sm" required>
-                                <option value="Print On Paper" {{ $product->kategori == 'Print On Paper' ? 'selected' : '' }}>Print On Paper</option>
-                                <option value="Print Stiker" {{ $product->kategori == 'Print Stiker' ? 'selected' : '' }}>Print Stiker</option>
-                                <option value="Kalender" {{ $product->kategori == 'Kalender' ? 'selected' : '' }}>Kalender</option>
-                                <option value="Banner & Spanduk" {{ $product->kategori == 'Banner & Spanduk' ? 'selected' : '' }}>Banner & Spanduk</option>
-                                <option value="Sablon" {{ $product->kategori == 'Sablon' ? 'selected' : '' }}>Sablon</option>
-                                <option value="Sovenir" {{ $product->kategori == 'Sovenir' ? 'selected' : '' }}>Sovenir</option>
-                                <option value="Undangan" {{ $product->kategori == 'Undangan' ? 'selected' : '' }}>Undangan</option>
-                                <option value="Papan Informasi" {{ $product->kategori == 'Papan Informasi' ? 'selected' : '' }}>Papan Informasi</option>
-                                <option value="Tanda Pengenal" {{ $product->kategori == 'Tanda Pengenal' ? 'selected' : '' }}>Tanda Pengenal</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-2">Harga</label>
-                            <input type="number" name="price" value="{{ old('price', $product->price) }}" class="w-full px-4 py-2 border rounded-xl text-sm" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-2">Stok</label>
-                            <input type="number" name="stock" value="{{ old('stock', $product->stock) }}" class="w-full px-4 py-2 border rounded-xl text-sm" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-2">Satuan (Contoh: Pcs, Rim, M2)</label>
-                            <input type="text" name="unit" value="{{ old('unit', $product->unit) }}" class="w-full px-4 py-2 border rounded-xl text-sm" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-2">Status</label>
-                            <select name="status" class="w-full px-4 py-2 border rounded-xl text-sm" required>
-                                <option value="Aktif" {{ $product->status == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                                <option value="Non-Aktif" {{ $product->status == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
-                            </select>
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-gray-700 mb-2">Deskripsi</label>
-                            <textarea name="description" rows="3" class="w-full px-4 py-2 border rounded-xl text-sm">{{ old('description', $product->description) }}</textarea>
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-gray-700 mb-2">Ganti Gambar (Opsional)</label>
-                            @if($product->image)
-                                <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $product->image) }}" class="w-20 h-20 object-cover rounded-lg border">
-                                </div>
-                            @endif
-                            <input type="file" name="image" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
-                        </div>
-                    </div>
-
-                    <div class="mt-8 flex gap-3">
-                        <button type="submit" class="bg-red-700 text-white px-6 py-2 rounded-xl font-bold text-xs hover:bg-red-800">Update Produk</button>
-                        <a href="{{ route('admin.produk') }}" class="bg-gray-100 text-gray-600 px-6 py-2 rounded-xl font-bold text-xs hover:bg-gray-200">Batal</a>
-                    </div>
-                </form>
-            </div>
-        </main>
+@section('content')
+<div class="space-y-6">
+    
+    {{-- HEADER HALAMAN & DESKRIPSI --}}
+    <div>
+        <h2 class="text-xl font-bold text-gray-800 tracking-wide">
+            Edit Produk: {{ $product->name }}
+        </h2>
+        <p class="text-xs text-gray-500 mt-1">
+            Perbarui data detail produk, harga, kategori, serta gambar utama produk cetak Anda.
+        </p>
     </div>
-</body>
-</html>
+
+    <!-- Card Utama Form -->
+    <div class="w-full bg-white p-6 rounded-2xl border border-red-300 shadow-sm">
+        
+        {{-- Menampilkan Error Validasi --}}
+        @if ($errors->any())
+            <div class="mb-5 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold">
+                <p class="font-bold mb-1">Terjadi kesalahan input:</p>
+                <ul class="list-disc pl-4 space-y-0.5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form action="{{ route('admin.produk.update', $product->id) }}" 
+              method="POST" 
+              enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            
+            <div class="space-y-5">
+                <!-- Baris 1: Nama Produk, Kategori, Sub Kategori -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Nama Produk <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" required
+                               value="{{ old('name', $product->name) }}"
+                               placeholder="Masukkan Nama Produk" 
+                               class="w-full px-4 py-2.5 bg-white border border-red-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-gray-700 shadow-sm transition">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Kategori Induk <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <select id="kategori-select" name="kategori_id" required class="w-full appearance-none px-4 py-2.5 bg-white border border-red-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-gray-700 shadow-sm transition cursor-pointer">
+                                <option value="" disabled selected>Pilih Kategori</option>
+                                @foreach($kategoris as $kat)
+                                    <option value="{{ $kat->id }}" 
+                                            data-subs="{{ json_encode($kat->subKategoris ?? $kat->sub_kategoris ?? []) }}"
+                                            {{ old('kategori_id', $product->subKategori->kategori_id ?? '') == $kat->id ? 'selected' : '' }}>
+                                        {{ $kat->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-gray-500 text-[10px]">▼</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Sub Kategori <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <select id="sub-kategori-select" name="sub_kategori_id" required class="w-full appearance-none px-4 py-2.5 bg-white border border-red-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-gray-700 shadow-sm transition cursor-pointer">
+                                <option value="" disabled selected>Pilih Sub Kategori</option>
+                            </select>
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-gray-500 text-[10px]">▼</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Baris 2: Harga, Satuan, Minimum Order -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Harga <span class="text-red-500">*</span></label>
+                        <input type="number" name="price" required
+                               value="{{ old('price', $product->price) }}"
+                               placeholder="Rp. 0" 
+                               class="w-full px-4 py-2.5 bg-white border border-red-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-gray-700 shadow-sm transition">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Satuan Produk <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <select name="unit" required class="w-full appearance-none px-4 py-2.5 bg-white border border-red-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-gray-700 shadow-sm transition cursor-pointer">
+                                <option value="lembar" {{ old('unit', $product->unit) == 'lembar' || old('unit', $product->unit) == 'lbr' ? 'selected' : '' }}>Lembar</option>
+                                <option value="m" {{ old('unit', $product->unit) == 'm' ? 'selected' : '' }}>Meter (m)</option>
+                                <option value="box" {{ old('unit', $product->unit) == 'box' ? 'selected' : '' }}>Box</option>
+                                <option value="pcs" {{ old('unit', $product->unit) == 'pcs' ? 'selected' : '' }}>Pcs</option>
+                            </select>
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-gray-500 text-[10px]">▼</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Minimum Order <span class="text-red-500">*</span></label>
+                        <input type="number" name="minimum_order" required min="1"
+                               value="{{ old('minimum_order', $product->minimum_order ?? 1) }}"
+                               class="w-full px-4 py-2.5 bg-white border border-red-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-gray-700 shadow-sm transition">
+                    </div>
+                </div>
+
+                <!-- Baris 3: Deskripsi -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Deskripsi Produk <span class="text-red-500">*</span></label>
+                    <textarea name="description" rows="4" placeholder="Masukkan deskripsi detail mengenai spesifikasi produk..." required
+                              class="w-full px-4 py-2.5 bg-white border border-red-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-gray-700 shadow-sm resize-none min-h-[100px] transition">{{ old('description', $product->description) }}</textarea>
+                    <p class="text-[10px] text-gray-400 mt-1">Jelaskan spesifikasi bahan, ukuran, dan opsi cetak secara singkat dan padat.</p>
+                </div>
+
+                <!-- Baris 4: Gambar & Status -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 border-t border-gray-100 pt-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Gambar Produk</label>
+                        <div onclick="document.getElementById('file-input').click()" 
+                             class="border border-dashed border-red-300 rounded-xl p-4 flex flex-col items-center justify-center bg-white cursor-pointer hover:bg-gray-50 transition min-h-[115px] text-center shadow-sm relative overflow-hidden"
+                             id="dropzone">
+                            
+                            <input type="file" id="file-input" name="image" accept="image/png, image/jpeg, image/jpg" class="hidden" onchange="previewImage(event)">
+                            
+                            <div id="upload-text" class="space-y-1 {{ $product->image ? 'hidden' : '' }}">
+                                <span class="text-xl">📁</span>
+                                <p class="text-[11px] font-semibold text-gray-600 leading-normal">
+                                    Klik atau drag file untuk mengganti gambar<br><span class="text-gray-400 text-[10px] font-normal">Format PNG atau JPG (Maks. 2MB)</span>
+                                </p>
+                            </div>
+
+                            <img id="image-preview" src="{{ $product->image ? asset('assets/products/' . $product->image) : '#' }}" alt="Preview" class="absolute inset-0 w-full h-full object-contain p-2 bg-white {{ $product->image ? '' : 'hidden' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col justify-between">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Status Produk</label>
+                            <div class="relative">
+                                <select name="status" class="w-full appearance-none px-4 py-2.5 bg-white border border-red-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-gray-700 shadow-sm transition cursor-pointer">
+                                    <option value="1" {{ old('status', $product->status) == '1' || old('status', $product->status) == 'Aktif' ? 'selected' : '' }}>Aktif (Ditampilkan)</option>
+                                    <option value="0" {{ old('status', $product->status) == '0' || old('status', $product->status) == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif (Disembunyikan)</option>
+                                </select>
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-gray-500 text-[10px]">▼</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400 mt-1">Produk non-aktif tidak akan muncul di katalog pelanggan.</p>
+                        </div>
+
+                        {{-- Tombol Aksi --}}
+                        <div class="flex justify-end gap-3 pt-5 md:pt-0">
+                            <a href="{{ route('admin.produk') }}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                                Batal
+                            </a>
+                            <button type="submit" class="px-5 py-2.5 bg-red-700 hover:bg-red-800 text-white rounded-full text-xs font-bold transition shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5">
+                                Simpan Perubahan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Menyimpan ID sub-kategori terpilih (mengakomodasi pencatatan lama jika validasi gagal)
+    const currentSubKategoriId = @json(old('sub_kategori_id', $product->sub_kategori_id));
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const kategoriSelect = document.getElementById('kategori-select');
+        
+        kategoriSelect.addEventListener('change', updateSubKategoriOptions);
+
+        if (kategoriSelect.value) {
+            updateSubKategoriOptions();
+        }
+    });
+
+    function updateSubKategoriOptions() {
+        const kategoriSelect = document.getElementById('kategori-select');
+        const subKategoriSelect = document.getElementById('sub-kategori-select');
+
+        subKategoriSelect.innerHTML = '<option value="" disabled selected>Pilih Sub Kategori</option>';
+        
+        const selectedOption = kategoriSelect.options[kategoriSelect.selectedIndex];
+        
+        if (selectedOption && selectedOption.getAttribute('data-subs')) {
+            try {
+                const subKategoris = JSON.parse(selectedOption.getAttribute('data-subs'));
+                
+                subKategoris.forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub.id;
+                    option.textContent = sub.name;
+                    
+                    if (currentSubKategoriId && sub.id == currentSubKategoriId) {
+                        option.selected = true;
+                    }
+                    subKategoriSelect.appendChild(option);
+                });
+            } catch (e) {
+                console.error("Gagal memproses data sub kategori:", e);
+            }
+        }
+    }
+
+    function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById('image-preview');
+        const uploadText = document.getElementById('upload-text');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                uploadText.classList.add('hidden');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+@endsection

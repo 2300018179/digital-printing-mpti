@@ -5,7 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Keranjang; // Ganti dengan App\Models\Cart jika nama modelmu Cart
+use Illuminate\Support\Facades\DB; // <--- 1. Pastikan facade DB di-import
+use App\Models\Keranjang;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,15 +25,18 @@ class AppServiceProvider extends ServiceProvider
     {
         // Membagikan data ke seluruh file blade (* berarti global)
         View::composer('*', function ($view) {
+            // Ambil data settings dari database
+            $appSettings = DB::table('settings')->pluck('value', 'key')->toArray(); // <--- 2. Tambahkan ini
+
             if (Auth::check()) {
                 $userId = Auth::id();
                 
                 // Ambil semua item keranjang milik user beserta data produknya
-                // CONTOH: Ubah baris query keranjang kamu
                 $cartItemsData = Keranjang::where('user_id', Auth::id())
-                    ->with('product') // Eager loading produk agar tidak N+1 query
-                    ->latest()        // <--- KUNCINYA DI SINI (Mengurutkan dari yang paling baru dibuat/id terbesar)
+                    ->with('product')
+                    ->latest()
                     ->get();
+
                 // Menghitung jumlah jenis produk/baris item yang masuk ke keranjang
                 $cartCount = $cartItemsData->count();
             } else {
@@ -42,6 +46,8 @@ class AppServiceProvider extends ServiceProvider
 
             // Kirim variabel ke Blade
             $view->with([
+                'settings'      => $appSettings, // <--- TAMBAHKAN BARIS INI
+                'appSettings'   => $appSettings, 
                 'cartItemsData' => $cartItemsData,
                 'cartCount'     => $cartCount
             ]);

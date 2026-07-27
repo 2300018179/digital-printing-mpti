@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Keranjang;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 class KeranjangController extends Controller
 {
@@ -23,79 +24,105 @@ class KeranjangController extends Controller
 
         // 3. Validasi input dari form detail produk
         $request->validate([
-            'cart_id_edit' => 'nullable|integer', // Tambahan validasi untuk ID edit
-            'jumlah'      => 'required|integer|min:1',
-            'catatan'     => 'nullable|string',
-            'desain_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,rar|max:10240', // Maksimal 10MB
-            'desain_link' => 'nullable|url'
+            'cart_id_edit' => 'nullable|integer', 
+            'jumlah'       => 'required|integer|min:1',
+            'catatan'      => 'nullable|string',
+            'file_desain'  => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,rar|max:10240', // Maksimal 10MB
+            'link_desain'  => 'nullable|url',
+            // Mendukung fallback jika Blade masih menggunakan name lama:
+            'desain_file'  => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,rar|max:10240',
+            'desain_link'  => 'nullable|url',
         ]);
 
         $userId = Auth::id();
 
-        // 4. Proses Penyimpanan File / Link Desain Baru
+        // 4. Tangkap File atau Link Desain Baru (Flexible handling)
+        $fileInput = $request->file('file_desain') ?? $request->file('desain_file');
+        $linkInput = $request->input('link_desain') ?? $request->input('desain_link');
+
         $desainInput = null;
-        if ($request->hasFile('desain_file')) {
-            $file = $request->file('desain_file');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/desain'), $fileName);
+
+        if ($fileInput) {
+            $fileName = time() . '_' . uniqid() . '.' . $fileInput->getClientOriginalExtension();
+            $fileInput->move(public_path('uploads/desain'), $fileName);
             $desainInput = 'uploads/desain/' . $fileName;
-        } elseif ($request->desain_link) {
-            $desainInput = $request->desain_link;
+        } elseif (!empty($linkInput)) {
+            $desainInput = $linkInput;
         }
 
         // =========================================================================
-        // PERBAIKAN UTAMA: LANGKAH 5 (Logika Cabang Antara Edit atau Tambah Baru)
+        // KONDISI A: MODE EDIT ITEM KERANJANG
         // =========================================================================
-        
-        // KONDISI A: JIKA USER SEDANG DALAM MODE EDIT (Ada parameter cart_id_edit)
         if ($request->has('cart_id_edit') && !empty($request->cart_id_edit)) {
             $cartItem = Keranjang::where('id', $request->cart_id_edit)
                                  ->where('user_id', $userId)
                                  ->first();
             
             if ($cartItem) {
-                // Tentukan nilai desain awal
-                $desainFinal = $cartItem->desain;
+                // Gunakan desain baru, atau pertahankan desain lama jika tidak ada upload baru
+                $desainFinal = $desainInput ?: $cartItem->desain;
 
-                // 1. Jika user mencentang/menekan tombol hapus desain lama via UI
-                if ($request->input('hapus_desain_lama') == '1') {
+                // Jika user mencentang/memicu hapus desain lama
+                if ($request->input('hapus_desain_lama') == '1' && !$desainInput) {
+                    // Hapus file fisik jika berupa file upload
+                    if ($cartItem->desain && File::exists(public_path($cartItem->desain))) {
+                        File::delete(public_path($cartItem->desain));
+                    }
                     $desainFinal = null;
                 }
 
-                // 2. Tapi, jika ternyata user mengunggah file baru atau mengisi link baru, gunakan yang baru
-                if ($desainInput) {
-                    $desainFinal = $desainInput;
-                }
+                // Cek apakah item serupa sudah ada
+                $itemSerupa = Keranjang::where('user_id', $userId)
+                                      ->where('product_id', $productId)
+                                      ->where('id', '!=', $cartItem->id)
+                                      ->where('notes', $request->catatan)
+                                      ->where('desain', $desainFinal)
+                                      ->first();
 
-                $cartItem->update([
-                    'quantity' => $request->jumlah,
-                    'notes'    => $request->catatan,
-                    'desain'   => $desainFinal, // Hasil akhir bisa berupa file baru, null (terhapus), atau tetap file lama
-                ]);
+                if ($itemSerupa) {
+                    $itemSerupa->increment('quantity', $request->jumlah);
+                    $cartItem->delete();
+                } else {
+                    $cartItem->update([
+                        'quantity' => $request->jumlah,
+                        'notes'    => $request->catatan,
+                        'desain'   => $desainFinal,
+                    ]);
+                }
                 
                 return redirect()->route('customer.dashboard')->with('success', 'Keranjang belanja berhasil diperbarui!');
             }
         }
 
-        // KONDISI B: JIKA USER TAMBAH BARU (Normal)
-        // Cek apakah produk dengan CATATAN dan DESAIN yang BENAR-BENAR SAMA sudah ada
+        // =========================================================================
+        // KONDISI B: TAMBAH BARU / AKUMULASI
+        // =========================================================================
         $cekKeranjang = Keranjang::where('user_id', $userId)
                                  ->where('product_id', $productId)
                                  ->where('notes', $request->catatan) 
-                                 ->where('desain', $desainInput)     
+                                 ->where('desain', $desainInput)    
                                  ->first();
 
         if ($cekKeranjang) {
-            // JIKA IDENTIK: Cukup tambahkan quantity-nya saja
             $cekKeranjang->increment('quantity', $request->jumlah);
+            $targetCartId = $cekKeranjang->id;
         } else {
-            // JIKA ADA YANG BEDA: BUAT KOTAKAN BARU!
-            Keranjang::create([
+            $baru = Keranjang::create([
                 'user_id'    => $userId,
                 'product_id' => $productId,
                 'quantity'   => $request->jumlah,   
                 'notes'      => $request->catatan,  
                 'desain'     => $desainInput,       
+            ]);
+            $targetCartId = $baru->id;
+        }
+
+        // =========================================================================
+        // GERBANG BELI SEKARANG (DIRECT CHECKOUT)
+        // =========================================================================
+        if ($request->has('checkout_langsung') && $request->checkout_langsung == 'true') {
+            return redirect()->route('customer.pembayaran', [
+                'selected_items' => [$targetCartId]
             ]);
         }
 
@@ -106,6 +133,12 @@ class KeranjangController extends Controller
     public function hapus($id)
     {
         $keranjang = Keranjang::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        
+        // Opsional: Hapus file dari folder jika item keranjang dihapus
+        if ($keranjang->desain && File::exists(public_path($keranjang->desain))) {
+            File::delete(public_path($keranjang->desain));
+        }
+
         $keranjang->delete();
 
         return redirect()->back()->with('success', 'Item berhasil dihapus dari keranjang.');

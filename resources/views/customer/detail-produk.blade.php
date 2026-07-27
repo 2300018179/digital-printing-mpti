@@ -9,7 +9,6 @@
     {{-- PART 1: DETAIL PRODUK (DINAMIS) --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
         <div class="w-full aspect-[4/3] max-w-[500px] border border-brandRed rounded-[25px] p-6 flex items-center justify-center bg-white shadow-[0_4px_12px_rgba(0,0,0,0.02)] mx-auto lg:ml-0">
-            {{-- CEK APAKAH PRODUK MEMILIKI GAMBAR DI DATABASE --}}
             @if($product->image)
                 <img src="{{ asset('assets/products/' . $product->image) }}" alt="{{ $product->name }}" class="max-w-full max-h-full object-contain">
             @else
@@ -31,7 +30,6 @@
             <div class="prose prose-sm text-sm text-gray-600 font-medium">
                 @if(!empty($product->description))
                     <ul class="list-disc pl-5 space-y-1">
-                        {{-- Memecah teks berdasarkan koma (,) menjadi array, lalu di-looping --}}
                         @foreach(explode(',', $product->description) as $item)
                             <li class="capitalize-first">{{ trim($item) }}</li>
                         @endforeach
@@ -46,10 +44,7 @@
     {{-- PART 2: FORM ORDER & INTEGRASI MEDIA UPLOAD --}}
     <form id="orderForm" action="{{ route('customer.pembayaran') }}" method="POST" enctype="multipart/form-data" onsubmit="clearAllSessionCache()" class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch mb-16">
         @csrf
-        {{-- Input tersembunyi untuk mengirimkan ID produk --}}
         <input type="hidden" name="product_id" value="{{ $product->id }}">
-        
-        {{-- ADDON EDIT MODE: Input tersembunyi untuk menampung ID Keranjang yang sedang diedit --}}
         <input type="hidden" name="cart_id_edit" value="{{ $editCartData->id ?? '' }}">
         
         {{-- KOLOM KIRI: Parameter Cetak --}}
@@ -66,7 +61,6 @@
                                 <span class="text-brandRed text-[11px] font-normal">(Minimal pembelian: {{ $product->minimum_order }} {{ $product->unit ?? 'pcs' }})</span>
                             @endif
                         </label>
-                        {{-- VALUE VALUE DIUBAH: Mengutamakan quantity dari keranjang lama jika ada --}}
                         <input type="number" 
                             required 
                             min="{{ $product->minimum_order ?? 1 }}" 
@@ -78,7 +72,6 @@
                     
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Catatan Tambahan</label>
-                        {{-- TEXTAREA DIUBAH: Otomatis memuat notes dari keranjang lama jika ada --}}
                         <textarea name="catatan" rows="4" placeholder="Tuliskan instruksi pemotongan, jenis bahan, atau laminasi di sini..." class="w-full border border-gray-300 rounded-[10px] p-[8px_12px] text-sm outline-none focus:border-brandRed resize-none">{{ $editCartData->notes ?? '' }}</textarea>
                     </div>
                 </div>
@@ -118,15 +111,16 @@
                         </div>
                     </div>
 
-                    <input type="file" name="desain_file" id="file-upload" class="hidden" onchange="handleFileSelect(this)">
+                    {{-- NAMA INPUT DISESUAIKAN JADI file_desain --}}
+                    <input type="file" name="file_desain" id="file-upload" class="hidden" onchange="handleFileSelect(this)">
                 </div>
 
                 {{-- Panel B: Tautan Eksternal (Cloud) --}}
                 <div id="contentLink" class="hidden border border-dashed border-gray-300 rounded-[15px] p-6 flex flex-col items-center justify-center text-center bg-white h-[170px] w-full transition-all relative">
                     <div id="linkInitial" class="w-full max-w-[320px] flex flex-col items-center justify-center space-y-3 my-auto">
                         <label class="block text-center text-xs font-semibold text-gray-700">Link Google Drive / Dropbox / Canva</label>
-                        {{-- VALUE DIUBAH: Jika desain lama berupa URL, langsung pasang di input ini --}}
-                        <input type="url" id="link-input" name="desain_link" 
+                        {{-- NAMA INPUT DISESUAIKAN JADI link_desain --}}
+                        <input type="url" id="link-input" name="link_desain" 
                             value="{{ ($editCartData && (filter_var($editCartData->desain, FILTER_VALIDATE_URL) || str_contains($editCartData->desain, 'http'))) ? $editCartData->desain : '' }}"
                             placeholder="https://drive.google.com/..." oninput="handleLinkInput(this)" class="w-full border border-gray-300 rounded-[12px] p-[10px_15px] text-xs outline-none focus:border-brandRed text-center">
                     </div>
@@ -142,7 +136,6 @@
                     </div>
                 </div>
 
-                {{-- ADDON INFO DESAIN LAMA + FITUR HAPUS --}}
                 @if($editCartData && $editCartData->desain)
                     <div id="containerDesainLama" class="mt-3 p-2 bg-gray-50 border border-gray-100 rounded-lg flex items-center justify-between text-[11px] text-gray-500">
                         <div class="flex items-center gap-2 truncate">
@@ -151,19 +144,15 @@
                                 <strong class="text-gray-700" id="namaFileLama">{{ basename($editCartData->desain) }}</strong> 
                             </span>
                         </div>
-                        
-                        {{-- Tombol X untuk hapus file/link lama --}}
                         <button type="button" onclick="hapusDesainLama()" class="text-gray-400 hover:text-brandRed font-bold transition-colors px-1 cursor-pointer" title="Hapus desain ini">
                             <i class="fa-solid fa-xmark text-sm"></i>
                         </button>
                     </div>
 
-                    {{-- Input hidden penanda status hapus --}}
                     <input type="hidden" name="hapus_desain_lama" id="hapusDesainLamaInput" value="0">
                 @endif
             </div>
 
-            {{-- Tombol Kirim Form / Keranjang --}}
             <div class="mt-8 flex items-center justify-center gap-4">
                 <button type="button" onclick="addToCart()" class="w-full max-w-[160px] p-[10px_0] bg-white text-brandRed border border-brandRed rounded-[25px] font-bold text-sm tracking-wide text-center transition-all duration-300 hover:bg-brandRed hover:text-white hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] cursor-pointer">
                     {{ isset($editCartData) ? 'Simpan Edit' : '+ Keranjang' }}
@@ -176,6 +165,7 @@
         </div>
     </form>
 </div>
+
 <div id="customConfirmModal" class="hidden fixed top-0 left-0 right-0 bottom-0 w-full h-full min-h-screen z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
     <div class="bg-white rounded-[20px] shadow-[0_10px_30px_rgba(0,0,0,0.2)] w-full max-w-[400px] p-6 text-center transform scale-95 transition-transform duration-300 mx-4">
         <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 text-brandRed mb-4">
@@ -197,225 +187,198 @@
         </div>
     </div>
 </div>
-{{-- SCRIPT INTERAKTIF JAVASCRIPT --}}
+
 <script>
-    // Panggil fungsi pengecekan session saat halaman pertama kali dimuat (setelah refresh)
     document.addEventListener("DOMContentLoaded", function() {
         checkPersistedData();
     });
 
-        // 1. Fungsi Mengubah Tab Upload vs Link Desain (Sudah Bersih & Digabung)
-        function switchTab(tab) {
-            const btnUpload = document.getElementById('tabUpload');
-            const btnLink = document.getElementById('tabLink');
-            const panelUpload = document.getElementById('contentUpload');
-            const panelLink = document.getElementById('contentLink');
-            const fileInput = document.getElementById('file-upload');
+    function switchTab(tab) {
+        const btnUpload = document.getElementById('tabUpload');
+        const btnLink = document.getElementById('tabLink');
+        const panelUpload = document.getElementById('contentUpload');
+        const panelLink = document.getElementById('contentLink');
+        const fileInput = document.getElementById('file-upload');
+        const linkInput = document.getElementById('link-input');
+
+        if (tab === 'upload') {
+            btnUpload.className = "bg-gray-300 text-gray-700 font-semibold text-xs py-2 rounded-[8px] shadow-sm transition-all cursor-pointer";
+            btnLink.className = "text-gray-500 font-semibold text-xs py-2 rounded-[8px] hover:text-gray-700 transition-all cursor-pointer";
+            panelUpload.classList.remove('hidden');
+            panelLink.classList.add('hidden');
+            if(linkInput && !sessionStorage.getItem('cached_link_url')) linkInput.value = ''; 
+        } else {
+            btnLink.className = "bg-gray-300 text-gray-700 font-semibold text-xs py-2 rounded-[8px] shadow-sm transition-all cursor-pointer";
+            btnUpload.className = "text-gray-500 font-semibold text-xs py-2 rounded-[8px] hover:text-gray-700 transition-all cursor-pointer";
+            panelLink.classList.remove('hidden');
+            panelUpload.classList.add('hidden');
+            if(fileInput && !sessionStorage.getItem('cached_file_name')) fileInput.value = '';
+        }
+    }
+
+    function handleFileSelect(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            sessionStorage.setItem('cached_file_name', file.name);
+            sessionStorage.setItem('cached_page_url', window.location.href); 
+            showUploadSuccess(file.name);
+        }
+    }
+
+    function handleLinkInput(input) {
+        if (input.value.trim() !== "") {
+            sessionStorage.setItem('cached_link_url', input.value);
+            sessionStorage.setItem('cached_page_url', window.location.href);
+            showLinkSuccess(input.value);
+        }
+    }
+
+    function showUploadSuccess(fileName) {
+        document.getElementById('uploadInitial').classList.add('hidden');
+        document.getElementById('uploadSuccess').classList.remove('hidden');
+        document.getElementById('fileNameDisplay').innerText = fileName;
+
+        const ext = fileName.split('.').pop().toLowerCase();
+        const iconEl = document.getElementById('fileIcon');
+        if (['jpg', 'jpeg', 'png'].includes(ext)) {
+            iconEl.className = "fa-solid fa-file-image text-emerald-500 text-lg";
+        } else if (ext === 'pdf') {
+            iconEl.className = "fa-solid fa-file-pdf text-red-500 text-lg";
+        } else {
+            iconEl.className = "fa-solid fa-file-zipper text-amber-500 text-lg";
+        }
+    }
+
+    function showLinkSuccess(url) {
+        document.getElementById('linkInitial').classList.add('hidden');
+        document.getElementById('linkSuccess').classList.remove('hidden');
+        document.getElementById('linkNameDisplay').innerText = url;
+    }
+
+    function checkPersistedData() {
+        const cachedFile = sessionStorage.getItem('cached_file_name');
+        const cachedLink = sessionStorage.getItem('cached_link_url');
+        const cachedUrl = sessionStorage.getItem('cached_page_url');
+        const currentUrl = window.location.href;
+
+        if (cachedUrl && cachedUrl !== currentUrl) {
+            clearAllSessionCache();
+            return;
+        }
+
+        if (cachedFile) {
+            switchTab('upload');
+            showUploadSuccess(cachedFile);
+        } else if (cachedLink) {
+            switchTab('link');
+            showLinkSuccess(cachedLink);
             const linkInput = document.getElementById('link-input');
-
-            if (tab === 'upload') {
-                btnUpload.className = "bg-gray-300 text-gray-700 font-semibold text-xs py-2 rounded-[8px] shadow-sm transition-all cursor-pointer";
-                btnLink.className = "text-gray-500 font-semibold text-xs py-2 rounded-[8px] hover:text-gray-700 transition-all cursor-pointer";
-                panelUpload.classList.remove('hidden');
-                panelLink.classList.add('hidden');
-                
-                // Hapus input link cadangan jika sedang tidak aktif
-                if(linkInput && !sessionStorage.getItem('cached_link_url')) linkInput.value = ''; 
-            } else {
-                btnLink.className = "bg-gray-300 text-gray-700 font-semibold text-xs py-2 rounded-[8px] shadow-sm transition-all cursor-pointer";
-                btnUpload.className = "text-gray-500 font-semibold text-xs py-2 rounded-[8px] hover:text-gray-700 transition-all cursor-pointer";
-                panelLink.classList.remove('hidden');
-                panelUpload.classList.add('hidden');
-                
-                // Hapus input file fisik jika sedang tidak aktif
-                if(fileInput && !sessionStorage.getItem('cached_file_name')) fileInput.value = '';
-            }
+            if(linkInput) linkInput.value = cachedLink;
         }
+    }
 
-        // 2. Jalur Handle Pilihan File Fisik
-        function handleFileSelect(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                
-                sessionStorage.setItem('cached_file_name', file.name);
-                sessionStorage.setItem('cached_page_url', window.location.href); 
-                
-                showUploadSuccess(file.name);
-            }
-        }
-
-        // 3. Jalur Input Link URL
-        function handleLinkInput(input) {
-            if (input.value.trim() !== "") {
-                sessionStorage.setItem('cached_link_url', input.value);
-                sessionStorage.setItem('cached_page_url', window.location.href);
-                
-                showLinkSuccess(input.value);
-            }
-        }
-
-        // 4. Menampilkan UI Sukses File
-        function showUploadSuccess(fileName) {
-            document.getElementById('uploadInitial').classList.add('hidden');
-            document.getElementById('uploadSuccess').classList.remove('hidden');
-            document.getElementById('fileNameDisplay').innerText = fileName;
-
-            const ext = fileName.split('.').pop().toLowerCase();
-            const iconEl = document.getElementById('fileIcon');
-            if (['jpg', 'jpeg', 'png'].includes(ext)) {
-                iconEl.className = "fa-solid fa-file-image text-emerald-500 text-lg";
-            } else if (ext === 'pdf') {
-                iconEl.className = "fa-solid fa-file-pdf text-red-500 text-lg";
-            } else {
-                iconEl.className = "fa-solid fa-file-zipper text-amber-500 text-lg";
-            }
-        }
-
-        // 5. Menampilkan UI Sukses Link
-        function showLinkSuccess(url) {
-            document.getElementById('linkInitial').classList.add('hidden');
-            document.getElementById('linkSuccess').classList.remove('hidden');
-            document.getElementById('linkNameDisplay').innerText = url;
-        }
-
-        // 6. Fungsi Pengecekan Cache Setelah Halaman Direfresh
-        function checkPersistedData() {
-            const cachedFile = sessionStorage.getItem('cached_file_name');
-            const cachedLink = sessionStorage.getItem('cached_link_url');
-            const cachedUrl = sessionStorage.getItem('cached_page_url');
-            const currentUrl = window.location.href;
-
-            // JIKA KETAHUAN PINDAH HALAMAN
-            if (cachedUrl && cachedUrl !== currentUrl) {
-                clearAllSessionCache();
-                return;
-            }
-
-            if (cachedFile) {
-                switchTab('upload');
-                showUploadSuccess(cachedFile);
-            } else if (cachedLink) {
-                switchTab('link');
-                showLinkSuccess(cachedLink);
-                const linkInput = document.getElementById('link-input');
-                if(linkInput) linkInput.value = cachedLink;
-            }
-        }
-
-        // 7. Fungsi Tombol Silang (X) Untuk Reset Data Form Unggahan Baru
-        function clearUpload(type) {
-            if (type === 'upload') {
-                sessionStorage.removeItem('cached_file_name');
-                const fileInput = document.getElementById('file-upload');
-                if(fileInput) fileInput.value = "";
-                document.getElementById('uploadSuccess').classList.add('hidden');
-                document.getElementById('uploadInitial').classList.remove('hidden');
-            } else if (type === 'link') {
-                sessionStorage.removeItem('cached_link_url');
-                const linkInput = document.getElementById('link-input');
-                if(linkInput) linkInput.value = "";
-                document.getElementById('linkSuccess').classList.add('hidden');
-                document.getElementById('linkInitial').classList.remove('hidden');
-            }
-            
-            // Jika dua-duanya kosong, hapus kunci URL halamannya
-            if (!sessionStorage.getItem('cached_file_name') && !sessionStorage.getItem('cached_link_url')) {
-                sessionStorage.removeItem('cached_page_url');
-            }
-        }
-
-        // Helper: Bersihkan session total
-        function clearAllSessionCache() {
+    function clearUpload(type) {
+        if (type === 'upload') {
             sessionStorage.removeItem('cached_file_name');
+            const fileInput = document.getElementById('file-upload');
+            if(fileInput) fileInput.value = "";
+            document.getElementById('uploadSuccess').classList.add('hidden');
+            document.getElementById('uploadInitial').classList.remove('hidden');
+        } else if (type === 'link') {
             sessionStorage.removeItem('cached_link_url');
+            const linkInput = document.getElementById('link-input');
+            if(linkInput) linkInput.value = "";
+            document.getElementById('linkSuccess').classList.add('hidden');
+            document.getElementById('linkInitial').classList.remove('hidden');
+        }
+        
+        if (!sessionStorage.getItem('cached_file_name') && !sessionStorage.getItem('cached_link_url')) {
             sessionStorage.removeItem('cached_page_url');
         }
+    }
 
-        // =========================================================================
-        // ADDON PERBAIKAN: SEKARANG HANYA ADA 1 FUNGSI ADD TO CART + SUBMIT FLAG
-        // =========================================================================
-        let isSubmittingOrder = false;
+    function clearAllSessionCache() {
+        sessionStorage.removeItem('cached_file_name');
+        sessionStorage.removeItem('cached_link_url');
+        sessionStorage.removeItem('cached_page_url');
+    }
 
-        function addToCart() {
-            const form = document.getElementById('orderForm');
-            const inputJumlah = document.getElementById('inputJumlah');
-            
-            if (!inputJumlah.value || parseInt(inputJumlah.value) < parseInt(inputJumlah.min)) {
-                alert('Jumlah pembelian kurang dari batas minimum order!');
-                inputJumlah.focus();
-                return;
-            }
+    let isSubmittingOrder = false;
 
-            // Tandai sedang melakukan submit resmi ke Laravel agar cache dibersihkan pasca-reload
-            isSubmittingOrder = true; 
-
-            form.action = "{{ url('keranjang/tambah') }}/{{ $product->id }}"; 
-            form.submit();
+    function addToCart() {
+        const form = document.getElementById('orderForm');
+        const inputJumlah = document.getElementById('inputJumlah');
+        
+        if (!inputJumlah.value || parseInt(inputJumlah.value) < parseInt(inputJumlah.min)) {
+            alert('Jumlah pembelian kurang dari batas minimum order!');
+            inputJumlah.focus();
+            return;
         }
 
-        // 1. Fungsi untuk memicu munculnya Modal Custom (Menggantikan confirm() bawaan browser)
-        function hapusDesainLama() {
-            const modal = document.getElementById('customConfirmModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                // Sedikit delay agar efek transisi scale/opacity Tailwind terasa smooth
-                setTimeout(() => {
-                    modal.querySelector('.transform').classList.remove('scale-95');
-                }, 10);
-            }
+        isSubmittingOrder = true; 
+        form.action = "{{ url('keranjang/tambah') }}/{{ $product->id }}"; 
+        form.submit();
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const inputJumlah = document.getElementById('inputJumlah');
+        if (!inputJumlah.value || parseInt(inputJumlah.value) < parseInt(inputJumlah.min)) {
+            alert('Jumlah pembelian kurang dari batas minimum order!');
+            inputJumlah.focus();
+            return;
         }
 
-        // 2. Fungsi yang dieksekusi saat user menekan tombol "Ya, Hapus" di dalam modal kustom
-        function executeHapusDesainLama() {
-            const hapusInput = document.getElementById('hapusDesainLamaInput');
-            const containerLama = document.getElementById('containerDesainLama');
-            
-            // Atur bendera ke nilai 1 untuk Controller
-            if (hapusInput) hapusInput.value = "1";
-            
-            // Sembunyikan balok info berkas lama di UI
-            if (containerLama) containerLama.classList.add('hidden');
-            
-            // Tutup modal kembali
-            closeConfirmModal();
+        isSubmittingOrder = true;
+        this.action = "{{ url('keranjang/tambah') }}/{{ $product->id }}?checkout_langsung=true"; 
+        this.submit();
+    });
+
+    function hapusDesainLama() {
+        const modal = document.getElementById('customConfirmModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('.transform').classList.remove('scale-95');
+            }, 10);
         }
+    }
 
-        // 3. Fungsi untuk menutup modal jika user menekan tombol "Batal"
-        function closeConfirmModal() {
-            const modal = document.getElementById('customConfirmModal');
-            if (modal) {
-                modal.querySelector('.transform').classList.add('scale-95');
-                modal.classList.add('hidden');
-            }
+    function executeHapusDesainLama() {
+        const hapusInput = document.getElementById('hapusDesainLamaInput');
+        const containerLama = document.getElementById('containerDesainLama');
+        
+        if (hapusInput) hapusInput.value = "1";
+        if (containerLama) containerLama.classList.add('hidden');
+        
+        closeConfirmModal();
+    }
+
+    function closeConfirmModal() {
+        const modal = document.getElementById('customConfirmModal');
+        if (modal) {
+            modal.querySelector('.transform').classList.add('scale-95');
+            modal.classList.add('hidden');
         }
+    }
 
-        // B. Amankan form utama saat tombol "Beli Sekarang" dicentang/diklik
-        document.getElementById('orderForm').addEventListener('submit', function() {
-            isSubmittingOrder = true;
-        });
+    window.addEventListener('beforeunload', function (e) {
+        if (isSubmittingOrder) {
+            clearAllSessionCache();
+        } 
+        else if (performance.navigation.type === performance.navigation.TYPE_RELOAD || 
+                (performance.getEntriesByType("navigation")[0] && performance.getEntriesByType("navigation")[0].type === "reload")) {
+        } 
+        else {
+            clearAllSessionCache();
+        }
+    });
 
-        // C. Eksekusi Gerbang Terakhir Sebelum Halaman Berubah / Reload
-        window.addEventListener('beforeunload', function (e) {
-            // KONDISI 1: Jika user klik tombol + Keranjang atau Beli Sekarang
-            if (isSubmittingOrder) {
-                clearAllSessionCache();
-            } 
-            // KONDISI 2: Jika user me-refresh halaman (F5 / Ctrl+R)
-            else if (performance.navigation.type === performance.navigation.TYPE_RELOAD || 
-                    (performance.getEntriesByType("navigation")[0] && performance.getEntriesByType("navigation")[0].type === "reload")) {
-                // Biarkan cache tetap ada (Data Tidak Hilang saat F5)
-            } 
-            // KONDISI 3: User pindah halaman (Klik dashboard, menu lain, dll)
-            else {
-                clearAllSessionCache();
-            }
-        });
-
-        // Mengatasi duplikasi history di browser mobile
-        window.addEventListener('pageshow', function (event) {
-            if (event.persisted) {
-                checkPersistedData();
-            }
-        });
-    </script>
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+            checkPersistedData();
+        }
+    });
+</script>
 @endsection

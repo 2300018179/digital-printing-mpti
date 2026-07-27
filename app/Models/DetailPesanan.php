@@ -2,20 +2,32 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DetailPesanan extends Model
 {
-    // Sesuaikan dengan nama tabel asli di database!
-    protected $table = 'detail_pesanan'; 
+    use HasFactory;
 
+    protected $table = 'detail_pesanan';
+
+    // Tambahkan 'file_desain' dan 'link_desain' ke dalam $fillable
     protected $fillable = [
         'pesanan_id',
+        'product_id',
         'nama_produk',
-        'harga',
         'jumlah',
-        'keterangan'
+        'harga',
+        'keterangan',
+        'file_desain', // <--- Tambahkan baris ini
+        'link_desain', // <--- Tambahkan baris ini
     ];
+
+    // Definisikan relasi ke model Product
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
 
     public function pesanan()
     {

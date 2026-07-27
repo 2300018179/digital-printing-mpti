@@ -1,165 +1,314 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Pembayaran - Fantastic Digital Printing</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Poppins', sans-serif; }</style>
-</head>
-<body class="bg-gray-50 flex flex-col min-h-screen">
+@extends('layouts.admin')
 
-    <header class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-        <div class="flex items-center">
-            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="h-10 object-contain">
+@section('title', 'Verifikasi Pembayaran')
+
+@section('content')
+<div>
+    <h2 class="text-xl font-bold text-gray-800 tracking-wide">Verifikasi Pembayaran</h2>
+    <p class="text-xs text-gray-500 mt-1">Periksa bukti transfer dan konfirmasi pembayaran dari pelanggan.</p>
+</div>
+
+{{-- Filter Status --}}
+<div class="bg-white border border-red-200 rounded-xl p-1.5 flex items-center gap-2 shadow-xs w-fit my-6">
+    @foreach(['Menunggu', 'Disetujui', 'Ditolak'] as $s)
+        <a href="{{ route('admin.pembayaran', ['status' => $s]) }}" 
+           class="px-6 py-2.5 rounded-lg text-xs font-bold transition-all duration-200 no-underline text-center {{ $status == $s ? 'bg-red-700 text-white shadow-xs' : 'text-gray-700 hover:text-red-700' }}">
+            {{ $s }} ({{ $counts[$s] ?? 0 }})
+        </a>
+    @endforeach
+</div>
+
+{{-- NOTIFIKASI SUKSES (FLASH MESSAGE) DENGAN AUTO-HIDE --}}
+@if (session('success'))
+<div id="alert-success" class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between transition-all duration-500 shadow-sm">
+    <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
+            ✓
         </div>
-        <div class="flex items-center gap-3">
-            <span class="text-xs font-semibold text-gray-700">Selamat Datang, <strong class="text-gray-900">Admin</strong></span>
-            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center border border-gray-300">
-                <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
-            </div>
+        <div>
+            <h4 class="text-xs font-bold text-emerald-900">Berhasil!</h4>
+            <p class="text-xs text-emerald-700 mt-0.5">{{ session('success') }}</p>
         </div>
-    </header>
+    </div>
+    <button type="button" onclick="closeAlertSuccess()" class="text-emerald-500 hover:text-emerald-800 text-sm font-bold px-2 py-1 transition cursor-pointer">
+        ✕
+    </button>
+</div>
+@endif
 
-    <div class="flex flex-1">
-        <aside class="w-64 bg-red-700 text-white flex flex-col justify-between min-h-[calc(100vh-57px)] sticky top-[57px]">
-            <div class="py-4">
-                <nav class="space-y-1 px-2">
-                    <a href="{{ route('admin.dashboard') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>🏠</span> Dashboard
-                    </a>
-                    <a href="{{ route('admin.produk') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>🛍️</span> Produk
-                    </a>
-                    <a href="{{ route('admin.kategori') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>🏷️</span> Kategori
-                    </a>
-                    <a href="{{ route('admin.pesanan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>📦</span> Pesanan
-                    </a>
-                    <a href="{{ route('admin.pembayaran') }}" class="bg-red-800 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition">
-                        <span>💳</span> Pembayaran
-                    </a>
-                    <a href="{{ route('admin.promo') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>🏷️</span> Promo
-                    </a>
-                    <a href="{{ route('admin.pelanggan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>👥</span> Pelanggan
-                    </a>
-                    <a href="{{ route('admin.laporan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>📊</span> Laporan
-                    </a>
-                    <a href="{{ route('admin.pengaturan') }}" class="hover:bg-red-600/50 flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium tracking-wide transition">
-                        <span>⚙️</span> Pengaturan
-                    </a>
-                </nav>
-            </div>
-            <div class="p-3 border-t border-red-800">
-                <a href="#" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold bg-red-900 hover:bg-red-950 transition text-center justify-center uppercase tracking-wider">
-                    <span>🚪</span> Log Out
-                </a>
-            </div>
-        </aside>
+{{-- NOTIFIKASI ERROR / DITOLAK (FLASH MESSAGE) DENGAN AUTO-HIDE --}}
+@if (session('error'))
+<div id="alert-error" class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-between transition-all duration-500 shadow-sm">
+    <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
+            ✕
+        </div>
+        <div>
+            <h4 class="text-xs font-bold text-rose-900">Pembayaran Ditolak!</h4>
+            <p class="text-xs text-rose-700 mt-0.5">{{ session('error') }}</p>
+        </div>
+    </div>
+    <button type="button" onclick="closeAlertError()" class="text-rose-500 hover:text-rose-800 text-sm font-bold px-2 py-1 transition cursor-pointer">
+        ✕
+    </button>
+</div>
+@endif
 
-        <main class="flex-1 p-8 space-y-6">
+{{-- Container Utama Tabel --}}
+<div class="bg-white border border-red-200 rounded-2xl shadow-sm overflow-hidden p-6 flex flex-col justify-between min-h-[395px]">
+    <div class="overflow-x-auto w-full flex-grow overflow-y-hidden pb-2">
+        <table class="w-full text-left border-collapse text-xs table-fixed">
+            <thead>
+                <tr class="bg-red-50 text-red-700 font-bold h-9">
+                    <th class="p-2.5 w-12 text-center">No</th>
+                    <th class="p-2.5 w-28 text-left">Order ID</th>
+                    <th class="p-2.5 w-48 text-left">Pelanggan</th>
+                    <th class="p-2.5 w-32 text-left">Tanggal</th>
+                    <th class="p-2.5 w-32 text-center">Bukti Transfer</th>
+                    <th class="p-2.5 w-32 text-left">Total</th>
+                    <th class="p-2.5 w-24 text-center">Aksi</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-100 font-medium text-gray-600">
+                @forelse($pesanans as $index => $item)
+                <tr class="hover:bg-gray-50/50 transition h-[52px]">
+                    <td class="p-2.5 text-center text-gray-400 font-semibold">
+                        {{ $pesanans->firstItem() + $index }}
+                    </td>
+                    <td class="p-2.5 font-mono font-bold text-gray-800 text-left">
+                        {{ $item->order_id }}
+                    </td>
+                    <td class="p-2.5 font-semibold text-gray-800 text-left">
+                        <div class="truncate w-full" title="{{ $item->nama_pelanggan ?? $item->user->name ?? '-' }}">
+                            {{ $item->nama_pelanggan ?? $item->user->name ?? '-' }}
+                        </div>
+                    </td>
+                    <td class="p-2.5 text-gray-500 text-left">
+                        {{ $item->tanggal_pesanan ? \Carbon\Carbon::parse($item->tanggal_pesanan)->format('d M Y') : $item->created_at->format('d M Y') }}
+                    </td>
+                    <td class="p-2.5 text-center">
+                        @if($item->bukti_transfer)
+                            <button type="button" 
+                                onclick="openModal('{{ $item->order_id }}', '{{ asset('assets/bukti_transfer/' . $item->bukti_transfer) }}')" 
+                                class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1 rounded-md text-[11px] font-bold transition cursor-pointer">
+                                Lihat Bukti
+                            </button>
+                        @else
+                            <span class="text-gray-300 text-xs italic">Tidak ada</span>
+                        @endif
+                    </td>
+                    <td class="p-2.5 font-bold text-gray-900 text-left">
+                        Rp {{ number_format($item->total, 0, ',', '.') }}
+                    </td>
+                    <td class="p-2.5 text-center">
+                        @if($status == 'Menunggu')
+                            <div class="flex items-center justify-center gap-3">
+                                <button type="button" 
+                                        onclick="openConfirmModal('Disetujui', '{{ $item->id }}', '{{ $item->order_id }}')" 
+                                        class="text-green-600 hover:text-green-800 p-1 transition rounded-md hover:bg-green-50 cursor-pointer" 
+                                        title="Setujui Pembayaran">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </button>
+
+                                <button type="button" 
+                                        onclick="openConfirmModal('Ditolak', '{{ $item->id }}', '{{ $item->order_id }}')" 
+                                        class="text-red-600 hover:text-red-800 p-1 transition rounded-md hover:bg-red-50 cursor-pointer" 
+                                        title="Tolak Pembayaran">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        @else
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full inline-block whitespace-nowrap {{ $status == 'Disetujui' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                {{ $status }}
+                            </span>
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="7" class="text-center py-8 text-xs font-medium text-gray-400 italic">
+                        Tidak ada data pembayaran untuk status <strong>{{ $status }}</strong>.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    {{-- Footer Pagination --}}
+    @if($pesanans->hasPages() || $pesanans->total() > 0)
+    <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+        <div>
+            Showing <span class="font-semibold text-gray-700">{{ $pesanans->firstItem() ?? 0 }}</span> 
+            to <span class="font-semibold text-gray-700">{{ $pesanans->lastItem() ?? 0 }}</span> 
+            of <span class="font-semibold text-gray-700">{{ $pesanans->total() }}</span> results
+        </div>
+        <div>
+            {{ $pesanans->links() }}
+        </div>
+    </div>
+    @endif
+</div>
+@endsection
+
+@push('modals')
+<!-- 1. MODAL POPUP BUKTI TRANSFER -->
+<div id="buktiModal" onclick="closeModalOnBackdrop(event, 'buktiModal')" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+    <div class="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 border border-gray-100">
+        <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
             <div>
-                <h2 class="text-xl font-bold text-gray-800 tracking-wide">Verifikasi Pembayaran</h2>
-                <p class="text-xs text-gray-500 mt-1">Periksa bukti transfer dan konfirmasi pembayaran dari pelanggan.</p>
+                <h3 class="text-xs font-bold text-gray-800">Bukti Transfer Pelanggan</h3>
+                <p id="modalOrderId" class="text-[10px] font-mono text-red-600 font-bold mt-0.5">#ORD-XXXXX</p>
             </div>
-
-                <div class="flex gap-3 mb-6">
-                @foreach(['Menunggu', 'Disetujui', 'Ditolak'] as $s)
-                <a href="{{ route('admin.pembayaran', ['status' => $s]) }}" 
-                class="px-5 py-2.5 font-bold text-xs rounded-full transition {{ $status == $s ? 'bg-red-700 text-white' : 'bg-white border text-gray-600' }}">
-                {{ $s }} ({{ $counts[$s] ?? 0 }})
-                </a>
-                @endforeach
-            </div>
-
-            <div class="bg-white border rounded-2xl shadow-sm overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50 text-[10px] uppercase text-gray-400 font-bold">
-                        <tr>
-                            <th class="p-4">Order ID</th>
-                            <th class="p-4">Pelanggan</th>
-                            <th class="p-4">Tanggal</th>
-                            <th class="p-4">Bukti Transfer</th>
-                            <th class="p-4">Total</th>
-                            <th class="p-4 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($pesanans as $item)
-                        <tr class="border-b">
-                            <td class="p-4 font-mono text-xs font-bold">{{ $item->id }}</td>
-                            <td class="p-4 text-xs">{{ $item->user->name ?? 'User' }}</td>
-                            <td class="p-4 text-xs">{{ $item->created_at->format('d M Y, H:i') }}</td>
-                            <td class="p-4 text-center">
-                                @if($item->bukti_transfer)
-                                    <a href="{{ asset('storage/' . $item->bukti_transfer) }}" 
-                                    download 
-                                    class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold transition">
-                                    📥 Unduh
-                                    </a>
-                                @else
-                                    <span class="text-gray-300 text-xs italic">Tidak ada</span>
-                                @endif
-                            </td>
-                            <td class="p-4 text-xs">Rp {{ number_format($item->total, 0, ',', '.') }}</td>
-                            <td class="p-4 text-center">
-                                <form action="{{ route('admin.pembayaran.update', $item->id) }}" method="POST" class="flex justify-center gap-2">
-                                    @csrf @method('PUT')
-                                    <button name="status" value="Disetujui" class="bg-green-100 p-2 rounded-lg text-xs">✔️</button>
-                                    <button name="status" value="Ditolak" class="bg-red-100 p-2 rounded-lg text-xs">❌</button>
-                                </form>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="4" class="p-8 text-center text-gray-400">Tidak ada data.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="flex items-center justify-center gap-1.5 text-xs pt-2">
-                <button class="w-7 h-7 bg-gray-100 text-gray-400 rounded flex items-center justify-center font-bold cursor-not-allowed">‹</button>
-                <button class="w-7 h-7 bg-red-700 text-white rounded flex items-center justify-center shadow-sm font-bold">1</button>
-                <button class="w-7 h-7 bg-gray-100 text-gray-400 rounded flex items-center justify-center font-bold cursor-not-allowed">›</button>
-            </div>
-        </main>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- POP-UP MODAL BUKTI TRANSFER (TAMBAHAN BARU) -->
-    <!-- ========================================== -->
-    <div id="buktiModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
-        <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 border border-gray-100">
-            <!-- Header Modal -->
-            <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <div>
-                    <h3 class="text-xs font-bold text-gray-800">Bukti Transfer Pelanggan</h3>
-                    <p id="modalOrderId" class="text-[10px] font-mono text-red-600 font-bold mt-0.5">#ORD-XXXXX</p>
-                </div>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-lg font-bold focus:outline-none transition p-1">
-                    ✕
-                </button>
-            </div>
-            <!-- Konten Foto Resi -->
-            <div class="p-5 bg-gray-100 flex items-center justify-center">
-                <!-- Di sini gambar mockup resi struk bank dipasang -->
-                <img id="modalImage" src="https://i.pinimg.com/736x/8a/05/89/8a0589df464972e391b1580f4f9f40dc.jpg" 
-                     alt="Bukti Transfer Mockup" class="max-h-96 w-auto object-contain rounded-lg shadow-sm border border-gray-200">
-            </div>
-            <!-- Footer Modal -->
-            <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end">
-                <button onclick="closeModal()" class="px-4 py-1.5 bg-red-700 hover:bg-red-800 text-white rounded-xl text-xs font-bold transition shadow-sm">
-                    Tutup
-                </button>
-            </div>
+            <button onclick="closeModal('buktiModal')" class="text-gray-400 hover:text-gray-600 text-lg font-bold focus:outline-none transition p-1 cursor-pointer">✕</button>
+        </div>
+        <div class="p-5 bg-gray-100 flex items-center justify-center min-h-[250px]">
+            <img id="modalImage" src="" alt="Bukti Transfer" class="max-h-[450px] w-auto object-contain rounded-lg shadow-sm border border-gray-200">
+        </div>
+        <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end">
+            <button onclick="closeModal('buktiModal')" class="px-4 py-1.5 bg-red-700 hover:bg-red-800 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+                Tutup
+            </button>
         </div>
     </div>
-</body>
-</html>
+</div>
+
+<!-- 2. MODAL CUSTOM KONFIRMASI (SETUJUI / TOLAK) -->
+<div id="confirmModal" onclick="closeModalOnBackdrop(event, 'confirmModal')" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+    <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 border border-gray-100 text-center p-6">
+        
+        <div id="confirmIconBg" class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
+            <svg id="confirmIconApprove" class="w-8 h-8 text-green-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <svg id="confirmIconReject" class="w-8 h-8 text-red-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </div>
+
+        <h3 id="confirmTitle" class="text-base font-bold text-gray-800">Konfirmasi Pembayaran</h3>
+        <p id="confirmDesc" class="text-xs text-gray-500 mt-2 leading-relaxed">
+            Apakah Anda yakin ingin memproses pesanan <span id="confirmOrderId" class="font-bold text-gray-800"></span>?
+        </p>
+
+        <form id="confirmForm" method="POST" action="" class="mt-6 flex items-center justify-center gap-3">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="status" id="confirmStatusInput" value="">
+
+            <button type="button" onclick="closeModal('confirmModal')" class="w-1/2 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-bold transition cursor-pointer">
+                Batal
+            </button>
+            <button type="submit" id="confirmSubmitBtn" class="w-1/2 py-2.5 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+                Ya, Lanjutkan
+            </button>
+        </form>
+    </div>
+</div>
+@endpush
+
+@push('scripts')
+<script>
+    // --- FUNGSIONALITAS AUTO-HIDE ALERT ---
+    function closeAlertSuccess() {
+        const alert = document.getElementById('alert-success');
+        if (alert) {
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-10px)';
+            setTimeout(() => alert.remove(), 500);
+        }
+    }
+
+    function closeAlertError() {
+        const alert = document.getElementById('alert-error');
+        if (alert) {
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-10px)';
+            setTimeout(() => alert.remove(), 500);
+        }
+    }
+
+    // Otomatis tutup alert setelah 4 detik
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(closeAlertSuccess, 4000);
+        setTimeout(closeAlertError, 4000);
+    });
+
+    // --- FUNGSIONALITAS MODAL BUKTI TRANSFER ---
+    function openModal(orderId, imageUrl) {
+        document.getElementById('modalOrderId').innerText = '#' + orderId;
+        document.getElementById('modalImage').src = imageUrl;
+        showModal('buktiModal');
+    }
+
+    // --- FUNGSIONALITAS MODAL KONFIRMASI SETUJUI / TOLAK ---
+    function openConfirmModal(actionType, id, orderId) {
+        const form = document.getElementById('confirmForm');
+        const statusInput = document.getElementById('confirmStatusInput');
+        const iconBg = document.getElementById('confirmIconBg');
+        const iconApprove = document.getElementById('confirmIconApprove');
+        const iconReject = document.getElementById('confirmIconReject');
+        const title = document.getElementById('confirmTitle');
+        const desc = document.getElementById('confirmDesc');
+        const submitBtn = document.getElementById('confirmSubmitBtn');
+
+        form.action = `{{ route('admin.pembayaran.update', ':id') }}`.replace(':id', id);
+        statusInput.value = actionType;
+        document.getElementById('confirmOrderId').innerText = '#' + orderId;
+
+        if (actionType === 'Disetujui') {
+            iconBg.className = 'w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-100';
+            iconApprove.classList.remove('hidden');
+            iconReject.classList.add('hidden');
+            title.innerText = 'Setujui Pembayaran?';
+            desc.innerHTML = `Apakah Anda yakin ingin menyetujui pembayaran untuk order <span class="font-bold text-gray-800">#${orderId}</span>? Status pesanan akan diubah menjadi <strong class="text-green-600">Dicetak</strong>.`;
+            submitBtn.className = 'w-1/2 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer';
+        } else {
+            iconBg.className = 'w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100';
+            iconApprove.classList.add('hidden');
+            iconReject.classList.remove('hidden');
+            title.innerText = 'Tolak Pembayaran?';
+            desc.innerHTML = `Apakah Anda yakin ingin menolak pembayaran untuk order <span class="font-bold text-gray-800">#${orderId}</span>? Status pesanan akan diubah menjadi <strong class="text-red-600">Ditolak</strong>.`;
+            submitBtn.className = 'w-1/2 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer';
+        }
+
+        showModal('confirmModal');
+    }
+
+    // --- UTILS HELPER FOR MODALS ---
+    function showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add('opacity-0');
+        modal.querySelector('div').classList.remove('scale-100');
+        modal.querySelector('div').classList.add('scale-95');
+        
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    function closeModalOnBackdrop(event, modalId) {
+        if (event.target.id === modalId) {
+            closeModal(modalId);
+        }
+    }
+</script>
+@endpush

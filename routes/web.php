@@ -1,132 +1,128 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+
+// Auth Controller
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AdminDashboardController;
-use App\Http\Controllers\AdminProductController; 
-use App\Http\Controllers\AdminKategoriController;
-use App\Http\Controllers\AdminPesananController;
-use App\Http\Controllers\AdminPembayaranController;
-use App\Http\Controllers\AdminPromoController;
-use App\Http\Controllers\AdminPelangganController;
-use App\Http\Controllers\AdminLaporanController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\Customer\PembayaranController;
+
+// Controller Admin
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\KategoriController;
+use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\PelangganController;
+use App\Http\Controllers\Admin\PembayaranController;
+use App\Http\Controllers\Admin\PengaturanController;
+use App\Http\Controllers\Admin\PesananController;
+use App\Http\Controllers\Admin\ProductController; 
+use App\Http\Controllers\Admin\PromoController;
+
+// Controller Customer
+use App\Http\Controllers\Customer\ProductsController;
+use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Customer\KeranjangController;
-use App\Http\Controllers\AdminPengaturanController;
-
 
 // =========================================================================
-// 1. HALAMAN UTAMA & UMUM (Bisa diakses siapa saja, kapan saja)
+// 1. HALAMAN UTAMA & UMUM (Bisa diakses siapa saja)
 // =========================================================================
 
-// Menampilkan dashboard utama customer via AuthController
 Route::get('/', [AuthController::class, 'index'])->name('customer.dashboard');
+Route::get('/semua-produk', [ProductsController::class, 'semuaProduk'])->name('customer.semua-produk');
+Route::get('/customer/detail-produk/{id}', [ProductsController::class, 'detailProduk'])->name('customer.detail-produk');
+Route::get('/promo', [ProductsController::class, 'halamanPromo'])->name('customer.promo');
+Route::get('/jam-layanan', [ProductsController::class, 'jamLayanan'])->name('customer.jam-layanan');
 
-// Fitur Katalog Produk & Informasi Toko
-Route::get('/semua-produk', [ProductController::class, 'semuaProduk'])->name('customer.semua-produk');
-Route::get('/customer/detail-produk/{id}', [ProductController::class, 'detailProduk'])->name('customer.detail-produk');
-Route::get('/promo', [ProductController::class, 'halamanPromo'])->name('customer.promo');
-Route::get('/jam-layanan', [ProductController::class, 'jamLayanan'])->name('customer.jam-layanan');
-Route::view('/tentang', 'customer.tentang-kami')->name('customer.tentang-kami');
-Route::match(['get', 'post'], '/pembayaran', [PembayaranController::class, 'prosesPembayaran'])->name('customer.pembayaran');
+Route::get('/tentang', function () {
+    $appSettings = DB::table('settings')->pluck('value', 'key')->toArray();
+    return view('customer.tentang-kami', compact('appSettings'));
+})->name('customer.tentang-kami');
+
+// Pembayaran Customer (Dipisah agar eksplisit dan aman dari CSRF bug)
+Route::get('/pembayaran', [PaymentController::class, 'prosesPembayaran'])->name('customer.pembayaran');
+Route::post('/pembayaran', [PaymentController::class, 'prosesPembayaran'])->name('customer.pembayaran.process');
 
 // =========================================================================
-// 2. RUTE AUTENTIKASI (Hanya bisa diakses kalau BELUM LOGIN)
+// 2. RUTE AUTENTIKASI (Hanya jika BELUM LOGIN)
 // =========================================================================
+
 Route::middleware('guest')->group(function () {
-    // Form Login & Proses Masuk
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-
-    // Form Daftar Akun & Proses Registrasi
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
-
-    // Fitur Reset Lupa Password
+    Route::post('/register/verify-otp', [AuthController::class, 'verifyOtp'])->name('register.verify');
+    Route::get('/register/cancel-otp', [AuthController::class, 'cancelOtp'])->name('register.cancel');
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
     Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
 });
 
-// Proses Keluar Akun / Log Out
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // =========================================================================
-// 3. RUTE CUSTOMER YANG WAJIB LOGIN (Akses khusus member terdaftar)
+// 3. RUTE CUSTOMER (Wajib Login Member)
 // =========================================================================
+
 Route::middleware('auth')->group(function () {
-    // --- FITUR DINAMIS DROPDOWN NOTIFIKASI ---
-    
-    // Halaman pusat semua notifikasi (Tombol 'Lihat Semua')
-    Route::get('/notifikasi', [ProductController::class, 'halamanNotifikasi'])->name('customer.notifikasi');
-    
-    // Halaman riwayat transaksi/pesanan cetak (Tombol 'Pesanan')
-    Route::get('/pesanan-saya', [ProductController::class, 'halamanPesanan'])->name('customer.pesanan');
-    
-    // Halaman informasi update dari sistem/toko (Tombol 'Informasi Terbaru')
-    Route::get('/informasi-terbaru', [ProductController::class, 'halamanInformasi'])->name('customer.informasi');
+    Route::get('/notifikasi', [ProductsController::class, 'halamanNotifikasi'])->name('customer.notifikasi');
+    Route::post('/notifikasi/mark-all-read', [ProductsController::class, 'markAllRead'])->name('customer.notifikasi.markAllRead');
+    Route::get('/pesanan-saya', [ProductsController::class, 'halamanPesanan'])->name('customer.pesanan');
+    Route::get('/informasi-terbaru', [ProductsController::class, 'halamanInformasi'])->name('customer.informasi');
 
-
-    // --- FITUR DINAMIS KERANJANG BELANJA ---
-    
-    // Memproses tambah produk ke keranjang belanja
     Route::post('/keranjang/tambah/{productId}', [KeranjangController::class, 'tambah'])->name('customer.keranjang.tambah');
-    
-    // Memproses hapus item dari daftar keranjang belanja
     Route::delete('/keranjang/hapus/{id}', [KeranjangController::class, 'hapus'])->name('customer.keranjang.hapus');
 
-    // =========================================================================
-    // TAMBAHKAN DI SINI (Dalam Middleware Auth):
-    // =========================================================================
-    Route::post('/pembayaran/simpan', [PembayaranController::class, 'simpanPembayaran'])->name('proses.simpan-pembayaran');
-
-    // Contoh tempat menaruh rute checkout nanti:
-    // Route::get('/checkout', [ProductController::class, 'checkout'])->name('customer.checkout');
+    Route::post('/pembayaran/simpan', [PaymentController::class, 'simpanPembayaran'])->name('customer.pembayaran.simpan');
 });
 
+// =========================================================================
+// 4. RUTE ADMIN (Wajib Login & Role Admin)
+// =========================================================================
 
-// =========================================================================
-// 4. RUTE KHUSUS ADMIN (Wajib Login & Wajib memiliki role Admin)
-// =========================================================================
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // --- DASHBOARD ADMIN ---
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-
-    // --- MANAJEMEN PRODUK & KATEGORI ---
-    Route::resource('produk', AdminProductController::class)->names(['index' => 'produk']);
+    Route::resource('produk', ProductController::class)->names(['index' => 'produk']);
     
-    Route::get('/kategori', [AdminKategoriController::class, 'index'])->name('kategori');
-    Route::post('/kategori/tambah', [AdminKategoriController::class, 'store'])->name('kategori.store');
-    Route::get('/kategori/tambah', function () { return view('admin.form-kategori'); })->name('kategori.tambah');
-    Route::get('/kategori/{id}/edit', [AdminKategoriController::class, 'edit'])->name('kategori.edit');
-    Route::put('/kategori/{id}', [AdminKategoriController::class, 'update'])->name('kategori.update');
-    Route::delete('/kategori/{id}', [AdminKategoriController::class, 'destroy'])->name('kategori.destroy');
+    // Kategori & Sub-Kategori
+    Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori');
+    Route::view('/kategori/tambah', 'admin.form-kategori')->name('kategori.tambah'); // Diubah ke Route::view
+    Route::post('/kategori/tambah', [KategoriController::class, 'store'])->name('kategori.store');
+    Route::get('/kategori/{id}/edit', [KategoriController::class, 'edit'])->name('kategori.edit');
+    Route::put('/kategori/{id}', [KategoriController::class, 'update'])->name('kategori.update');
+    Route::delete('/kategori/{id}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
+
+    Route::get('/subkategori/{id}/edit', [KategoriController::class, 'editSubKategori'])->name('subkategori.edit');
+    Route::put('/admin/kategori/{id}', [KategoriController::class, 'update'])->name('admin.kategori.update');
     
-    // --- MANAJEMEN PESANAN ---
-    Route::get('/pesanan', [AdminPesananController::class, 'index'])->name('pesanan');
-    Route::get('/pesanan/detail/{id}', [AdminPesananController::class, 'detail'])->name('pesanan.detail');
-    Route::put('/pesanan/update/{id}', [AdminPesananController::class, 'updateStatus'])->name('pesanan.updateStatus');
+    // Pesanan & Pembayaran
+    Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan');
+    Route::get('/pesanan/detail/{id}', [PesananController::class, 'detail'])->name('pesanan.detail');
+    Route::put('/pesanan/update/{id}', [PesananController::class, 'updateStatus'])->name('pesanan.updateStatus');
     
-    // --- MANAJEMEN PEMBAYARAN ---
-    Route::get('/pembayaran', [AdminPembayaranController::class, 'index'])->name('pembayaran');
-    Route::put('/pembayaran/update/{id}', [AdminPembayaranController::class, 'updateStatus'])->name('pembayaran.update');
+    Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('pembayaran');
+    Route::put('/pembayaran/update/{id}', [PembayaranController::class, 'update'])->name('pembayaran.update');
 
-    // --- MANAJEMEN PROMO ---
-    Route::get('/admin/promo', [AdminPromoController::class, 'index'])->name('promo');
-    Route::get('/admin/promo/tambah', function () { return view('admin.tambah-promo'); })->name('promo.tambah');
-    Route::post('/admin/promo/store', [AdminPromoController::class, 'store'])->name('promo.store');
-    Route::get('/promo/{id}/edit', [AdminPromoController::class, 'edit'])->name('promo.edit');
-    Route::put('/promo/{id}', [AdminPromoController::class, 'update'])->name('promo.update');
-    Route::delete('/admin/promo/{id}', [AdminPromoController::class, 'destroy'])->name('promo.destroy');
+    // Promo Actions
+    Route::get('/promo', [PromoController::class, 'index'])->name('promo');
+    Route::view('/promo/tambah', 'admin.tambah-promo')->name('promo.tambah'); // Diubah ke Route::view
+    Route::post('/promo/store', [PromoController::class, 'store'])->name('promo.store');
+    Route::get('/promo/{id}/edit', [PromoController::class, 'edit'])->name('promo.edit');
+    Route::put('/promo/{id}', [PromoController::class, 'update'])->name('promo.update');
+    Route::delete('/promo/{id}', [PromoController::class, 'destroy'])->name('promo.destroy');
 
-    // --- MANAJEMEN PELANGGAN ---
-    Route::get('/admin/pelanggan', [AdminPelangganController::class, 'index'])->name('pelanggan');
-    Route::get('/admin/pelanggan/{id}', [AdminPelangganController::class, 'show'])->name('pelanggan.show');
-    Route::get('/admin/pelanggan/detail/{id}', [AdminPelangganController::class, 'show'])->name('pelanggan.detail');
+    // Pengumuman Actions
+    Route::view('/pengumuman/tambah', 'admin.tambah-pengumuman')->name('pengumuman.tambah'); // Diubah ke Route::view
+    Route::post('/pengumuman/store', [PromoController::class, 'storePengumuman'])->name('pengumuman.store');
+    Route::get('/pengumuman/{id}/edit', [PromoController::class, 'editPengumuman'])->name('pengumuman.edit');
+    Route::put('/pengumuman/{id}', [PromoController::class, 'updatePengumuman'])->name('pengumuman.update');
+    Route::delete('/pengumuman/{id}', [PromoController::class, 'destroyPengumuman'])->name('pengumuman.destroy');
 
-    // --- LAPORAN & PENGATURAN ---
-    Route::get('/pengaturan', [AdminPengaturanController::class, 'index'])->name('pengaturan');
-    Route::post('/pengaturan/update', [AdminPengaturanController::class, 'update'])->name('pengaturan.update');
-    Route::get('/admin/laporan', [AdminLaporanController::class, 'index'])->name('laporan');
+    // Pelanggan
+    Route::get('/pelanggan', [PelangganController::class, 'index'])->name('pelanggan');
+    Route::get('/pelanggan/{id}', [PelangganController::class, 'show'])->name('pelanggan.show');
+
+    // Pengaturan & Laporan
+    Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan');
+    Route::post('/pengaturan/update', [PengaturanController::class, 'update'])->name('pengaturan.update');
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
 });
