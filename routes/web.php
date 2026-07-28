@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\PromoController;
 
 // Controller Customer
+use App\Http\Controllers\Customer\DashboardCSController;
 use App\Http\Controllers\Customer\ProductsController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Customer\KeranjangController;
@@ -26,7 +27,8 @@ use App\Http\Controllers\Customer\KeranjangController;
 // 1. HALAMAN UTAMA & UMUM (Bisa diakses siapa saja)
 // =========================================================================
 
-Route::get('/', [AuthController::class, 'index'])->name('customer.dashboard');
+Route::get('/', [DashboardCSController::class, 'index'])->name('customer.dashboard');
+
 Route::get('/semua-produk', [ProductsController::class, 'semuaProduk'])->name('customer.semua-produk');
 Route::get('/customer/detail-produk/{id}', [ProductsController::class, 'detailProduk'])->name('customer.detail-produk');
 Route::get('/promo', [ProductsController::class, 'halamanPromo'])->name('customer.promo');
@@ -37,7 +39,6 @@ Route::get('/tentang', function () {
     return view('customer.tentang-kami', compact('appSettings'));
 })->name('customer.tentang-kami');
 
-// Pembayaran Customer (Dipisah agar eksplisit dan aman dari CSRF bug)
 Route::get('/pembayaran', [PaymentController::class, 'prosesPembayaran'])->name('customer.pembayaran');
 Route::post('/pembayaran', [PaymentController::class, 'prosesPembayaran'])->name('customer.pembayaran.process');
 
@@ -65,7 +66,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/notifikasi', [ProductsController::class, 'halamanNotifikasi'])->name('customer.notifikasi');
     Route::post('/notifikasi/mark-all-read', [ProductsController::class, 'markAllRead'])->name('customer.notifikasi.markAllRead');
-    Route::get('/pesanan-saya', [ProductsController::class, 'halamanPesanan'])->name('customer.pesanan');
+    Route::get('/pesanan-saya', [ProductsController::class, 'halamanPesanan'])->name('customer.pesanan-saya');
+    Route::get('/pesanan', [ProductsController::class, 'halamanPesanan'])->name('customer.pesanan');
     Route::get('/informasi-terbaru', [ProductsController::class, 'halamanInformasi'])->name('customer.informasi');
 
     Route::post('/keranjang/tambah/{productId}', [KeranjangController::class, 'tambah'])->name('customer.keranjang.tambah');
@@ -85,7 +87,7 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     
     // Kategori & Sub-Kategori
     Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori');
-    Route::view('/kategori/tambah', 'admin.form-kategori')->name('kategori.tambah'); // Diubah ke Route::view
+    Route::view('/kategori/tambah', 'admin.form-kategori')->name('kategori.tambah');
     Route::post('/kategori/tambah', [KategoriController::class, 'store'])->name('kategori.store');
     Route::get('/kategori/{id}/edit', [KategoriController::class, 'edit'])->name('kategori.edit');
     Route::put('/kategori/{id}', [KategoriController::class, 'update'])->name('kategori.update');
@@ -98,20 +100,21 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan');
     Route::get('/pesanan/detail/{id}', [PesananController::class, 'detail'])->name('pesanan.detail');
     Route::put('/pesanan/update/{id}', [PesananController::class, 'updateStatus'])->name('pesanan.updateStatus');
+    Route::get('/pesanan/download-desain/{id}', [PesananController::class, 'downloadDesain'])->name('pesanan.downloadDesain');
     
     Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('pembayaran');
     Route::put('/pembayaran/update/{id}', [PembayaranController::class, 'update'])->name('pembayaran.update');
 
     // Promo Actions
     Route::get('/promo', [PromoController::class, 'index'])->name('promo');
-    Route::view('/promo/tambah', 'admin.tambah-promo')->name('promo.tambah'); // Diubah ke Route::view
+    Route::view('/promo/tambah', 'admin.tambah-promo')->name('promo.tambah');
     Route::post('/promo/store', [PromoController::class, 'store'])->name('promo.store');
     Route::get('/promo/{id}/edit', [PromoController::class, 'edit'])->name('promo.edit');
     Route::put('/promo/{id}', [PromoController::class, 'update'])->name('promo.update');
     Route::delete('/promo/{id}', [PromoController::class, 'destroy'])->name('promo.destroy');
 
     // Pengumuman Actions
-    Route::view('/pengumuman/tambah', 'admin.tambah-pengumuman')->name('pengumuman.tambah'); // Diubah ke Route::view
+    Route::view('/pengumuman/tambah', 'admin.tambah-pengumuman')->name('pengumuman.tambah');
     Route::post('/pengumuman/store', [PromoController::class, 'storePengumuman'])->name('pengumuman.store');
     Route::get('/pengumuman/{id}/edit', [PromoController::class, 'editPengumuman'])->name('pengumuman.edit');
     Route::put('/pengumuman/{id}', [PromoController::class, 'updatePengumuman'])->name('pengumuman.update');
@@ -125,4 +128,5 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan');
     Route::post('/pengaturan/update', [PengaturanController::class, 'update'])->name('pengaturan.update');
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
+    Route::get('/laporan/cetak-pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf'); // Ditambahkan di sini
 });

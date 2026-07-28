@@ -5,6 +5,18 @@
 @section('content')
 {{-- Container Utama --}}
 <div class="flex flex-col max-w-7xl space-y-6">
+    {{-- Alert Error / Flash Message --}}
+    @if(session('error'))
+        <div class="p-4 bg-red-100 border border-red-400 text-red-700 text-xs rounded-xl font-bold flex items-center justify-between">
+            <span>⚠️ {{ session('error') }}</span>
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="p-4 bg-green-100 border border-green-400 text-green-700 text-xs rounded-xl font-bold flex items-center justify-between">
+            <span>✅ {{ session('success') }}</span>
+        </div>
+    @endif
 
     {{-- Header Halaman --}}
     <div>
@@ -115,8 +127,8 @@
                                                 <p class="text-[10px] text-gray-400">Siap Cetak</p>
                                             </div>
                                         </div>
-                                        <a href="{{ asset('storage/' . $item->file_desain) }}" download target="_blank" 
-                                           class="px-4 py-2 bg-red-700 hover:bg-red-800 text-white font-bold text-xs rounded-lg transition shadow-sm active:scale-95 flex items-center gap-1.5 whitespace-nowrap">
+                                        <a href="{{ route('admin.pesanan.downloadDesain', $item->id) }}" 
+                                        class="px-4 py-2 bg-red-700 hover:bg-red-800 text-white font-bold text-xs rounded-lg transition shadow-sm active:scale-95 flex items-center gap-1.5 whitespace-nowrap">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                             </svg>
