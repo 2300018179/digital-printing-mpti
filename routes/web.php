@@ -127,6 +127,8 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     // Pengaturan & Laporan
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan');
     Route::post('/pengaturan/update', [PengaturanController::class, 'update'])->name('pengaturan.update');
+    // Pengaturan & Laporan
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
-    Route::get('/laporan/cetak-pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf'); // Ditambahkan di sini
+    Route::get('/laporan/cetak-pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf');
+    Route::get('/laporan/cetak-excel', [LaporanController::class, 'cetakExcel'])->name('laporan.excel'); // <-- TAMBAHKAN ROUTE INI
 });
