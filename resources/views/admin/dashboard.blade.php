@@ -69,7 +69,8 @@
                             <td class="p-2.5 text-gray-800">Rp {{ number_format($order->total, 0, ',', '.') }}</td>
                             <td class="p-2.5 text-center">
                                 <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold inline-block w-20
-                                    @if(strtolower($order->status) == 'diproses') bg-amber-100 text-amber-700 
+                                    @if(in_array(strtolower($order->status), ['batal', 'dibatalkan'])) bg-red-100 text-red-700 
+                                    @elseif(strtolower($order->status) == 'diproses') bg-amber-100 text-amber-700 
                                     @elseif(strtolower($order->status) == 'dicetak') bg-blue-100 text-blue-700 
                                     @else bg-green-100 text-green-700 @endif">
                                     {{ ucfirst($order->status) }}
@@ -111,7 +112,8 @@
                 <div class="flex justify-between items-center border-b border-gray-50 pb-2 last:border-none last:pb-0">
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full 
-                            @if(strtolower($label) == 'diproses') bg-amber-500 
+                            @if(in_array(strtolower($label), ['batal', 'dibatalkan'])) bg-red-500 
+                            @elseif(strtolower($label) == 'diproses') bg-amber-500 
                             @elseif(strtolower($label) == 'dicetak') bg-blue-500 
                             @else bg-green-500 @endif">
                         </span>
