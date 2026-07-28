@@ -22,6 +22,7 @@ use App\Http\Controllers\Customer\DashboardCSController;
 use App\Http\Controllers\Customer\ProductsController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Customer\KeranjangController;
+use App\Http\Controllers\Customer\PesananCSController; // <-- 1. IMPORT CONTROLLER BARU
 
 // =========================================================================
 // 1. HALAMAN UTAMA & UMUM (Bisa diakses siapa saja)
@@ -66,8 +67,14 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/notifikasi', [ProductsController::class, 'halamanNotifikasi'])->name('customer.notifikasi');
     Route::post('/notifikasi/mark-all-read', [ProductsController::class, 'markAllRead'])->name('customer.notifikasi.markAllRead');
-    Route::get('/pesanan-saya', [ProductsController::class, 'halamanPesanan'])->name('customer.pesanan-saya');
-    Route::get('/pesanan', [ProductsController::class, 'halamanPesanan'])->name('customer.pesanan');
+    
+    // 2. DIUBAH UNTUK MENGGUNAKAN PesananCSController
+    Route::get('/pesanan-saya', [PesananCSController::class, 'index'])->name('customer.pesanan-saya');
+    Route::get('/pesanan', [PesananCSController::class, 'index'])->name('customer.pesanan');
+    
+    // === TAMBAHKAN ROUTE INI DI SINI ===
+    Route::get('/pesanan/download-desain/{filename}', [PesananCSController::class, 'downloadDesain'])->name('customer.download-desain');
+
     Route::get('/informasi-terbaru', [ProductsController::class, 'halamanInformasi'])->name('customer.informasi');
 
     Route::post('/keranjang/tambah/{productId}', [KeranjangController::class, 'tambah'])->name('customer.keranjang.tambah');
@@ -130,5 +137,5 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     // Pengaturan & Laporan
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
     Route::get('/laporan/cetak-pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf');
-    Route::get('/laporan/cetak-excel', [LaporanController::class, 'cetakExcel'])->name('laporan.excel'); // <-- TAMBAHKAN ROUTE INI
+    Route::get('/laporan/cetak-excel', [LaporanController::class, 'cetakExcel'])->name('laporan.excel');
 });

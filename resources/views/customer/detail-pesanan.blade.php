@@ -107,13 +107,14 @@
                                     <p class="font-bold text-gray-800 mb-1 text-[11px]">{{ $item->nama_produk }}</p>
                                     <div class="flex flex-wrap gap-2">
                                         @if($item->file_desain)
-                                            <a href="{{ asset('assets/file_desain/' . $item->file_desain) }}" target="_blank" download class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 rounded-lg text-blue-600 font-semibold text-[11px] hover:bg-blue-50 transition no-underline shadow-xs">
-                                                <i class="fa fa-download text-blue-500"></i> Download File ({{ Str::limit($item->file_desain, 20) }})
+                                            <a href="{{ route('customer.download-desain', ['filename' => basename($item->file_desain)]) }}" 
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 rounded-lg text-blue-600 font-semibold text-[11px] hover:bg-blue-50 transition no-underline shadow-xs cursor-pointer">
+                                                <i class="fa fa-download text-blue-500"></i> Download File
                                             </a>
                                         @endif
 
                                         @if($item->link_desain)
-                                            <a href="{{ $item->link_desain }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 rounded-lg text-purple-600 font-semibold text-[11px] hover:bg-purple-50 transition no-underline shadow-xs">
+                                            <a href="{{ $item->link_desain }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 rounded-lg text-purple-600 font-semibold text-[11px] hover:bg-purple-50 transition no-underline shadow-xs">
                                                 <i class="fa fa-link text-purple-500"></i> Buka Link Desain
                                             </a>
                                         @endif

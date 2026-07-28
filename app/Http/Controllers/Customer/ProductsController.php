@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Customer; 
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -8,7 +9,6 @@ use App\Models\Product;
 use App\Models\Kategori;      
 use App\Models\SubKategori;
 use App\Models\Keranjang;
-use App\Models\Pesanan;
 use App\Models\Promo;
 use App\Models\Pengumuman;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -21,7 +21,7 @@ class ProductsController extends Controller
         // Ambil semua kategori untuk kebutuhan sidebar/menu
         $categories = Kategori::all(); 
 
-        // Buat query dasar untuk produk (Gunakan string '1' karena tipe data ENUM)
+        // Buat query dasar untuk produk
         $query = Product::where('status', '1');
 
         $judulHalaman = "Semua Produk";
@@ -47,10 +47,7 @@ class ProductsController extends Controller
             $kategoriInduk = Kategori::find($request->kategori);
             
             if ($kategoriInduk) {
-                // Ambil semua ID sub-kategori yang dimiliki oleh kategori induk ini
                 $subKategoriIds = SubKategori::where('kategori_id', $request->kategori)->pluck('id');
-                
-                // Filter produk yang sub_kategori_id-nya ada di dalam daftar tersebut
                 $query->whereIn('sub_kategori_id', $subKategoriIds);
                 
                 $judulHalaman = $kategoriInduk->name;
@@ -71,10 +68,8 @@ class ProductsController extends Controller
             }
         }
 
-        // Ambil data produk akhir dengan sistem halaman (Pagination) + pertahankan query URL
         $products = $query->latest()->paginate(8)->appends($request->all());
 
-        // Lempar data ke view
         return view('customer.semua-produk', compact('categories', 'products', 'judulHalaman', 'title', 'breadcrumb'));
     }
 
@@ -83,7 +78,6 @@ class ProductsController extends Controller
     {
         $product = Product::where('id', $id)->where('status', '1')->firstOrFail();
         
-        // Ambil data keranjang lama jika user masuk lewat tombol "Edit"
         $editCartData = null;
         if ($request->has('edit_cart')) {
             $editCartData = Keranjang::where('id', $request->edit_cart)
@@ -101,10 +95,8 @@ class ProductsController extends Controller
         $title = "Promo Spesial";
         $breadcrumb = "Beranda / Promo";
 
-        // Ambil data promo dari database yang statusnya 'Aktif'
         $promos = Promo::where('status', 'Aktif')->get();
 
-        // Kirim variabel $promos ke view
         return view('customer.promo', compact('categories', 'title', 'breadcrumb', 'promos'));
     }
 
@@ -120,11 +112,9 @@ class ProductsController extends Controller
         $userId = auth()->id();
         $notificationsList = collect();
 
-        // ----------------------------------------------------------------------
-        // 1. AMBIL NOTIFIKASI DARI STATUS PESANAN (Diproses / Dicetak / Selesai)
-        // ----------------------------------------------------------------------
+        // 1. AMBIL NOTIFIKASI DARI STATUS PESANAN
         if ($userId) {
-            $pesanans = Pesanan::where('user_id', $userId)->latest()->get();
+            $pesanans = \App\Models\Pesanan::where('user_id', $userId)->latest()->get();
             foreach ($pesanans as $pesanan) {
                 $pesan = "Pesanan Anda <strong>#{$pesanan->order_id}</strong> saat ini berstatus: <span class='font-semibold text-brandRed'>{$pesanan->status}</span>.";
                 
@@ -137,7 +127,7 @@ class ProductsController extends Controller
                 $notificationsList->push([
                     'id'          => 'order_' . $pesanan->id,
                     'created_at'  => $pesanan->updated_at ?? $pesanan->created_at,
-                    'read_at'     => null, // Set null agar dianggap baru/belum dibaca
+                    'read_at'     => null,
                     'data' => [
                         'type'        => 'pesanan',
                         'title'       => 'Update Status Pesanan',
@@ -149,9 +139,7 @@ class ProductsController extends Controller
             }
         }
 
-        // ----------------------------------------------------------------------
         // 2. AMBIL NOTIFIKASI PROMO AKTIF
-        // ----------------------------------------------------------------------
         $promos = Promo::where('status', 'Aktif')->latest()->get();
         foreach ($promos as $promo) {
             $notificationsList->push([
@@ -168,9 +156,7 @@ class ProductsController extends Controller
             ]);
         }
 
-        // ----------------------------------------------------------------------
         // 3. AMBIL NOTIFIKASI PENGUMUMAN / INFORMASI TERBARU
-        // ----------------------------------------------------------------------
         $pengumumans = Pengumuman::where('status', 'Aktif')->latest()->get();
         foreach ($pengumumans as $info) {
             $notificationsList->push([
@@ -187,19 +173,14 @@ class ProductsController extends Controller
             ]);
         }
 
-        // ----------------------------------------------------------------------
         // 4. URUTKAN SEMUA NOTIFIKASI BERDASARKAN TANGGAL TERBARU
-        // ----------------------------------------------------------------------
         $sortedList = $notificationsList->sortByDesc('created_at')->values();
 
-        // ----------------------------------------------------------------------
-        // 5. MENGUBAH ARRAY KETIAP OBJECT SEPERTI MODEL ELOQUENT (Bisa dipaginate)
-        // ----------------------------------------------------------------------
+        // 5. MENGUBAH ARRAY KETIAP OBJECT SEPERTI MODEL ELOQUENT
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = 10;
         $currentItems = $sortedList->slice(($currentPage - 1) * $perPage, $perPage)->all();
 
-        // Mapping array menjadi array of objects
         $formattedItems = collect($currentItems)->map(function ($item) {
             return (object) [
                 'id'         => $item['id'],
@@ -225,27 +206,9 @@ class ProductsController extends Controller
         return redirect()->back()->with('success', 'Semua notifikasi telah ditandai sebagai dibaca.');
     }
 
-    // 6. Halaman Riwayat Pesanan / Transaksi
-    public function halamanPesanan(Request $request)
-    {
-        $status = $request->query('status', 'Diproses');
-        
-        // UBAH DI SINI: Ganti detailPesanan menjadi items sesuai isi modelmu
-        $query = Pesanan::where('user_id', auth()->id())->with('items');
-
-        if (in_array($status, ['Diproses', 'Dicetak', 'Selesai'])) {
-            $query->where('status', $status);
-        }
-
-        $orders = $query->latest()->get();
-
-        return view('customer.pesanan', compact('orders'));
-    }
-
-    // 7. Halaman Pusat Informasi / Pengumuman Toko
+    // 6. Halaman Pusat Informasi / Pengumuman Toko
     public function halamanInformasi()
     {
-        // Ambil data pengumuman yang statusnya 'Aktif', urutkan dari yang terbaru
         $pengumumans = Pengumuman::where('status', 'Aktif')
                                 ->latest()
                                 ->get();
