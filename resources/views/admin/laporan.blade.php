@@ -11,44 +11,50 @@
         <p class="text-xs text-gray-500 mt-1">Ringkasan performa penjualan, statistik pesanan, dan tren grafik harian.</p>
     </div>
 
-    {{-- Filter Bulan & Tahun --}}
-    <form action="{{ route('admin.laporan') }}" method="GET" class="bg-white border border-red-200 p-4 rounded-2xl flex flex-wrap gap-4 items-center shadow-sm w-fit">
-        @php
-            $namaBulan = [
-                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-            ];
-            // Daftar Tahun 2026 s/d 2031
-            $daftarTahun = range(2026, 2031);
-        @endphp
+    {{-- Filter Bulan & Tahun + Tombol Cetak PDF --}}
+    <div class="flex flex-wrap items-center justify-between gap-4 bg-white border border-red-200 p-4 rounded-2xl shadow-sm">
+        <form action="{{ route('admin.laporan') }}" method="GET" class="flex flex-wrap gap-4 items-center">
+            @php
+                $namaBulan = [
+                    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                    5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                    9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                ];
+                $daftarTahun = range(2026, 2031);
+            @endphp
 
-        <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold text-gray-600">Bulan:</span>
-            <select name="bulan" class="px-3 py-2 border border-gray-300 focus:border-red-600 text-xs rounded-xl font-bold text-gray-700 focus:outline-none transition">
-                @foreach($namaBulan as $m => $bulanText)
-                    <option value="{{ $m }}" {{ (int)$bulan === $m ? 'selected' : '' }}>
-                        {{ $bulanText }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-gray-600">Bulan:</span>
+                <select name="bulan" class="px-3 py-2 border border-gray-300 focus:border-red-600 text-xs rounded-xl font-bold text-gray-700 focus:outline-none transition">
+                    @foreach($namaBulan as $m => $bulanText)
+                        <option value="{{ $m }}" {{ (int)$bulan === $m ? 'selected' : '' }}>
+                            {{ $bulanText }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-        <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold text-gray-600">Tahun:</span>
-            <select name="tahun" class="px-3 py-2 border border-gray-300 focus:border-red-600 text-xs rounded-xl font-bold text-gray-700 focus:outline-none transition">
-                @foreach($daftarTahun as $y)
-                    <option value="{{ $y }}" {{ (int)$tahun === $y ? 'selected' : '' }}>
-                        {{ $y }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-gray-600">Tahun:</span>
+                <select name="tahun" class="px-3 py-2 border border-gray-300 focus:border-red-600 text-xs rounded-xl font-bold text-gray-700 focus:outline-none transition">
+                    @foreach($daftarTahun as $y)
+                        <option value="{{ $y }}" {{ (int)$tahun === $y ? 'selected' : '' }}>
+                            {{ $y }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-        <button type="submit" class="px-5 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-xl transition shadow-sm active:scale-95">
-            Tampilkan
-        </button>
-    </form>
+            <button type="submit" class="px-5 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-xl transition shadow-sm active:scale-95">
+                Tampilkan
+            </button>
+        </form>
+
+        {{-- Tombol Cetak PDF --}}
+        <a href="{{ route('admin.laporan.pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" target="_blank" class="px-5 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-xl transition shadow-sm active:scale-95 flex items-center gap-2">
+            Cetak PDF
+        </a>
+    </div>
 
     {{-- Stat Cards (4 Kolom) --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -8,6 +8,7 @@ use App\Models\Pesanan;
 use App\Models\DetailPesanan;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller 
 {
@@ -39,7 +40,7 @@ class LaporanController extends Controller
                                               ->whereYear('tanggal_pesanan', $tahun);
                                         })->sum('jumlah');
 
-        // 4. Top 5 Produk Terlaris (Perbaikan GroupBy aman untuk MySQL Strict Mode)
+        // 4. Top 5 Produk Terlaris
         $produkTerlaris = DetailPesanan::whereHas('pesanan', function($q) use ($bulan, $tahun, $validStatus) {
                                             $q->whereIn('status', $validStatus)
                                               ->whereMonth('tanggal_pesanan', $bulan)
@@ -71,7 +72,7 @@ class LaporanController extends Controller
         $dataPoints = [];
 
         for ($d = 1; $d <= $jumlahHari; $d++) {
-            $labels[] = (string) $d; // Hanya angka 1, 2, 3 ...
+            $labels[] = (string) $d;
             $dataPoints[] = (int) ($grafikData[$d] ?? 0);
         }
 
@@ -86,5 +87,84 @@ class LaporanController extends Controller
             'bulan', 
             'tahun'
         ));
+    }
+
+    public function cetakPdf(Request $request)
+    {
+        $bulan = (int) $request->get('bulan', date('m'));
+        $tahun = (int) $request->get('tahun', date('Y'));
+        $validStatus = ['selesai', 'diproses', 'dikirim'];
+
+        $totalPenjualan = Pesanan::whereIn('status', $validStatus)
+                                 ->whereMonth('tanggal_pesanan', $bulan)
+                                 ->whereYear('tanggal_pesanan', $tahun)
+                                 ->sum('total');
+
+        $totalPesanan = Pesanan::whereIn('status', $validStatus)
+                               ->whereMonth('tanggal_pesanan', $bulan)
+                               ->whereYear('tanggal_pesanan', $tahun)
+                               ->count();
+
+        $produkTerjual = DetailPesanan::whereHas('pesanan', function($q) use ($bulan, $tahun, $validStatus) {
+                                            $q->whereIn('status', $validStatus)
+                                              ->whereMonth('tanggal_pesanan', $bulan)
+                                              ->whereYear('tanggal_pesanan', $tahun);
+                                        })->sum('jumlah');
+
+        $produkTerlaris = DetailPesanan::whereHas('pesanan', function($q) use ($bulan, $tahun, $validStatus) {
+                                            $q->whereIn('status', $validStatus)
+                                              ->whereMonth('tanggal_pesanan', $bulan)
+                                              ->whereYear('tanggal_pesanan', $tahun);
+                                        })
+                                        ->select('nama_produk', DB::raw('SUM(jumlah) as total_qty'))
+                                        ->groupBy('nama_produk')
+                                        ->orderBy('total_qty', 'desc')
+                                        ->limit(5)
+                                        ->get();
+
+        $rataRataPesanan = ($totalPesanan > 0) ? ($totalPenjualan / $totalPesanan) : 0;
+
+        // --- 1. TAMBAHKAN KODE INI UNTUK GRAFIK ---
+        $grafikData = Pesanan::select(
+                                    DB::raw('DAY(tanggal_pesanan) as hari'),
+                                    DB::raw('SUM(total) as total_harian')
+                                )
+                                ->whereIn('status', $validStatus)
+                                ->whereMonth('tanggal_pesanan', $bulan)
+                                ->whereYear('tanggal_pesanan', $tahun)
+                                ->groupBy(DB::raw('DAY(tanggal_pesanan)'))
+                                ->pluck('total_harian', 'hari');
+
+        $jumlahHari = Carbon::createFromDate($tahun, $bulan, 1)->daysInMonth;
+        $labels = [];
+        $dataPoints = [];
+
+        for ($d = 1; $d <= $jumlahHari; $d++) {
+            $labels[] = (string) $d;
+            $dataPoints[] = (int) ($grafikData[$d] ?? 0);
+        }
+        // ------------------------------------------
+
+        $namaBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        // --- 2. TAMBAHKAN 'labels' DAN 'dataPoints' DI COMPACT ---
+        $pdf = Pdf::loadView('admin.laporan_pdf', compact(
+            'totalPenjualan', 
+            'totalPesanan', 
+            'produkTerjual', 
+            'produkTerlaris', 
+            'rataRataPesanan', 
+            'bulan', 
+            'tahun',
+            'namaBulan',
+            'labels',      // <-- Ditambahkan
+            'dataPoints'   // <-- Ditambahkan
+        ))->setPaper('a4', 'portrait');
+
+        return $pdf->stream('Laporan_Penjualan_' . $namaBulan[$bulan] . '_' . $tahun . '.pdf');
     }
 }
