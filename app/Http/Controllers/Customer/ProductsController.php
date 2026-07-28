@@ -11,7 +11,6 @@ use App\Models\SubKategori;
 use App\Models\Keranjang;
 use App\Models\Promo;
 use App\Models\Pengumuman;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductsController extends Controller
 {
@@ -106,107 +105,7 @@ class ProductsController extends Controller
         return view('customer.jam-layanan');
     }
 
-    // 5. Halaman Pusat Notifikasi
-    public function halamanNotifikasi(Request $request)
-    {
-        $userId = auth()->id();
-        $notificationsList = collect();
-
-        // 1. AMBIL NOTIFIKASI DARI STATUS PESANAN
-        if ($userId) {
-            $pesanans = \App\Models\Pesanan::where('user_id', $userId)->latest()->get();
-            foreach ($pesanans as $pesanan) {
-                $pesan = "Pesanan Anda <strong>#{$pesanan->order_id}</strong> saat ini berstatus: <span class='font-semibold text-brandRed'>{$pesanan->status}</span>.";
-                
-                if ($pesanan->status === 'Selesai') {
-                    $pesan = "Pesanan <strong>#{$pesanan->order_id}</strong> telah selesai dan siap diambil/dikirim!";
-                } elseif ($pesanan->status === 'Dicetak') {
-                    $pesan = "Pesanan <strong>#{$pesanan->order_id}</strong> sedang dalam proses pencetakan oleh tim kami.";
-                }
-
-                $notificationsList->push([
-                    'id'          => 'order_' . $pesanan->id,
-                    'created_at'  => $pesanan->updated_at ?? $pesanan->created_at,
-                    'read_at'     => null,
-                    'data' => [
-                        'type'        => 'pesanan',
-                        'title'       => 'Update Status Pesanan',
-                        'message'     => $pesan,
-                        'url'         => route('customer.pesanan-saya'),
-                        'action_text' => 'Cek Pesanan Saya'
-                    ]
-                ]);
-            }
-        }
-
-        // 2. AMBIL NOTIFIKASI PROMO AKTIF
-        $promos = Promo::where('status', 'Aktif')->latest()->get();
-        foreach ($promos as $promo) {
-            $notificationsList->push([
-                'id'          => 'promo_' . $promo->id,
-                'created_at'  => $promo->created_at,
-                'read_at'     => null,
-                'data' => [
-                    'type'        => 'promo',
-                    'title'       => $promo->judul ?? $promo->nama_promo ?? 'Promo Spesial Cetak!',
-                    'message'     => $promo->deskripsi ?? 'Ada promo menarik untuk kamu, cek sekarang sebelum kehabisan!',
-                    'url'         => route('customer.promo'),
-                    'action_text' => 'Lihat Promo'
-                ]
-            ]);
-        }
-
-        // 3. AMBIL NOTIFIKASI PENGUMUMAN / INFORMASI TERBARU
-        $pengumumans = Pengumuman::where('status', 'Aktif')->latest()->get();
-        foreach ($pengumumans as $info) {
-            $notificationsList->push([
-                'id'          => 'info_' . $info->id,
-                'created_at'  => $info->created_at,
-                'read_at'     => null,
-                'data' => [
-                    'type'        => 'info',
-                    'title'       => $info->judul ?? 'Informasi Terbaru Toko',
-                    'message'     => $info->isi ?? $info->keterangan ?? 'Ada pengumuman terbaru dari Fantastic Digital Printing.',
-                    'url'         => route('customer.informasi'),
-                    'action_text' => 'Baca Selengkapnya'
-                ]
-            ]);
-        }
-
-        // 4. URUTKAN SEMUA NOTIFIKASI BERDASARKAN TANGGAL TERBARU
-        $sortedList = $notificationsList->sortByDesc('created_at')->values();
-
-        // 5. MENGUBAH ARRAY KETIAP OBJECT SEPERTI MODEL ELOQUENT
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
-        $currentItems = $sortedList->slice(($currentPage - 1) * $perPage, $perPage)->all();
-
-        $formattedItems = collect($currentItems)->map(function ($item) {
-            return (object) [
-                'id'         => $item['id'],
-                'created_at' => \Carbon\Carbon::parse($item['created_at']),
-                'read_at'    => $item['read_at'],
-                'data'       => $item['data']
-            ];
-        });
-
-        $notifications = new LengthAwarePaginator(
-            $formattedItems,
-            $sortedList->count(),
-            $perPage,
-            $currentPage,
-            ['path' => LengthAwarePaginator::resolveCurrentPath()]
-        );
-
-        return view('customer.notifikasi', compact('notifications'));
-    }
-
-    public function markAllRead()
-    {
-        return redirect()->back()->with('success', 'Semua notifikasi telah ditandai sebagai dibaca.');
-    }
-
-    // 6. Halaman Pusat Informasi / Pengumuman Toko
+    // 5. Halaman Pusat Informasi / Pengumuman Toko
     public function halamanInformasi()
     {
         $pengumumans = Pengumuman::where('status', 'Aktif')

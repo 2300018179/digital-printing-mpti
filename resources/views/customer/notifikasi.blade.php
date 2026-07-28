@@ -81,7 +81,8 @@
 
                             {{-- LINK AKSI DINAMIS --}}
                             @if(!empty($notification->data['url']))
-                                <a href="{{ $notification->data['url'] }}" class="inline-flex text-[11px] text-brandRed font-bold hover:underline items-center gap-1">
+                                <a href="{{ route('customer.notifikasi.read', ['id' => $notification->id, 'target' => $notification->data['url']]) }}" 
+                                   class="inline-flex text-[11px] text-brandRed font-bold hover:underline items-center gap-1">
                                     {{ $notification->data['action_text'] ?? 'Lihat Detail' }} <i class="fa fa-arrow-right text-[9px]"></i>
                                 </a>
                             @endif
@@ -106,7 +107,7 @@
                 @endforelse
             </div>
 
-            {{-- PAGINATION LINK (JIKA MENGGUNAKAN PAGINATE DI CONTROLLER) --}}
+            {{-- PAGINATION LINK --}}
             @if(method_exists($notifications, 'links') && $notifications->hasPages())
                 <div class="p-4 border-t border-gray-100 bg-gray-50/50">
                     {{ $notifications->links() }}
