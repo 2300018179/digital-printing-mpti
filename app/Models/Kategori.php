@@ -9,17 +9,10 @@ class Kategori extends Model
 {
     use HasFactory;
 
+    protected $table = 'kategoris'; // atau 'categories', sesuaikan dengan nama tabel di DB kamu
     protected $fillable = ['name'];
 
-    public function index()
-    {
-        // Memanggil relasi 'subKategoris' sesuai nama fungsi di Model Kategori
-        $kategoris = Kategori::with('subKategoris')->get();
-        
-        return view('admin.kategori.index', compact('kategoris'));
-    }
-
-    // Tambahkan fungsi relasi ini
+    // Relasi ke SubKategori
     public function subKategoris()
     {
         return $this->hasMany(SubKategori::class, 'kategori_id');

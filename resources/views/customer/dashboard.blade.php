@@ -64,21 +64,14 @@
 
     <!-- BANNER HERO / SLIDER DINAMIS (SWIPER JS) -->
     @php
-        // Ambil setting dari DB jika $appSettings tidak dikirim controller
-        if (!isset($appSettings)) {
-            $appSettings = \App\Models\Setting::pluck('value', 'key')->toArray();
-        }
-
         $rawBanners = $appSettings['banner_toko'] ?? '[]';
 
-        // Decode jika berupa string JSON
         if (is_string($rawBanners)) {
             $banners = json_decode($rawBanners, true) ?? [];
         } else {
             $banners = (array) $rawBanners;
         }
 
-        // Penanganan jika terjadi double-encode JSON
         if (is_string($banners)) {
             $banners = json_decode($banners, true) ?? [];
         }
@@ -192,7 +185,7 @@
             new Swiper(".bannerSwiper", {
                 loop: true,
                 grabCursor: true,
-                touchEventsTarget: 'wrapper', // Memastikan event sentuh/drag terbaca sempurna
+                touchEventsTarget: 'wrapper',
                 autoplay: {
                     delay: 3500,
                     disableOnInteraction: false,

@@ -5,32 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail; 
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
-    // Menampilkan halaman Dashboard utama
-    // Menampilkan halaman Dashboard utama
-    public function index()
-    {
-        // 1. Ambil kategori untuk menu sidebar
-        $categories = DB::table('kategoris')->get();
-
-        // 2. Ambil produk unggulan
-        $products = \App\Models\Product::where('status', '1')
-                    ->withSum('detailPesanan', 'jumlah')
-                    ->get()
-                    ->sortByDesc('detail_pesanan_sum_jumlah')
-                    ->take(5);
-
-        // 3. Ambil settings dari database
-        $appSettings = DB::table('settings')->pluck('value', 'key')->toArray();
-
-        // 4. Kirim sebagai $appSettings agar sesuai dengan kode Blade kamu
-        return view('customer.dashboard', compact('categories', 'products', 'appSettings'));
-    }
-
     // Menampilkan halaman Login form
     public function showLogin()
     {
@@ -85,7 +63,7 @@ class AuthController extends Controller
         return view('customer.register');
     }
 
-    // Kode otp
+    // Process Register & Kirim OTP
     public function register(Request $request)
     {
         if (session()->has('otp_requested') && session()->has('otp_expires_at')) {
@@ -200,13 +178,13 @@ class AuthController extends Controller
         return redirect()->route('register');
     }
 
-    // Menampilkan halaman Lupa Password (Reset Password)
+    // Menampilkan halaman Lupa Password
     public function showForgotPassword()
     {
         return view('customer.forgot-password');
     }
 
-    // Memproses simulasi klik tombol KIRIM
+    // Memproses kirim link reset password
     public function sendResetLink(Request $request)
     {
         $request->validate([
