@@ -18,7 +18,7 @@ use App\Mail\NotifikasiPesananMail;
 class PaymentController extends Controller
 {
     // =========================================================================
-    // TAHAP 1: MENAMPILKAN HALAMAN FORM PEMBAYARAN (Saat Klik "Beli Sekarang")
+    // TAHAP 1: MENAMPILKAN HALAMAN FORM PEMBAYARAN
     // =========================================================================
     public function prosesPembayaran(Request $request)
     {
@@ -29,18 +29,15 @@ class PaymentController extends Controller
 
         $userId = Auth::id();
 
-        // Ambil data item keranjang yang dicentang beserta relasi produknya
         $cartItems = Keranjang::whereIn('id', $request->selected_items)
                                 ->where('user_id', $userId)
                                 ->get();
 
-        // Jika kosong (misal karena user me-refresh halaman setelah bayar)
         if ($cartItems->isEmpty()) {
             return redirect()->route('customer.pesanan-saya')
                              ->with('error', 'Item belanja tidak ditemukan atau sudah diproses.');
         }
 
-        // Membentuk struktur array $checkoutItems untuk Blade
         $checkoutItems = [];
         $hargaCetak = 0;
 
@@ -58,17 +55,12 @@ class PaymentController extends Controller
             ];
         }
 
-        // Set nilai biaya layanan (misal: 2000)
         $biayaLayanan = 2000; 
         $grandTotal = $hargaCetak + $biayaLayanan;
+        $uangMuka = ceil($grandTotal * 0.5);
 
-        // Hitung Uang Muka (DP 50%)
-        $uangMuka = $grandTotal * 0.5;
-
-        // Ambil data pengaturan toko dari database (untuk QRIS & Nama Pemilik)
         $settings = Setting::pluck('value', 'key')->toArray();
 
-        // Kirim seluruh variabel yang dibutuhkan oleh Blade
         return view('customer.pembayaran', compact(
             'checkoutItems', 
             'hargaCetak', 
@@ -89,12 +81,15 @@ class PaymentController extends Controller
             'selected_items' => 'required|array',
             'selected_items.*' => 'integer',
             'bukti_transfer' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'payment_type' => 'nullable|string|in:dp,full',
+            'kode_promo' => 'nullable|string',
+            'grand_total' => 'nullable|numeric',
+            'nominal_dibayar' => 'nullable|numeric',
         ]);
 
         $user = Auth::user();
         $userId = $user->id;
 
-        // Ambil kembali data dari database untuk kalkulasi ulang demi keamanan data
         $cartItems = Keranjang::whereIn('id', $request->selected_items)
                               ->where('user_id', $userId)
                               ->get();
@@ -104,16 +99,44 @@ class PaymentController extends Controller
                              ->with('error', 'Sesi belanja Anda kosong atau item sudah diproses.');
         }
 
-        // Mulai transaksi database
         DB::beginTransaction();
 
         try {
-            // 2. Hitung Grand Total
-            $grandTotal = 0;
+            // 2. Kalkulasi Total Harga Produk
+            $hargaCetak = 0;
             foreach ($cartItems as $item) {
                 $hargaSatuan = $item->product ? $item->product->price : 0;
-                $grandTotal += ($hargaSatuan * $item->quantity);
+                $hargaCetak += ($hargaSatuan * $item->quantity);
             }
+
+            $biayaLayanan = 2000;
+            $subTotalAwal = $hargaCetak + $biayaLayanan;
+
+            // Logika Diskon Promo (Backend Security Check)
+            $kodePromo = strtoupper(trim($request->input('kode_promo')));
+            $diskon = 0;
+
+            $databasePromo = [
+                'HUTRI12' => ['tipe' => 'potongan', 'nilai' => 2000],
+                'PROMO50' => ['tipe' => 'persen', 'nilai' => 50],
+                'HEMAT10' => ['tipe' => 'potongan', 'nilai' => 1000],
+            ];
+
+            if (!empty($kodePromo) && isset($databasePromo[$kodePromo])) {
+                $promo = $databasePromo[$kodePromo];
+                if ($promo['tipe'] === 'persen') {
+                    $diskon = ($hargaCetak * $promo['nilai']) / 100;
+                } else {
+                    $diskon = $promo['nilai'];
+                }
+            }
+
+            // Hitung Final Grand Total
+            $grandTotalFinal = max(0, $subTotalAwal - $diskon);
+
+            // Tentukan Tipe Pembayaran (DP / Full) & Nominal Dibayar
+            $paymentType = $request->input('payment_type', 'dp');
+            $nominalDibayar = ($paymentType === 'dp') ? ceil($grandTotalFinal / 2) : $grandTotalFinal;
 
             // 3. Buat Data Induk Pesanan
             $pesanan = new Pesanan(); 
@@ -121,8 +144,16 @@ class PaymentController extends Controller
             $pesanan->order_id = 'ORD-' . strtoupper(uniqid()); 
             $pesanan->tanggal_pesanan = now();
             $pesanan->nama_pelanggan = $user->name ?? 'Pelanggan Toko';
-            $pesanan->total = $grandTotal;
-            $pesanan->status = 'Diproses'; // Otomatis berstatus diproses karena bukti sudah diupload
+            
+            // Kolom Keuangan Pesanan
+            $pesanan->total = $grandTotalFinal;
+            $pesanan->diskon = $diskon;
+            $pesanan->kode_promo = $kodePromo ?: null;
+            $pesanan->tipe_pembayaran = $paymentType; // 'dp' atau 'full'
+            $pesanan->nominal_dibayar = $nominalDibayar;
+            $pesanan->sisa_pembayaran = max(0, $grandTotalFinal - $nominalDibayar);
+            
+            $pesanan->status = 'Diproses';
 
             // 4. Upload File Bukti Transfer
             if ($request->hasFile('bukti_transfer')) {
@@ -136,12 +167,10 @@ class PaymentController extends Controller
 
             // 5. Simpan Data Rincian Barang ke Detail Pesanan
             foreach ($cartItems as $item) {
-
                 $fileDesain = null;
                 $linkDesain = null;
 
                 if ($item->desain) {
-                    // Cek apakah isi kolom 'desain' berupa URL
                     if (filter_var($item->desain, FILTER_VALIDATE_URL) || str_contains($item->desain, 'http')) {
                         $linkDesain = $item->desain; 
                     } else {
@@ -166,21 +195,16 @@ class PaymentController extends Controller
                       ->where('user_id', $userId)
                       ->delete();
 
-            // Simpan perubahan ke DB
             DB::commit();
 
-            // =========================================================================
-            // 7. OTOMASI PENGIRIMAN EMAIL NOTIFIKASI BERDASARKAN SYSTEM SETTINGS
-            // =========================================================================
+            // 7. OTOMASI PENGIRIMAN EMAIL NOTIFIKASI
             try {
                 $settings = Setting::pluck('value', 'key')->toArray();
 
-                // A. Kirim Struk ke Email Pelanggan (Jika Fitur Dicentang Admin)
                 if (($settings['notif_struk_email'] ?? 0) == 1 && !empty($user->email)) {
                     Mail::to($user->email)->send(new NotifikasiPesananMail($pesanan, 'struk_pelanggan'));
                 }
 
-                // B. Beritahu Admin via Email jika ada Orderan Masuk (Jika Fitur Dicentang Admin)
                 if (($settings['notif_admin_order'] ?? 0) == 1) {
                     $emailAdmin = $settings['email_toko'] ?? config('mail.from.address');
                     if (!empty($emailAdmin)) {
@@ -188,11 +212,9 @@ class PaymentController extends Controller
                     }
                 }
             } catch (\Exception $mailEx) {
-                // Log kesalahan pengiriman email saja, agar tidak menggagalkan transaksi DB
                 Log::error('Gagal mengirimkan notifikasi email: ' . $mailEx->getMessage());
             }
 
-            // Selesai! Alihkan ke halaman Pesanan Saya
             return redirect()->route('customer.pesanan-saya')
                              ->with('success', 'Pembayaran berhasil dikirim! Pesanan Anda sedang diproses.');
 

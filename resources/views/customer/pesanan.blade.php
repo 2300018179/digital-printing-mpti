@@ -3,7 +3,7 @@
 @section('title', 'Pesanan Saya - Fantastic Digital Printing')
 
 @section('content')
-<div class="max-w-[1350px] mx-auto px-[15px] w-full pt-4">
+<div class="max-w-[1350px] mx-auto px-[15px] w-full pt-4 pb-16">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div class="mb-8">
@@ -81,9 +81,14 @@
                                 </p>
                                 
                                 <p class="text-xs font-medium text-gray-600">Total Tagihan: 
-                                    <span class="font-bold text-gray-800">
-                                        Rp {{ number_format($order->total, 0, ',', '.') }}
+                                    <span class="font-bold text-gray-800 font-harga">
+                                        Rp {{ number_format($order->total ?? $order->grand_total, 0, ',', '.') }}
                                     </span>
+                                    @if(isset($order->sisa_tagihan) && $order->sisa_tagihan > 0)
+                                        <span class="ml-2 inline-block px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded-md">
+                                            Sisa DP: Rp {{ number_format($order->sisa_tagihan, 0, ',', '.') }}
+                                        </span>
+                                    @endif
                                 </p>
 
                                 @if($sisaProduk > 0)

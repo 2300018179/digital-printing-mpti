@@ -15,12 +15,10 @@ class ProductController extends Controller
     {
         $query = Product::with(['subKategori.kategori']);
 
-        // 1. Filter Pencarian Nama
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // 2. Filter Kategori Utama
         if ($request->filled('category') && $request->category != 'all') {
             $query->whereHas('subKategori.kategori', function($q) use ($request) {
                 $q->where('id', $request->category)
@@ -28,7 +26,6 @@ class ProductController extends Controller
             });
         }
 
-        // 3. Filter Sub Kategori
         if ($request->filled('subcategory') && $request->subcategory != 'all') {
             $query->whereHas('subKategori', function($q) use ($request) {
                 $q->where('id', $request->subcategory)
@@ -36,14 +33,11 @@ class ProductController extends Controller
             });
         }
 
-        // 4. Filter Status
         if ($request->filled('status') && $request->status != 'all') {
-            // Jika request 'Aktif', cari nilai '1'. Selain itu (Non-Aktif), cari '0'.
             $statusVal = ($request->status === 'Aktif') ? '1' : '0';
             $query->where('status', $statusVal);
         }
 
-        // Load Sub Kategori Dinamis berdasarkan Kategori Induk
         $subKategoriQuery = SubKategori::query();
 
         if ($request->filled('category') && $request->category != 'all') {
@@ -55,7 +49,6 @@ class ProductController extends Controller
 
         $subKategoris = $subKategoriQuery->orderBy('name', 'asc')->get();
         
-        // TAMBAHAN: Ambil semua data Kategori Induk untuk dropdown Blade
         $kategoris = Kategori::orderBy('name', 'asc')->get();
 
         $products = $query->latest()->paginate(5)->appends($request->all());
@@ -63,32 +56,21 @@ class ProductController extends Controller
         return view('admin.produk', compact('products', 'subKategoris', 'kategoris'));
     }
 
-    // ==========================================
-    // TAMPILKAN FORM TAMBAH
-    // ==========================================
     public function create()
     {
-        $kategoris = \App\Models\Kategori::all();
-        $subKategoris = \App\Models\SubKategori::all(); // Variabel ini WAJIB ada agar dibaca JavaScript
+        $kategoris = Kategori::with('subKategoris')->get();
 
-        return view('admin.form-produk', compact('kategoris', 'subKategoris'));
+        return view('admin.form-produk', compact('kategoris'));
     }
 
-    // ==========================================
-    // TAMPILKAN FORM EDIT
-    // ==========================================
     public function edit($id)
     {
-        // Menggunakan Product:: dan memuat relasi subKategoris
-        $product = Product::findOrFail($id);
+        $product = Product::with('subKategori')->findOrFail($id);
         $kategoris = Kategori::with('subKategoris')->get(); 
 
         return view('admin.edit-produk', compact('product', 'kategoris'));
     }
 
-    // ==========================================
-    // PROSES SIMPAN PRODUK BARU
-    // ==========================================
     public function store(Request $request)
     {
         $request->validate([
@@ -113,11 +95,11 @@ class ProductController extends Controller
         Product::create([
             'name'            => $request->name,
             'slug'            => Str::slug($request->name),
-            'sub_kategori_id' => $request->sub_kategori_id, // GANTI DARI $request->kategori KE SINI
+            'sub_kategori_id' => $request->sub_kategori_id,
             'description'     => $request->description,
             'price'           => $request->price,
             'unit'            => $request->unit,
-            'minimum_order'   => $request->minimum_order, // TAMBAHKAN INI JUGA BIAR TERSIMPAN
+            'minimum_order'   => $request->minimum_order,
             'image'           => $imageName,
             'status'          => ($request->status == 'Aktif' || $request->status == '1') ? '1' : '0',
         ]);
@@ -125,14 +107,10 @@ class ProductController extends Controller
         return redirect()->route('admin.produk')->with('success', 'Produk baru berhasil ditambahkan!');
     }
 
-    // ==========================================
-    // PROSES UPDATE DATA PRODUK
-    // ==========================================
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
 
-        // UBAH VALIDASI DI SINI
         $request->validate([
             'name'            => 'required|string|max:255',
             'kategori_id'     => 'required|exists:kategoris,id', 
@@ -145,11 +123,10 @@ class ProductController extends Controller
             'image'           => 'nullable|image|max:2048'
         ]);
 
-        // UBAH PENGECUALIAN DI SINI
         $data = $request->except(['image', 'kategori_id']); 
-        $data['slug'] = Str::slug($request->name); // Update slug jika nama berubah
+        $data['slug'] = Str::slug($request->name);
         $data['status'] = ($request->status == 'Aktif' || $request->status == '1') ? '1' : '0';
-        $data['sub_kategori_id'] = $request->sub_kategori_id; // GANTI KE sub_kategori_id
+        $data['sub_kategori_id'] = $request->sub_kategori_id;
 
         if ($request->hasFile('image')) {
             if ($product->image && file_exists(public_path('assets/products/' . $product->image))) {

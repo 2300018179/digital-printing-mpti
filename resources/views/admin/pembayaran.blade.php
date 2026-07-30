@@ -18,7 +18,7 @@
     @endforeach
 </div>
 
-{{-- NOTIFIKASI SUKSES (FLASH MESSAGE) DENGAN AUTO-HIDE --}}
+{{-- NOTIFIKASI SUKSES (FLASH MESSAGE) --}}
 @if (session('success'))
 <div id="alert-success" class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between transition-all duration-500 shadow-sm">
     <div class="flex items-center gap-3">
@@ -36,7 +36,7 @@
 </div>
 @endif
 
-{{-- NOTIFIKASI ERROR / DITOLAK (FLASH MESSAGE) DENGAN AUTO-HIDE --}}
+{{-- NOTIFIKASI ERROR / DITOLAK --}}
 @if (session('error'))
 <div id="alert-error" class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-between transition-all duration-500 shadow-sm">
     <div class="flex items-center gap-3">
@@ -60,19 +60,20 @@
         <table class="w-full text-left border-collapse text-xs table-fixed">
             <thead>
                 <tr class="bg-red-50 text-red-700 font-bold h-9">
-                    <th class="p-2.5 w-12 text-center">No</th>
+                    <th class="p-2.5 w-10 text-center">No</th>
                     <th class="p-2.5 w-28 text-left">Order ID</th>
-                    <th class="p-2.5 w-48 text-left">Pelanggan</th>
-                    <th class="p-2.5 w-32 text-left">Tanggal</th>
-                    <th class="p-2.5 w-32 text-center">Bukti Transfer</th>
-                    <th class="p-2.5 w-32 text-left">Total</th>
+                    <th class="p-2.5 w-40 text-left">Pelanggan</th>
+                    <th class="p-2.5 w-24 text-left">Tanggal</th>
+                    <th class="p-2.5 w-28 text-center">Tipe Bayar</th>
+                    <th class="p-2.5 w-28 text-center">Bukti Transfer</th>
+                    <th class="p-2.5 w-32 text-right">Rincian Bayar</th>
                     <th class="p-2.5 w-24 text-center">Aksi</th>
                 </tr>
             </thead>
 
             <tbody class="divide-y divide-gray-100 font-medium text-gray-600">
                 @forelse($pesanans as $index => $item)
-                <tr class="hover:bg-gray-50/50 transition h-[52px]">
+                <tr class="hover:bg-gray-50/50 transition h-[58px]">
                     <td class="p-2.5 text-center text-gray-400 font-semibold">
                         {{ $pesanans->firstItem() + $index }}
                     </td>
@@ -87,6 +88,21 @@
                     <td class="p-2.5 text-gray-500 text-left">
                         {{ $item->tanggal_pesanan ? \Carbon\Carbon::parse($item->tanggal_pesanan)->format('d M Y') : $item->created_at->format('d M Y') }}
                     </td>
+                    
+                    {{-- Tipe Pembayaran (DP vs Full) --}}
+                    <td class="p-2.5 text-center">
+                        @if(($item->tipe_pembayaran ?? 'full') === 'dp')
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                DP (50%)
+                            </span>
+                        @else
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                LUNAS (100%)
+                            </span>
+                        @endif
+                    </td>
+
+                    {{-- Bukti Transfer --}}
                     <td class="p-2.5 text-center">
                         @if($item->bukti_transfer)
                             <button type="button" 
@@ -98,15 +114,29 @@
                             <span class="text-gray-300 text-xs italic">Tidak ada</span>
                         @endif
                     </td>
-                    <td class="p-2.5 font-bold text-gray-900 text-left">
-                        Rp {{ number_format($item->total, 0, ',', '.') }}
+
+                    {{-- Rincian Tagihan & Nominal Dibayar --}}
+                    <td class="p-2.5 text-right">
+                        <div class="font-bold text-gray-900">
+                            Rp {{ number_format($item->nominal_dibayar > 0 ? $item->nominal_dibayar : $item->total, 0, ',', '.') }}
+                        </div>
+                        <div class="text-[10px] text-gray-400">
+                            Total: Rp {{ number_format($item->total, 0, ',', '.') }}
+                        </div>
+                        @if(($item->diskon ?? 0) > 0)
+                            <div class="text-[9px] text-emerald-600 font-semibold">
+                                Hemat: Rp {{ number_format($item->diskon, 0, ',', '.') }}
+                            </div>
+                        @endif
                     </td>
+
+                    {{-- Aksis / Status --}}
                     <td class="p-2.5 text-center">
                         @if($status == 'Menunggu')
-                            <div class="flex items-center justify-center gap-3">
+                            <div class="flex items-center justify-center gap-2">
                                 <button type="button" 
                                         onclick="openConfirmModal('Disetujui', '{{ $item->id }}', '{{ $item->order_id }}')" 
-                                        class="text-green-600 hover:text-green-800 p-1 transition rounded-md hover:bg-green-50 cursor-pointer" 
+                                        class="text-green-600 hover:text-green-800 p-1.5 transition rounded-md hover:bg-green-50 cursor-pointer" 
                                         title="Setujui Pembayaran">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
@@ -115,7 +145,7 @@
 
                                 <button type="button" 
                                         onclick="openConfirmModal('Ditolak', '{{ $item->id }}', '{{ $item->order_id }}')" 
-                                        class="text-red-600 hover:text-red-800 p-1 transition rounded-md hover:bg-red-50 cursor-pointer" 
+                                        class="text-red-600 hover:text-red-800 p-1.5 transition rounded-md hover:bg-red-50 cursor-pointer" 
                                         title="Tolak Pembayaran">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
@@ -131,7 +161,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center py-8 text-xs font-medium text-gray-400 italic">
+                    <td colspan="8" class="text-center py-8 text-xs font-medium text-gray-400 italic">
                         Tidak ada data pembayaran untuk status <strong>{{ $status }}</strong>.
                     </td>
                 </tr>
@@ -178,7 +208,7 @@
     </div>
 </div>
 
-<!-- 2. MODAL CUSTOM KONFIRMASI (SETUJUI / TOLAK) -->
+<!-- 2. MODAL CUSTOM KONFIRMASI -->
 <div id="confirmModal" onclick="closeModalOnBackdrop(event, 'confirmModal')" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
     <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 border border-gray-100 text-center p-6">
         
@@ -214,7 +244,6 @@
 
 @push('scripts')
 <script>
-    // --- FUNGSIONALITAS AUTO-HIDE ALERT ---
     function closeAlertSuccess() {
         const alert = document.getElementById('alert-success');
         if (alert) {
@@ -233,20 +262,17 @@
         }
     }
 
-    // Otomatis tutup alert setelah 4 detik
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(closeAlertSuccess, 4000);
         setTimeout(closeAlertError, 4000);
     });
 
-    // --- FUNGSIONALITAS MODAL BUKTI TRANSFER ---
     function openModal(orderId, imageUrl) {
         document.getElementById('modalOrderId').innerText = '#' + orderId;
         document.getElementById('modalImage').src = imageUrl;
         showModal('buktiModal');
     }
 
-    // --- FUNGSIONALITAS MODAL KONFIRMASI SETUJUI / TOLAK ---
     function openConfirmModal(actionType, id, orderId) {
         const form = document.getElementById('confirmForm');
         const statusInput = document.getElementById('confirmStatusInput');
@@ -280,7 +306,6 @@
         showModal('confirmModal');
     }
 
-    // --- UTILS HELPER FOR MODALS ---
     function showModal(modalId) {
         const modal = document.getElementById(modalId);
         modal.classList.remove('hidden');

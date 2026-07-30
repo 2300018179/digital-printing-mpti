@@ -1,150 +1,87 @@
 @extends('layouts.admin')
 
-@section('title', 'Tambah Promo Baru - Fantastic Digital Printing')
+@section('title', 'Tambah Promo Baru')
 
 @section('content')
-<div class="flex flex-col max-w-4xl space-y-6">
-    
-    {{-- Header Halaman & Deskripsi --}}
-    <div>
-        <h2 class="text-xl font-bold text-gray-800 tracking-wide">
-            Tambah Promo Baru
-        </h2>
-        <p class="text-xs text-gray-500 mt-1">
-            Buat kode diskon baru untuk memberikan potongan harga khusus kepada pelanggan.
+    <div class="mb-6">
+        <h2 class="text-xl font-bold text-gray-800 tracking-wide">Tambah Promo Baru</h2>
+        <p class="text-[11px] text-gray-400 mt-1">
+            <a href="{{ route('admin.dashboard') }}" class="hover:underline">Dashboard</a> &nbsp;/&nbsp; 
+            <a href="{{ route('admin.promo') }}" class="hover:underline">Data Promo</a> &nbsp;/&nbsp; 
+            <span>Tambah Promo</span>
         </p>
     </div>
 
-    {{-- Form Box Putih --}}
-    <div class="bg-white border border-red-300 rounded-2xl shadow-sm p-6">
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 max-w-4xl">
         <form action="{{ route('admin.promo.store') }}" method="POST">
             @csrf
-
+            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs font-medium text-gray-700">
                 
-                {{-- Nama Promo (Full 2 Kolom) --}}
-                <div class="md:col-span-2 space-y-2">
-                    <label for="nama" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
-                        Nama Promo <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" 
-                           name="nama" 
-                           id="nama"
-                           value="{{ old('nama') }}" 
-                           required 
-                           placeholder="Contoh: Promo Diskon Kemerdekaan"
-                           class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition">
-                    
+                {{-- Nama Promo --}}
+                <div class="md:col-span-2 flex flex-col gap-1.5">
+                    <label for="nama" class="font-semibold text-gray-800">Nama Promo</label>
+                    <input type="text" name="nama" id="nama" value="{{ old('nama') }}" required placeholder="Contoh: Promo Diskon Kemerdekaan" class="w-full p-3 border @error('nama') border-red-500 @else border-gray-200 @enderror rounded-xl focus:outline-none focus:border-red-500">
                     @error('nama')
-                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
+                        <span class="text-red-500 text-[10px]">{{ $message }}</span>
                     @enderror
                 </div>
 
                 {{-- Kode Promo --}}
-                <div class="space-y-2">
-                    <label for="kode" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
-                        Kode Promo <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" 
-                           name="kode" 
-                           id="kode"
-                           value="{{ old('kode') }}" 
-                           required 
-                           placeholder="Contoh: MERDEKA79"
-                           class="w-full px-4 py-2.5 text-xs font-medium uppercase font-mono bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition">
-                    
+                <div class="flex flex-col gap-1.5">
+                    <label for="kode" class="font-semibold text-gray-800">Kode Promo</label>
+                    <input type="text" name="kode" id="kode" value="{{ old('kode') }}" required placeholder="Contoh: MERDEKA79" class="w-full p-3 border @error('kode') border-red-500 @else border-gray-200 @enderror rounded-xl focus:outline-none focus:border-red-500 uppercase">
                     @error('kode')
-                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
+                        <span class="text-red-500 text-[10px]">{{ $message }}</span>
                     @enderror
                 </div>
 
-                {{-- Besar Diskon (%) --}}
-                <div class="space-y-2">
-                    <label for="diskon" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
-                        Besar Diskon (%) <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" 
-                           name="diskon" 
-                           id="diskon"
-                           min="1" 
-                           max="100" 
-                           value="{{ old('diskon') }}" 
-                           required 
-                           placeholder="Contoh: 15"
-                           class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition">
-                    
+                {{-- Diskon --}}
+                <div class="flex flex-col gap-1.5">
+                    <label for="diskon" class="font-semibold text-gray-800">Besar Diskon (%)</label>
+                    <input type="number" name="diskon" id="diskon" value="{{ old('diskon') }}" min="1" max="100" required placeholder="Contoh: 15" class="w-full p-3 border @error('diskon') border-red-500 @else border-gray-200 @enderror rounded-xl focus:outline-none focus:border-red-500">
                     @error('diskon')
-                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
+                        <span class="text-red-500 text-[10px]">{{ $message }}</span>
                     @enderror
                 </div>
 
                 {{-- Tanggal Mulai --}}
-                <div class="space-y-2">
-                    <label for="tanggal_mulai" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
-                        Tanggal Mulai <span class="text-red-500">*</span>
-                    </label>
-                    <input type="date" 
-                           name="tanggal_mulai" 
-                           id="tanggal_mulai"
-                           value="{{ old('tanggal_mulai') }}" 
-                           required 
-                           class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition cursor-pointer">
-                    
+                <div class="flex flex-col gap-1.5">
+                    <label for="tanggal_mulai" class="font-semibold text-gray-800">Tanggal Mulai</label>
+                    <input type="date" name="tanggal_mulai" id="tanggal_mulai" value="{{ old('tanggal_mulai') }}" required class="w-full p-3 border @error('tanggal_mulai') border-red-500 @else border-gray-200 @enderror rounded-xl focus:outline-none focus:border-red-500">
                     @error('tanggal_mulai')
-                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
+                        <span class="text-red-500 text-[10px]">{{ $message }}</span>
                     @enderror
                 </div>
 
-                {{-- Tanggal Berakhir --}}
-                <div class="space-y-2">
-                    <label for="tanggal_selesai" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
-                        Tanggal Berakhir <span class="text-red-500">*</span>
-                    </label>
-                    <input type="date" 
-                           name="tanggal_selesai" 
-                           id="tanggal_selesai"
-                           value="{{ old('tanggal_selesai') }}" 
-                           required 
-                           class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition cursor-pointer">
-                    
+                {{-- Tanggal Selesai --}}
+                <div class="flex flex-col gap-1.5">
+                    <label for="tanggal_selesai" class="font-semibold text-gray-800">Tanggal Berakhir</label>
+                    <input type="date" name="tanggal_selesai" id="tanggal_selesai" value="{{ old('tanggal_selesai') }}" required class="w-full p-3 border @error('tanggal_selesai') border-red-500 @else border-gray-200 @enderror rounded-xl focus:outline-none focus:border-red-500">
                     @error('tanggal_selesai')
-                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
+                        <span class="text-red-500 text-[10px]">{{ $message }}</span>
                     @enderror
                 </div>
 
-                {{-- Status Promo (Full 2 Kolom) --}}
-                <div class="md:col-span-2 space-y-2">
-                    <label for="status" class="block text-xs font-bold text-gray-700 uppercase tracking-wide">
-                        Status Promo <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <select name="status" 
-                                id="status" 
-                                class="w-full px-4 py-2.5 text-xs font-medium bg-white border border-red-300 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-gray-700 shadow-sm transition appearance-none cursor-pointer">
-                            <option value="Aktif" {{ old('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                            <option value="Nonaktif" {{ old('status') == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
-                        </select>
-                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-500 text-[10px]">▼</span>
-                    </div>
-
-                    @error('status')
-                        <p class="text-red-500 text-[10px] font-semibold mt-1">{{ $message }}</p>
-                    @enderror
+                {{-- Status --}}
+                <div class="md:col-span-2 flex flex-col gap-1.5">
+                    <label for="status" class="font-semibold text-gray-800">Status Promo</label>
+                    <select name="status" id="status" class="w-full p-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-red-500">
+                        <option value="Aktif" {{ old('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="Nonaktif" {{ old('status') == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                    </select>
                 </div>
-
             </div>
 
-            {{-- Tombol Aksi --}}
-            <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
-                <a href="{{ route('admin.promo', ['tab' => 'promo']) }}" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full text-xs font-bold transition shadow-sm no-underline flex items-center justify-center">
+            {{-- Action Buttons --}}
+            <div class="flex justify-end gap-2 border-t border-gray-100 mt-6 pt-4">
+                <a href="{{ route('admin.promo') }}" class="px-5 py-2.5 border border-gray-300 text-gray-600 rounded-full hover:bg-gray-100 transition no-underline flex items-center justify-center">
                     Batal
                 </a>
-                <button type="submit" class="px-5 py-2.5 bg-red-700 hover:bg-red-800 text-white rounded-full text-xs font-bold transition shadow-sm active:scale-95 cursor-pointer">
+                <button type="submit" class="px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white font-semibold rounded-full shadow-sm transition cursor-pointer">
                     Simpan Promo
                 </button>
             </div>
         </form>
     </div>
-
-</div>
 @endsection

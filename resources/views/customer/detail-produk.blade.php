@@ -1,12 +1,11 @@
 @extends('layouts.customer')
 
-@section('title', 'Detail Produk - Fantastic Digital Printing')
+@section('title', ($product->name ?? 'Detail Produk') . ' - Fantastic Digital Printing')
 
 @section('content')
-
 <div class="max-w-[1350px] mx-auto px-[15px] w-full pt-12">
             
-    {{-- PART 1: DETAIL PRODUK (DINAMIS) --}}
+    {{-- DETAIL PRODUK --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
         <div class="w-full aspect-[4/3] max-w-[500px] border border-brandRed rounded-[25px] p-6 flex items-center justify-center bg-white shadow-[0_4px_12px_rgba(0,0,0,0.02)] mx-auto lg:ml-0">
             @if($product->image)
@@ -41,13 +40,13 @@
         </div>
     </div>
 
-    {{-- PART 2: FORM ORDER & INTEGRASI MEDIA UPLOAD --}}
-    <form id="orderForm" action="{{ route('customer.pembayaran') }}" method="POST" enctype="multipart/form-data" onsubmit="clearAllSessionCache()" class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch mb-16">
+    {{-- FORM ORDER --}}
+    <form id="orderForm" action="{{ route('customer.pembayaran') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch mb-16">
         @csrf
         <input type="hidden" name="product_id" value="{{ $product->id }}">
         <input type="hidden" name="cart_id_edit" value="{{ $editCartData->id ?? '' }}">
         
-        {{-- KOLOM KIRI: Parameter Cetak --}}
+        {{-- Parameter Cetak --}}
         <div class="bg-white border border-gray-200 rounded-[20px] p-6 shadow-[0_4px_15px_rgba(0,0,0,0.05)] flex flex-col justify-between">
             <div>
                 <h2 class="text-center font-bold text-gray-700 border-b border-gray-100 pb-3 mb-5 text-sm tracking-wide">
@@ -78,18 +77,16 @@
             </div>
         </div>
 
-        {{-- KOLOM KANAN: Manajemen Berkas Desain --}}
+        {{-- Manajemen Berkas Desain --}}
         <div class="bg-white border border-gray-200 rounded-[20px] p-6 shadow-[0_4px_15px_rgba(0,0,0,0.05)] flex flex-col justify-between">
             <div>
                 <h2 class="text-center font-bold text-gray-700 border-b border-gray-100 pb-3 mb-5 text-sm tracking-wide">Upload Desain</h2>
                 
-                {{-- Switcher Tab Desain --}}
                 <div class="grid grid-cols-2 gap-2 bg-gray-100 rounded-[10px] p-1 mb-5">
                     <button type="button" id="tabUpload" onclick="switchTab('upload')" class="bg-gray-300 text-gray-700 font-semibold text-xs py-2 rounded-[8px] shadow-sm transition-all cursor-pointer">Upload File</button>
                     <button type="button" id="tabLink" onclick="switchTab('link')" class="text-gray-500 font-semibold text-xs py-2 rounded-[8px] hover:text-gray-700 transition-all cursor-pointer">Link Desain</button>
                 </div>
 
-                {{-- Panel A: Berkas Fisik --}}
                 <div id="contentUpload" class="border border-dashed border-gray-300 rounded-[15px] p-6 flex flex-col items-center justify-center text-center space-y-3 bg-white h-[170px] w-full transition-all relative">
                     <div id="uploadInitial" class="flex flex-col items-center justify-center space-y-3 w-full">
                         <i class="fa fa-cloud-arrow-up text-2xl text-gray-400"></i>
@@ -111,15 +108,12 @@
                         </div>
                     </div>
 
-                    {{-- NAMA INPUT DISESUAIKAN JADI file_desain --}}
                     <input type="file" name="file_desain" id="file-upload" class="hidden" onchange="handleFileSelect(this)">
                 </div>
 
-                {{-- Panel B: Tautan Eksternal (Cloud) --}}
                 <div id="contentLink" class="hidden border border-dashed border-gray-300 rounded-[15px] p-6 flex flex-col items-center justify-center text-center bg-white h-[170px] w-full transition-all relative">
                     <div id="linkInitial" class="w-full max-w-[320px] flex flex-col items-center justify-center space-y-3 my-auto">
                         <label class="block text-center text-xs font-semibold text-gray-700">Link Google Drive / Dropbox / Canva</label>
-                        {{-- NAMA INPUT DISESUAIKAN JADI link_desain --}}
                         <input type="url" id="link-input" name="link_desain" 
                             value="{{ ($editCartData && (filter_var($editCartData->desain, FILTER_VALIDATE_URL) || str_contains($editCartData->desain, 'http'))) ? $editCartData->desain : '' }}"
                             placeholder="https://drive.google.com/..." oninput="handleLinkInput(this)" class="w-full border border-gray-300 rounded-[12px] p-[10px_15px] text-xs outline-none focus:border-brandRed text-center">
@@ -136,7 +130,7 @@
                     </div>
                 </div>
 
-                @if($editCartData && $editCartData->desain)
+                @if(isset($editCartData) && $editCartData->desain)
                     <div id="containerDesainLama" class="mt-3 p-2 bg-gray-50 border border-gray-100 rounded-lg flex items-center justify-between text-[11px] text-gray-500">
                         <div class="flex items-center gap-2 truncate">
                             <i class="fa-solid fa-circle-info text-brandRed text-xs shrink-0"></i>
@@ -166,6 +160,7 @@
     </form>
 </div>
 
+{{-- Modal Konfirmasi --}}
 <div id="customConfirmModal" class="hidden fixed top-0 left-0 right-0 bottom-0 w-full h-full min-h-screen z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
     <div class="bg-white rounded-[20px] shadow-[0_10px_30px_rgba(0,0,0,0.2)] w-full max-w-[400px] p-6 text-center transform scale-95 transition-transform duration-300 mx-4">
         <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 text-brandRed mb-4">
@@ -189,6 +184,8 @@
 </div>
 
 <script>
+    let isSubmittingOrder = false;
+
     document.addEventListener("DOMContentLoaded", function() {
         checkPersistedData();
     });
@@ -198,21 +195,17 @@
         const btnLink = document.getElementById('tabLink');
         const panelUpload = document.getElementById('contentUpload');
         const panelLink = document.getElementById('contentLink');
-        const fileInput = document.getElementById('file-upload');
-        const linkInput = document.getElementById('link-input');
 
         if (tab === 'upload') {
             btnUpload.className = "bg-gray-300 text-gray-700 font-semibold text-xs py-2 rounded-[8px] shadow-sm transition-all cursor-pointer";
             btnLink.className = "text-gray-500 font-semibold text-xs py-2 rounded-[8px] hover:text-gray-700 transition-all cursor-pointer";
             panelUpload.classList.remove('hidden');
             panelLink.classList.add('hidden');
-            if(linkInput && !sessionStorage.getItem('cached_link_url')) linkInput.value = ''; 
         } else {
             btnLink.className = "bg-gray-300 text-gray-700 font-semibold text-xs py-2 rounded-[8px] shadow-sm transition-all cursor-pointer";
             btnUpload.className = "text-gray-500 font-semibold text-xs py-2 rounded-[8px] hover:text-gray-700 transition-all cursor-pointer";
             panelLink.classList.remove('hidden');
             panelUpload.classList.add('hidden');
-            if(fileInput && !sessionStorage.getItem('cached_file_name')) fileInput.value = '';
         }
     }
 
@@ -303,36 +296,33 @@
         sessionStorage.removeItem('cached_page_url');
     }
 
-    let isSubmittingOrder = false;
-
-    function addToCart() {
-        const form = document.getElementById('orderForm');
+    function validateMinQuantity() {
         const inputJumlah = document.getElementById('inputJumlah');
-        
         if (!inputJumlah.value || parseInt(inputJumlah.value) < parseInt(inputJumlah.min)) {
             alert('Jumlah pembelian kurang dari batas minimum order!');
             inputJumlah.focus();
-            return;
+            return false;
         }
+        return true;
+    }
 
+    function addToCart() {
+        if (!validateMinQuantity()) return;
+
+        const form = document.getElementById('orderForm');
         isSubmittingOrder = true; 
         form.action = "{{ url('keranjang/tambah') }}/{{ $product->id }}"; 
         form.submit();
     }
 
     document.getElementById('orderForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const inputJumlah = document.getElementById('inputJumlah');
-        if (!inputJumlah.value || parseInt(inputJumlah.value) < parseInt(inputJumlah.min)) {
-            alert('Jumlah pembelian kurang dari batas minimum order!');
-            inputJumlah.focus();
+        if (!validateMinQuantity()) {
+            e.preventDefault();
             return;
         }
 
         isSubmittingOrder = true;
         this.action = "{{ url('keranjang/tambah') }}/{{ $product->id }}?checkout_langsung=true"; 
-        this.submit();
     });
 
     function hapusDesainLama() {
@@ -363,14 +353,10 @@
         }
     }
 
-    window.addEventListener('beforeunload', function (e) {
+    window.addEventListener('beforeunload', function () {
         if (isSubmittingOrder) {
             clearAllSessionCache();
-        } 
-        else if (performance.navigation.type === performance.navigation.TYPE_RELOAD || 
-                (performance.getEntriesByType("navigation")[0] && performance.getEntriesByType("navigation")[0].type === "reload")) {
-        } 
-        else {
+        } else {
             clearAllSessionCache();
         }
     });

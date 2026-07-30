@@ -9,12 +9,8 @@ use Illuminate\Http\Request;
 
 class PromoController extends Controller
 {
-    // =========================================================================
-    // 1. HALAMAN UTAMA (TAMPIL PROMO & PENGUMUMAN)
-    // =========================================================================
     public function index(Request $request)
     {
-        // Query Promo
         $queryPromo = Promo::query();
 
         if ($request->filled('cari')) {
@@ -28,15 +24,11 @@ class PromoController extends Controller
 
         $promos = $queryPromo->latest()->paginate(10, ['*'], 'promo_page');
 
-        // Query Pengumuman / Informasi
         $informasis = Pengumuman::latest()->get();
 
         return view('admin.promo', compact('promos', 'informasis'));
     }
 
-    // =========================================================================
-    // 2. CRUD PROMO
-    // =========================================================================
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -50,7 +42,6 @@ class PromoController extends Controller
 
         Promo::create($validated);
 
-        // UBAH DI SINI: Tambahkan parameter ['tab' => 'promo'] & with('active_tab', 'promo')
         return redirect()->route('admin.promo', ['tab' => 'promo'])
                          ->with('active_tab', 'promo')
                          ->with('success', 'Promo berhasil ditambahkan!');
@@ -77,7 +68,6 @@ class PromoController extends Controller
 
         $promo->update($validated);
 
-        // UBAH DI SINI: Tambahkan parameter ['tab' => 'promo'] & with('active_tab', 'promo')
         return redirect()->route('admin.promo', ['tab' => 'promo'])
                          ->with('active_tab', 'promo')
                          ->with('success', 'Promo berhasil diupdate!');
@@ -88,15 +78,11 @@ class PromoController extends Controller
         $promo = Promo::findOrFail($id);
         $promo->delete();
 
-        // UBAH DI SINI: Tambahkan parameter ['tab' => 'promo'] & with('active_tab', 'promo')
         return redirect()->route('admin.promo', ['tab' => 'promo'])
                          ->with('active_tab', 'promo')
                          ->with('success', 'Promo berhasil dihapus!');
     }
 
-    // =========================================================================
-    // 3. CRUD PENGUMUMAN / INFORMASI
-    // =========================================================================
     public function storePengumuman(Request $request)
     {
         $validated = $request->validate([
@@ -108,7 +94,6 @@ class PromoController extends Controller
 
         Pengumuman::create($validated);
 
-        // UBAH DI SINI: Tambahkan with('active_tab', 'info')
         return redirect()->route('admin.promo', ['tab' => 'info'])
                          ->with('active_tab', 'info')
                          ->with('success', 'Pengumuman berhasil ditambahkan!');
@@ -133,7 +118,6 @@ class PromoController extends Controller
 
         $pengumuman->update($validated);
 
-        // UBAH DI SINI: Tambahkan with('active_tab', 'info')
         return redirect()->route('admin.promo', ['tab' => 'info'])
                          ->with('active_tab', 'info')
                          ->with('success', 'Pengumuman berhasil diupdate!');
@@ -144,7 +128,6 @@ class PromoController extends Controller
         $pengumuman = Pengumuman::findOrFail($id);
         $pengumuman->delete();
 
-        // UBAH DI SINI: Tambahkan with('active_tab', 'info')
         return redirect()->route('admin.promo', ['tab' => 'info'])
                          ->with('active_tab', 'info')
                          ->with('success', 'Pengumuman berhasil dihapus!');

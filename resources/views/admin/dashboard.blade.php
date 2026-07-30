@@ -3,15 +3,12 @@
 @section('title', 'Dashboard - Fantastic Digital Printing')
 
 <style>
-    /* Memaksa pembungkusan kolom tabel agar patuh pada ukuran pixel pasti */
     .fixed-table-container th, .fixed-table-container td {
         box-sizing: border-box !important;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    
-    /* Menyesuaikan tampilan pagination agar rapi */
     .clean-pagination nav div:first-child {
         display: none !important;
     }
@@ -20,14 +17,12 @@
         display: flex !important;
         justify-content: flex-end !important;
     }
-    /* Menghilangkan shadow bawaan tombol pagination Laravel agar serasi */
     .clean-pagination nav span, .clean-pagination nav a {
         box-shadow: none !important;
     }
 </style>
 
 @section('content')
-    {{-- STATS CARDS --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
         <div class="bg-white p-6 border border-red-300 rounded-2xl shadow-sm">
             <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Total Pesanan</p>
@@ -42,11 +37,7 @@
             <h3 class="text-4xl font-bold text-gray-800 mt-2">{{ number_format($totalPelanggan ?? 0) }}</h3>
         </div>
     </div>
-
-    {{-- ROW 2: TABEL PESANAN & STATUS --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        
-        {{-- Tabel Pesanan Terbaru --}}
         <div class="bg-white p-5 border border-red-300 rounded-2xl shadow-sm lg:col-span-2 overflow-x-auto overflow-y-hidden h-[380px] flex flex-col justify-between fixed-table-container">
             <div class="flex-grow min-h-[280px]">
                 <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-4">Pesanan Terbaru</h4>
@@ -64,9 +55,9 @@
                         @forelse($latestOrders as $index => $order)
                         <tr class="h-[40px] hover:bg-gray-50/50 transition">
                             <td class="p-2.5">{{ $latestOrders->firstItem() + $index }}</td>
-                            <td class="p-2.5 font-semibold text-gray-800">{{ $order->order_id }}</td>
-                            <td class="p-2.5">{{ $order->nama_pelanggan }}</td>
-                            <td class="p-2.5 text-gray-800">Rp {{ number_format($order->total, 0, ',', '.') }}</td>
+                            <td class="p-2.5 font-semibold text-gray-800">{{ $order->order_id ?? '#' . $order->id }}</td>
+                            <td class="p-2.5">{{ $order->nama_pelanggan ?? ($order->user->name ?? 'Pelanggan') }}</td>
+                            <td class="p-2.5 text-gray-800">Rp {{ number_format($order->total ?? $order->total_harga ?? 0, 0, ',', '.') }}</td>
                             <td class="p-2.5 text-center">
                                 <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold inline-block w-20
                                     @if(in_array(strtolower($order->status), ['batal', 'dibatalkan'])) bg-red-100 text-red-700 
@@ -85,8 +76,6 @@
                     </tbody>
                 </table>
             </div>
-            
-            {{-- Pagination Container + Info 'Showing X to Y of Z results' --}}
             <div class="mt-4 pt-2 border-t border-gray-50 flex items-center justify-between h-[40px] flex-shrink-0">
                 @if($latestOrders->total() > 0)
                     <div class="text-[11px] text-gray-500 font-medium">
@@ -97,14 +86,11 @@
                         Showing 0 to 0 of 0 results
                     </div>
                 @endif
-
                 <div class="clean-pagination">
                     {{ $latestOrders->links() }}
                 </div>
             </div>
         </div>
-
-        {{-- Status Pesanan --}}
         <div class="bg-white p-5 border border-red-300 rounded-2xl shadow-sm h-[380px]">
             <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-4">Status Pesanan</h4>
             <div class="w-full text-[11px] font-medium text-gray-600 space-y-3">
@@ -126,17 +112,12 @@
                 @endforelse
             </div>
         </div>
-        
     </div>
-
-    {{-- ROW 3: PRODUK TERLARIS --}}
     <div class="bg-white p-5 border border-red-300 rounded-2xl shadow-sm w-full">
         <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-4">Produk Terlaris</h4>
-        
         @php
             $maxSold = $produkTerlaris->max('total_sold') ?: 1;
         @endphp
-
         <div class="grid grid-cols-1 sm:grid-cols-5 gap-6">
             @forelse($produkTerlaris as $produk)
             @php

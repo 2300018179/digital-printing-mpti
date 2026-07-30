@@ -68,9 +68,9 @@
             @endphp
             <div class="flex items-center gap-3 md:justify-end">
                 <i class="fab fa-whatsapp text-emerald-500 text-lg shrink-0"></i>
-                <a href="https://wa.me/{{ $cleanWa1 }}" target="_blank" class="font-semibold text-gray-700 hover:text-brandRed transition duration-300">
+                <span class="font-semibold text-gray-700">
                     {{ $settingsData['wa_number_1'] ?? '' }}
-                </a>
+                </span>
             </div>
         </div>
 

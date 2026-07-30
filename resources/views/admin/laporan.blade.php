@@ -4,14 +4,10 @@
 
 @section('content')
 <div class="flex flex-col max-w-7xl space-y-6">
-
-    {{-- Header Halaman --}}
     <div>
         <h2 class="text-xl font-bold text-gray-800 tracking-wide">Laporan Penjualan</h2>
         <p class="text-xs text-gray-500 mt-1">Ringkasan performa penjualan, statistik pesanan, dan tren grafik harian.</p>
     </div>
-
-    {{-- Filter Bulan & Tahun + Tombol Cetak PDF --}}
     <div class="flex flex-wrap items-center justify-between gap-4 bg-white border border-red-200 p-4 rounded-2xl shadow-sm">
         <form action="{{ route('admin.laporan') }}" method="GET" class="flex flex-wrap gap-4 items-center">
             @php
@@ -22,7 +18,6 @@
                 ];
                 $daftarTahun = range(2026, 2031);
             @endphp
-
             <div class="flex items-center gap-2">
                 <span class="text-xs font-semibold text-gray-600">Bulan:</span>
                 <select name="bulan" class="px-3 py-2 border border-gray-300 focus:border-red-600 text-xs rounded-xl font-bold text-gray-700 focus:outline-none transition">
@@ -33,7 +28,6 @@
                     @endforeach
                 </select>
             </div>
-
             <div class="flex items-center gap-2">
                 <span class="text-xs font-semibold text-gray-600">Tahun:</span>
                 <select name="tahun" class="px-3 py-2 border border-gray-300 focus:border-red-600 text-xs rounded-xl font-bold text-gray-700 focus:outline-none transition">
@@ -44,13 +38,10 @@
                     @endforeach
                 </select>
             </div>
-
             <button type="submit" class="px-5 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-xl transition shadow-sm active:scale-95">
                 Tampilkan
             </button>
         </form>
-
-        {{-- Tombol Cetak PDF & Excel --}}
         <div class="flex items-center gap-2">
             {{-- Tombol PDF --}}
             <a href="{{ route('admin.laporan.pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" target="_blank" class="px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-xl transition shadow-sm active:scale-95 flex items-center gap-2">
@@ -59,8 +50,6 @@
                 </svg>
                 Cetak PDF
             </a>
-
-            {{-- Tombol Excel --}}
             <a href="{{ route('admin.laporan.excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-xl transition shadow-sm active:scale-95 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
@@ -69,8 +58,6 @@
             </a>
         </div>
     </div>
-
-    {{-- Stat Cards (4 Kolom) --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white border border-red-200 p-5 rounded-2xl shadow-sm">
             <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Total Penjualan</p>
@@ -89,8 +76,6 @@
             <h3 class="text-lg font-bold text-gray-800 mt-1">Rp {{ number_format($rataRataPesanan ?? 0, 0, ',', '.') }}</h3>
         </div>
     </div>
-
-    {{-- Box Produk Terlaris --}}
     <div class="bg-white border border-red-200 rounded-2xl p-6 shadow-sm">
         <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-4 border-b pb-3 border-gray-100 flex items-center gap-2">
             <span>🔥</span> Produk Terlaris
@@ -108,8 +93,6 @@
             @endforelse
         </ul>
     </div>
-
-    {{-- Grafik Penjualan Harian --}}
     <div class="bg-white border border-red-200 p-6 rounded-2xl shadow-sm">
         <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-4 border-b pb-3 border-gray-100 flex items-center gap-2">
             <span>📈</span> Grafik Penjualan Harian
@@ -118,7 +101,6 @@
             <canvas id="salesChart"></canvas>
         </div>
     </div>
-
 </div>
 @endsection
 

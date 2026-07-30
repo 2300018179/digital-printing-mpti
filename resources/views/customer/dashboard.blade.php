@@ -2,7 +2,7 @@
 
 @section('title', 'Fantastic Digital Printing - Beranda')
 
-{{-- Tambahkan Head Swiper CSS --}}
+{{-- Head Swiper CSS & Custom Styles --}}
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <style>
@@ -174,10 +174,20 @@
 </div>
 @endsection
 
-{{-- Script Inisialisasi Swiper JS --}}
+{{-- Script Inisialisasi Swiper JS & Mobile SubMenu --}}
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
+    // Handler Klik SubMenu Kategori untuk Mobile
+    function toggleSubMenu(element, event) {
+        if (window.innerWidth < 768) {
+            const submenu = element.querySelector('.submenu-box');
+            if (submenu) {
+                submenu.classList.toggle('hidden');
+            }
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const swiperElement = document.querySelector('.bannerSwiper');
         

@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -32,7 +35,7 @@ class AuthController extends Controller
                 return redirect()->route('admin.dashboard'); 
             }
 
-            return redirect()->route('customer.dashboard');
+            return redirect()->intended(route('customer.dashboard'));
         }
 
         return back()->withErrors([
@@ -114,10 +117,14 @@ class AuthController extends Controller
             </div>
         ";
 
-        Mail::html($htmlContent, function($message) use ($request) {
-            $message->to($request->email)
-                    ->subject('Kode Verifikasi OTP - Fantastic Digital Printing');
-        });
+        try {
+            Mail::html($htmlContent, function($message) use ($request) {
+                $message->to($request->email)
+                        ->subject('Kode Verifikasi OTP - Fantastic Digital Printing');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengirim email OTP. Pastikan koneksi dan email Anda benar.');
+        }
 
         return redirect()->route('register');
     }
@@ -140,13 +147,15 @@ class AuthController extends Controller
         if ($request->otp == session('otp_code')) {
             $data = session('registration_data');
             
-            $user = \App\Models\User::create([
-                'name'     => $data['name'],
-                'phone'    => $data['phone'], 
-                'email'    => $data['email'],
-                'password' => $data['password'],
-                'role'     => 'customer', 
-            ]);
+            $user = DB::transaction(function () use ($data) {
+                return User::create([
+                    'name'     => $data['name'],
+                    'phone'    => $data['phone'], 
+                    'email'    => $data['email'],
+                    'password' => $data['password'],
+                    'role'     => 'customer', 
+                ]);
+            });
 
             session()->forget([
                 'registration_data', 
@@ -188,9 +197,85 @@ class AuthController extends Controller
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'exists:users,email'],
+        ], [
+            'email.exists' => 'Email ini tidak terdaftar di sistem kami.',
         ]);
 
-        return back()->with('status', 'Link reset password berhasil dikirim ke email Anda!');
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'email'      => $request->email,
+                'token'      => $token,
+                'created_at' => now()
+            ]
+        );
+
+        $resetLink = url('/reset-password/' . $token . '?email=' . urlencode($request->email));
+
+        $htmlContent = "
+            <div style='font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
+                <h2 style='color: #c40000; text-align: center;'>Fantastic Digital Printing</h2>
+                <p>Halo,</p>
+                <p>Kami menerima permintaan untuk mereset password akun Anda. Klik tombol di bawah untuk melanjutkan:</p>
+                <div style='text-align: center; margin: 25px 0;'>
+                    <a href='{$resetLink}' style='background-color: #c40000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;'>Reset Password</a>
+                </div>
+                <p style='font-size: 12px; color: #777;'>Jika Anda tidak meminta reset password, abaikan saja email ini.</p>
+            </div>
+        ";
+
+        try {
+            Mail::html($htmlContent, function($message) use ($request) {
+                $message->to($request->email)
+                        ->subject('Instruksi Reset Password - Fantastic Digital Printing');
+            });
+
+            return back()->with('status', 'Link reset password berhasil dikirim ke email Anda!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => 'Gagal mengirim email reset password. Coba lagi nanti.']);
+        }
+    }
+
+    // Menampilkan Halaman Input Password Baru (Saat link di email diklik)
+    public function showResetPassword(Request $request, $token)
+    {
+        return view('customer.reset-password', [
+            'token' => $token,
+            'email' => $request->email
+        ]);
+    }
+
+    // Memproses Perubahan Password Baru Ke Database
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'token'    => 'required',
+            'email'    => 'required|email|exists:users,email',
+            'password' => 'required|min:6|confirmed',
+        ], [
+            'password.required'  => 'Password baru wajib diisi.',
+            'password.min'       => 'Password minimal harus 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+        ]);
+
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$resetRecord) {
+            return back()->withErrors(['email' => 'Token reset password tidak valid atau sudah kadaluwarsa.']);
+        }
+
+        User::where('email', $request->email)->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return redirect()->route('login')->with('success', 'Password berhasil diubah! Silakan login dengan password baru Anda.');
     }
 }

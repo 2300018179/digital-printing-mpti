@@ -57,6 +57,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/register/cancel-otp', [AuthController::class, 'cancelOtp'])->name('register.cancel');
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
     Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+    Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -71,6 +73,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifikasi/baca/{id}', [NotificationController::class, 'readAndRedirect'])->name('customer.notifikasi.read'); // <-- TAMBAHKAN BARIS INI
     Route::post('/notifikasi/mark-all-read', [NotificationController::class, 'markAllRead'])->name('customer.notifikasi.markAllRead');
     
+    Route::post('/promo/check', [ProductsController::class, 'checkPromo'])->name('customer.promo.check');
+
     Route::get('/pesanan-saya', [PesananCSController::class, 'index'])->name('customer.pesanan-saya');
     Route::get('/pesanan', [PesananCSController::class, 'index'])->name('customer.pesanan');
     

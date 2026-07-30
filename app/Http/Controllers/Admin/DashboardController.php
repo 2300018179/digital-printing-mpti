@@ -13,15 +13,12 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Data Statistik (Card)
         $totalOrder = Pesanan::count();
         $totalProduk = Product::count();
         $totalPelanggan = User::where('role', 'customer')->count();
 
-        // 2. Data Tabel (5 Pesanan Terbaru)
         $latestOrders = Pesanan::latest()->paginate(5);
 
-        // 3. Data Status
         $statuses = Pesanan::select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
             ->pluck('total', 'status')
@@ -34,7 +31,6 @@ class DashboardController extends Controller
             'batal'     => $statuses['batal'] ?? $statuses['Batal'] ?? $statuses['dibatalkan'] ?? $statuses['Dibatalkan'] ?? 0,
         ];
 
-        // 4. Query Produk Terlaris (Hanya menghitung dari Pesanan yang SELESAI)
         $produkTerlaris = DB::table('detail_pesanan')
             ->join('products', 'detail_pesanan.product_id', '=', 'products.id') 
             ->join('pesanan', 'detail_pesanan.pesanan_id', '=', 'pesanan.id')

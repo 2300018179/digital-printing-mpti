@@ -45,6 +45,11 @@ class PembayaranController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Validasi input status
+        $request->validate([
+            'status' => 'required|in:Disetujui,Ditolak',
+        ]);
+
         $pesanan = Pesanan::with('user')->findOrFail($id);
         
         // Ubah status ke 'Dicetak' jika disetujui, atau 'Ditolak' jika ditolak

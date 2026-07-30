@@ -8,28 +8,40 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Pesanan extends Model
 {
-    // Pastikan tabel sesuai dengan nama di database Anda
     protected $table = 'pesanan'; 
 
     protected $fillable = [
-        'user_id',          // Penting untuk relasi ke User
+        'user_id',        
         'order_id', 
         'nama_pelanggan', 
         'tanggal_pesanan', 
-        'status', 
+        'status',          // 'menunggu_pembayaran', 'dp', 'selesai', 'dibatalkan'
+        'tipe_pembayaran',  // 'full', 'dp_50'
         'bukti_transfer',
-        'total',
+        'nominal_dibayar', // Nominal riil yang dikirim (misal DP 50% dari total)
+        'total',           // Grand total pesanan
     ];
 
-    // Relasi ke detail item pesanan
     public function items(): HasMany 
     {
         return $this->hasMany(DetailPesanan::class, 'pesanan_id');
     }
 
-    // Relasi ke User (Pelanggan)
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    /**
+     * Helper Pendapatan Riil (Pencegah Selisih)
+     */
+    public function getUangMasukAttribute()
+    {
+        // Jika kolom nominal_dibayar diisi, gunakan nilainya. Jika tidak, ambil total jika status selesai.
+        if ($this->nominal_dibayar > 0) {
+            return $this->nominal_dibayar;
+        }
+        
+        return $this->status === 'selesai' ? $this->total : 0;
     }
 }

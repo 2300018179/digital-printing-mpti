@@ -44,14 +44,6 @@
                             {{ $info->isi }}
                         </div>
 
-                        {{-- 4. Footer Card --}}
-                        <div class="flex items-center justify-between text-[11px] md:text-xs">
-                            <span class="text-gray-400 font-normal">Ada pertanyaan terkait pengumuman ini?</span>
-                            <a href="https://wa.me/6281234567890" target="_blank" class="inline-flex items-center gap-1 text-brandRed font-bold hover:underline no-underline">
-                                <i class="fab fa-whatsapp text-xs md:text-sm"></i> Tanya Tim Kami
-                            </a>
-                        </div>
-
                     </div>
                 @endforeach
             </div>

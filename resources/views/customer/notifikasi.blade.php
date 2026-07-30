@@ -28,7 +28,7 @@
                 </div>
 
                 {{-- Form/Tombol Tandai Semua Sudah Dibaca --}}
-                @if(isset($notifications) && $notifications->whereNull('read_at')->count() > 0)
+                @if(isset($notifications) && $notifications->count() > 0)
                     <form action="{{ route('customer.notifikasi.markAllRead') }}" method="POST">
                         @csrf
                         <button type="submit" class="text-xs font-semibold text-gray-400 hover:text-brandRed transition cursor-pointer">
@@ -42,8 +42,7 @@
             <div class="divide-y divide-gray-100">
                 @forelse($notifications as $notification)
                     @php
-                        // Ambil tipe/kategori notifikasi jika disimpan di data JSON
-                        $type = $notification->data['type'] ?? 'info'; // pesanan, promo, info
+                        $type = $notification->data['type'] ?? 'info';
                         $isUnread = is_null($notification->read_at);
                     @endphp
 

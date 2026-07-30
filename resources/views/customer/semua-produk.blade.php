@@ -1,26 +1,21 @@
 @extends('layouts.customer')
 
-@section('title', $title . 'Semua Produk - Fantastic Digital Printing')
+@section('title', $title . ' - Fantastic Digital Printing')
 
 @section('content')
-@php
-    // Mengambil data kategori langsung jika tidak dikirim dari Controller
-    $categories = DB::table('kategoris')->get();
-@endphp
-
 <div class="max-w-[1350px] mx-auto px-[15px] w-full flex flex-col md:flex-row gap-5 items-start mb-12">
-            
+    
+    {{-- ASIDE: Sidebar Kategori --}}
     <aside class="hidden md:flex w-[280px] shrink-0 bg-white rounded-[0_0_20px_20px] shadow-[0_10px_20px_rgba(0,0,0,0.05)] flex-col border border-t-0 border-[#f0f0f0] relative z-20">
         <ul class="list-none m-0 p-0">
             @php
-                // Mapping icon agar sesuai dengan ID kategori induknya
                 $iconMapping = [
-                    1 => 'fas fa-file-alt',           // Print On Paper
+                    1 => 'fas fa-file-alt',          // Print On Paper
                     2 => 'fas fa-sticky-note',       // Print Stiker
                     3 => 'far fa-calendar-alt',      // Kalender
                     4 => 'fas fa-scroll',            // Banner & Spanduk
                     5 => 'fas fa-tshirt',            // Sablon
-                    6 => 'fas fa-gift',              // Sovenir
+                    6 => 'fas fa-gift',              // Souvenir
                     7 => 'fas fa-envelope-open-text',// Undangan
                     8 => 'fas fa-clipboard',         // Papan Informasi
                     9 => 'fas fa-id-card',           // Tanda Pengenal
@@ -39,10 +34,8 @@
 
                     <div class="submenu-box hidden md:block md:absolute md:left-[100%] md:top-0 w-full md:w-[240px] bg-white md:border md:border-[#f0f0f0] md:rounded-[0_20px_20px_20px] md:shadow-[10px_10px_20px_rgba(0,0,0,0.05)] md:opacity-0 md:pointer-events-none transition-all duration-200 z-[50] overflow-hidden mt-2 md:mt-0 pl-9 md:pl-0 md:group-hover/item:opacity-100 md:group-hover/item:pointer-events-auto">
                         <ul class="list-none m-0 p-0 flex flex-col">
-                            @php
-                                $subItems = DB::table('sub_kategoris')->where('kategori_id', $cat->id)->get();
-                            @endphp
-                            @foreach($subItems as $sub)
+                            {{-- Direkomendasikan menggunakan $cat->subKategoris via Controller --}}
+                            @foreach($cat->subKategoris ?? [] as $sub)
                                 <a href="{{ route('customer.semua-produk', ['sub' => $sub->id]) }}" class="py-2 md:p-[12px_20px] text-[13px] font-medium text-gray-700 hover:bg-[#fff5f5] hover:text-brandRed border-b border-[#f9f9f9] transition-colors">
                                     {{ $sub->name }}
                                 </a>
@@ -54,6 +47,7 @@
         </ul>
     </aside>
 
+    {{-- SECTION: Daftar Produk --}}
     <section class="flex-1 flex flex-col justify-between self-stretch pt-5 md:pt-8">
         <div>
             <div class="mb-4">
@@ -63,7 +57,6 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-5">
                 @forelse ($products as $p)
                     <a href="{{ route('customer.detail-produk', $p->id) }}" class="block bg-white rounded-[20px] overflow-hidden border border-[#c40000] flex flex-col relative transition-all duration-300 ease-in-out cursor-pointer hover:-translate-y-[5px] hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]">
-                        
                         <div class="w-full aspect-square flex items-center justify-center p-[5px] bg-white">
                             <img src="{{ asset('assets/products/' . $p->image) }}" alt="{{ $p->name }}" class="w-full h-full object-contain">
                         </div>
@@ -77,7 +70,6 @@
                                 Rp. {{ number_format($p->price, 0, ',', '.') }}/{{ $p->unit }}
                             </div> 
                         </div>
-
                     </a>
                 @empty
                     <div class="col-span-full text-center py-16 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
@@ -88,10 +80,9 @@
             </div>
         </div>
 
+        {{-- PAGINATION --}}
         @if ($products->hasPages())
             <div class="flex justify-center items-center gap-2 text-xs font-semibold mt-12 mb-4 text-gray-600">
-                
-                {{-- Tombol Previous --}}
                 @if ($products->onFirstPage())
                     <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed">
                         <i class="fa fa-chevron-left text-[10px]"></i>
@@ -102,7 +93,6 @@
                     </a>
                 @endif
 
-                {{-- Nomor Halaman Dinamis --}}
                 @for ($page = 1; $page <= $products->lastPage(); $page++)
                     @if ($page == $products->currentPage())
                         <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#c40000] text-white font-bold">
@@ -115,7 +105,6 @@
                     @endif
                 @endfor
 
-                {{-- Tombol Next --}}
                 @if ($products->hasMorePages())
                     <a href="{{ $products->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-gray-50 transition text-gray-600">
                         <i class="fa fa-chevron-right text-[10px]"></i>
@@ -125,7 +114,6 @@
                         <i class="fa fa-chevron-right text-[10px]"></i>
                     </span>
                 @endif
-
             </div>
         @endif
     </section>
