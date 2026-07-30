@@ -12,8 +12,10 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Keranjang;
 use App\Models\Pesanan;
 use App\Models\DetailPesanan;
+use App\Models\Promo; // Import Model Promo
 use App\Models\Setting;
 use App\Mail\NotifikasiPesananMail;
+use Carbon\Carbon; // Import Carbon
 
 class PaymentController extends Controller
 {
@@ -61,13 +63,22 @@ class PaymentController extends Controller
 
         $settings = Setting::pluck('value', 'key')->toArray();
 
+        // Ambil data promo aktif dari Database
+        $today = Carbon::today()->toDateString();
+        $databasePromo = Promo::where('status', 'Aktif')
+            ->whereDate('tanggal_mulai', '<=', $today)
+            ->whereDate('tanggal_selesai', '>=', $today)
+            ->get()
+            ->keyBy('kode');
+
         return view('customer.pembayaran', compact(
             'checkoutItems', 
             'hargaCetak', 
             'biayaLayanan', 
             'grandTotal', 
             'uangMuka',
-            'settings'
+            'settings',
+            'databasePromo'
         ));
     }
 
@@ -112,22 +123,29 @@ class PaymentController extends Controller
             $biayaLayanan = 2000;
             $subTotalAwal = $hargaCetak + $biayaLayanan;
 
-            // Logika Diskon Promo (Backend Security Check)
+            // Logika Diskon Promo dari Database (Backend Security Check)
             $kodePromo = strtoupper(trim($request->input('kode_promo')));
             $diskon = 0;
 
-            $databasePromo = [
-                'HUTRI12' => ['tipe' => 'potongan', 'nilai' => 2000],
-                'PROMO50' => ['tipe' => 'persen', 'nilai' => 50],
-                'HEMAT10' => ['tipe' => 'potongan', 'nilai' => 1000],
-            ];
+            if (!empty($kodePromo)) {
+                $today = Carbon::today()->toDateString();
+                
+                $promo = Promo::where('kode', $kodePromo)
+                    ->where('status', 'Aktif')
+                    ->whereDate('tanggal_mulai', '<=', $today)
+                    ->whereDate('tanggal_selesai', '>=', $today)
+                    ->first();
 
-            if (!empty($kodePromo) && isset($databasePromo[$kodePromo])) {
-                $promo = $databasePromo[$kodePromo];
-                if ($promo['tipe'] === 'persen') {
-                    $diskon = ($hargaCetak * $promo['nilai']) / 100;
+                if ($promo) {
+                    $nilaiDiskon = (float) $promo->diskon;
+
+                    if ($nilaiDiskon <= 100) {
+                        $diskon = ($hargaCetak * $nilaiDiskon) / 100;
+                    } else {
+                        $diskon = $nilaiDiskon;
+                    }
                 } else {
-                    $diskon = $promo['nilai'];
+                    $kodePromo = null; // Reset jika tidak valid
                 }
             }
 

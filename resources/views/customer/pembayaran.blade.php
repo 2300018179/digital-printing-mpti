@@ -4,23 +4,28 @@
 <div class="max-w-[1000px] mx-auto px-[15px] w-full pt-6 pb-16">
     <form id="form-pembayaran" action="{{ route('customer.pembayaran.simpan') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-[30px] shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-6 md:p-10">
         @csrf
+        
+        {{-- Item Keranjang yang Dipilih --}}
         @foreach($checkoutItems as $item)
             <input type="hidden" name="selected_items[]" value="{{ $item['id'] }}">
         @endforeach
         
-        {{-- Hidden Input Promo, Grand Total, Nominal Bayar & Sisa Tagihan --}}
+        {{-- Hidden Inputs untuk Dikirim ke Backend --}}
         <input type="hidden" name="kode_promo" id="input_kode_promo_hidden" value="">
         <input type="hidden" name="grand_total" id="input_grand_total_hidden" value="{{ $grandTotal }}">
         <input type="hidden" name="nominal_dibayar" id="input_nominal_dibayar_hidden" value="{{ $uangMuka }}">
         <input type="hidden" name="sisa_tagihan" id="input_sisa_tagihan_hidden" value="{{ $grandTotal - $uangMuka }}">
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            
+            {{-- KOLOM KIRI: DETAIL TAGIHAN & PEMBAYARAN --}}
             <div class="space-y-6 md:border-r md:border-gray-100 md:pr-10">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-800 tracking-wide">Selesaikan Pembayaran</h1>
                     <p class="text-xs text-gray-400 mt-1">Silakan pilih jenis pembayaran dan scan QRIS di sebelah kanan.</p>
                 </div>
                 
+                {{-- RINCIAN BELANJA --}}
                 <div class="bg-gray-50 rounded-2xl p-4 space-y-4 text-sm">
                     <div class="space-y-3">
                         @foreach($checkoutItems as $item)
@@ -44,7 +49,7 @@
                             <i class="fa fa-ticket-alt text-brandRed"></i> Kode Voucher / Promo
                         </label>
                         <div class="flex gap-2">
-                            <input type="text" id="input_kode_promo" placeholder="Masukkan kode promo" class="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs uppercase font-mono font-bold focus:outline-none focus:border-brandRed uppercase transition">
+                            <input type="text" id="input_kode_promo" placeholder="Masukkan kode promo" class="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs uppercase font-mono font-bold focus:outline-none focus:border-brandRed transition">
                             <button type="button" id="btn_apply_promo" onclick="terapkanPromoManual()" class="px-3.5 py-2 bg-gray-800 hover:bg-black text-white rounded-xl text-xs font-bold transition shrink-0">
                                 Pasang
                             </button>
@@ -54,7 +59,7 @@
 
                     <div class="border-t border-gray-200/60 my-2"></div>
                     
-                    {{-- RINCIAN HARGA --}}
+                    {{-- SUB-TOTAL & GRAND TOTAL --}}
                     <div class="space-y-2">
                         <div class="flex justify-between text-xs text-gray-500">
                             <span>Total Harga Cetak</span>
@@ -65,7 +70,7 @@
                             <span class="font-medium text-gray-700 font-harga">Rp {{ number_format($biayaLayanan, 0, ',', '.') }}</span>
                         </div>
                         
-                        {{-- ROW POTONGAN DISKON --}}
+                        {{-- DISKON PROMO --}}
                         <div id="row_diskon" class="flex justify-between text-xs text-emerald-600 font-bold hidden">
                             <span class="flex items-center gap-1"><i class="fa fa-percentage"></i> Diskon Promo</span>
                             <span class="font-harga" id="text_nominal_diskon">- Rp 0</span>
@@ -78,7 +83,7 @@
                     </div>
                 </div>
 
-                {{-- METODE PEMBAYARAN --}}
+                {{-- METODE PEMBAYARAN (DP / LUNAS) --}}
                 <div class="space-y-3">
                     <label class="text-sm font-semibold text-gray-700 block">Metode Pembayaran:</label> 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -95,12 +100,14 @@
                     </div>
                 </div>
 
+                {{-- INFO PELUNASAN --}}
                 <div id="info-pembayaran" class="text-[11px] text-gray-400 bg-amber-50/50 text-amber-700 border border-amber-100 rounded-xl p-3 flex gap-2 items-start">
                     <i class="fas fa-info-circle mt-0.5 shrink-0"></i>
                     <p id="info-text">Jika memilih opsi <strong>DP 50%</strong>, sisa pelunasan sebesar <strong class="font-harga" id="display_sisa_pelunasan">Rp {{ number_format($grandTotal - $uangMuka, 0, ',', '.') }}</strong> dibayarkan saat Anda mengambil produk di toko.</p>
                 </div>
             </div>
 
+            {{-- KOLOM KANAN: SCAN QRIS & UPLOAD BUKTI --}}
             <div class="space-y-6 w-full">
                 @php
                     $settingsData = $settings ?? $appSettings ?? [];
@@ -112,7 +119,7 @@
                 <div class="flex flex-col items-center text-center">
                     <span class="text-xs font-semibold text-gray-400 tracking-wider mb-1">QRIS PAYMENT</span>
                     <h3 class="font-bold text-sm text-gray-800 mb-3">
-                        {{ $settingsData['qris_nama_pemilik'] ?? $settingsData['nama_toko'] ?? '' }}
+                        {{ $settingsData['qris_nama_pemilik'] ?? $settingsData['nama_toko'] ?? 'Pencetakan Digital' }}
                     </h3>
                     <div class="p-3 bg-white border border-gray-100 rounded-2xl shadow-sm mb-4">
                         <img src="{{ $qrisUrl }}" alt="QRIS Code" class="w-48 h-48 object-contain rounded-lg">
@@ -123,6 +130,7 @@
                     <p class="text-[11px] text-gray-400 mt-1">*Pastikan nominal transfer sesuai angka di atas</p>
                 </div>
 
+                {{-- UPLOAD BUKTI TRANSFER --}}
                 <div class="w-full px-1">
                     <label class="block text-xs font-bold text-gray-700 mb-2">
                         <i class="fa fa-upload text-brandRed mr-1"></i> Upload Bukti Transfer <span class="text-red-500">*</span>
@@ -145,7 +153,7 @@
                     @enderror
                 </div>
 
-                {{-- TOMBOL BAYAR DENGAN INTERUPSI AUTH CHECK --}}
+                {{-- SUBMIT BUTTON --}}
                 <div class="px-1 pt-1">
                     @auth
                         <button type="submit" class="w-full py-3.5 bg-brandRed text-white font-bold text-sm rounded-full hover:bg-red-700 active:scale-[0.99] transition shadow-md uppercase tracking-wider cursor-pointer">
@@ -162,7 +170,7 @@
     </form>
 </div>
 
-{{-- MODAL INTERUPSI AUTH CHECK (GUEST USER) --}}
+{{-- MODAL AUTH CHECK (HANYA MUNCUL JIKA USER BELUM LOGIN) --}}
 <div id="authModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-xl">
         <div class="w-16 h-16 bg-red-100 text-brandRed rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
@@ -182,8 +190,9 @@
     </div>
 </div>
 
+{{-- JAVASCRIPT LOGIC --}}
 <script>
-    // State Variabel Kalkulasi Total
+    // State Awal Variabel Angka
     let initialHargaCetak = {{ $hargaCetak }};
     let initialBiayaLayanan = {{ $biayaLayanan }};
     let initialGrandTotal = {{ $grandTotal }};
@@ -196,13 +205,11 @@
         return new Intl.NumberFormat('id-ID').format(Math.max(0, angka));
     }
 
-    const databasePromo = {
-        'HUTRI12': { tipe: 'potongan', nilai: 2000 },
-        'PROMO50': { tipe: 'persen', nilai: 50 },
-        'HEMAT10': { tipe: 'potongan', nilai: 1000 }
-    };
+    // Mendapatkan Objek Promo yang Dikirim dari Controller
+    const databasePromo = @json($databasePromo ?? []);
 
     document.addEventListener('DOMContentLoaded', function () {
+        // Cek jika ada promo tersimpan di LocalStorage
         const savedPromo = localStorage.getItem('active_promo_code');
         if (savedPromo) {
             const inputPromo = document.getElementById('input_kode_promo');
@@ -212,6 +219,7 @@
             }
         }
 
+        // Preview File Bukti Transfer
         const fileInput = document.getElementById('bukti_transfer');
         const uploadPlaceholder = document.getElementById('upload-placeholder');
         const imagePreview = document.getElementById('image-preview');
@@ -246,9 +254,10 @@
         }
     });
 
+    // Fungsi Kalkulasi Promo dari DB
     function terapkanPromoManual(isAuto = false) {
         const inputKodeElement = document.getElementById('input_kode_promo');
-        const inputKode = inputKodeElement.value.trim().toUpperCase();
+        const inputKode = inputKodeElement.value.trim();
         const msgBox = document.getElementById('promo_status_msg');
         const rowDiskon = document.getElementById('row_diskon');
         const textNominalDiskon = document.getElementById('text_nominal_diskon');
@@ -260,7 +269,10 @@
             return;
         }
 
-        let promoData = databasePromo[inputKode];
+        // Cari promo berdasarkan Key Kode di DB
+        let promoKey = Object.keys(databasePromo).find(key => key.toLowerCase() === inputKode.toLowerCase());
+        let promoData = promoKey ? databasePromo[promoKey] : null;
+
         if (!promoData) {
             msgBox.className = "text-[11px] mt-1.5 font-semibold text-red-500 block";
             msgBox.innerText = "Kode promo tidak valid atau sudah kadaluarsa.";
@@ -268,10 +280,15 @@
             return;
         }
 
-        if (promoData.tipe === 'persen') {
-            currentNominalDiskon = (initialHargaCetak * promoData.nilai) / 100;
+        // Hitung Potongan Diskon
+        let diskonValue = parseFloat(promoData.diskon) || 0;
+
+        if (diskonValue <= 100) {
+            // Diskon Persentase
+            currentNominalDiskon = (initialHargaCetak * diskonValue) / 100;
         } else {
-            currentNominalDiskon = promoData.nilai;
+            // Diskon Nominal Tetap (Rupiah)
+            currentNominalDiskon = diskonValue;
         }
 
         if (currentNominalDiskon > initialGrandTotal) {
@@ -282,7 +299,7 @@
         currentUangMuka = Math.ceil(currentGrandTotal / 2);
 
         msgBox.className = "text-[11px] mt-1.5 font-semibold text-emerald-600 block";
-        msgBox.innerText = "✓ Voucher " + inputKode + " berhasil dipasang!";
+        msgBox.innerText = "✓ Voucher " + promoData.kode + " berhasil dipasang!";
         
         if (rowDiskon && textNominalDiskon) {
             rowDiskon.classList.remove('hidden');
@@ -293,7 +310,7 @@
         document.getElementById('display_dp_nominal').innerText = "Rp " + formatRupiah(currentUangMuka);
         document.getElementById('display_full_nominal').innerText = "Rp " + formatRupiah(currentGrandTotal);
         
-        document.getElementById('input_kode_promo_hidden').value = inputKode;
+        document.getElementById('input_kode_promo_hidden').value = promoData.kode;
         document.getElementById('input_grand_total_hidden').value = currentGrandTotal;
 
         handlePaymentTypeChange();
@@ -318,6 +335,7 @@
         handlePaymentTypeChange();
     }
 
+    // Toggle Pilihan Pembayaran DP vs Full
     function handlePaymentTypeChange() {
         const selectedType = document.querySelector('input[name="payment_type"]:checked').value;
         const labelDp = document.getElementById('label-dp');
@@ -329,7 +347,6 @@
         const nominalHarusBayar = (selectedType === 'dp') ? currentUangMuka : currentGrandTotal;
         const nominalSisa = (selectedType === 'dp') ? (currentGrandTotal - currentUangMuka) : 0;
 
-        // Update Input Hidden ke Backend
         document.getElementById('input_nominal_dibayar_hidden').value = nominalHarusBayar;
         document.getElementById('input_sisa_tagihan_hidden').value = nominalSisa;
 
@@ -358,7 +375,6 @@
         }
     }
 
-    // Function Control Modal Auth Check
     function openAuthModal() {
         document.getElementById('authModal').classList.remove('hidden');
     }
