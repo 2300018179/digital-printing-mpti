@@ -64,14 +64,16 @@
 
     <!-- BANNER HERO / SLIDER DINAMIS (SWIPER JS) -->
     @php
-        $rawBanners = $appSettings['banner_toko'] ?? '[]';
+        $rawBanners = $appSettings['banner_toko'] ?? [];
 
+        // 1. Jika masih string JSON, decode dulu
         if (is_string($rawBanners)) {
             $banners = json_decode($rawBanners, true) ?? [];
         } else {
             $banners = (array) $rawBanners;
         }
 
+        // 2. Jika isi di dalamnya masih ter-stringifying JSON lagi, decode ulang
         if (is_string($banners)) {
             $banners = json_decode($banners, true) ?? [];
         }
@@ -84,9 +86,20 @@
             <div class="swiper bannerSwiper w-full h-full">
                 <div class="swiper-wrapper">
                     @forelse($banners as $index => $banner)
-                        <div class="swiper-slide w-full h-full select-none cursor-grab active:cursor-grabbing">
-                            <img src="{{ asset('storage/' . $banner) }}" alt="Banner {{ $index + 1 }}" class="w-full h-full object-cover pointer-events-none">
-                        </div>
+                        @php
+                            // PASTIKAN $bannerGambar selalu berbentuk STRING
+                            if (is_array($banner)) {
+                                $bannerGambar = $banner['image'] ?? $banner['file'] ?? reset($banner);
+                            } else {
+                                $bannerGambar = $banner;
+                            }
+                        @endphp
+
+                        @if(!empty($bannerGambar) && is_string($bannerGambar))
+                            <div class="swiper-slide w-full h-full select-none cursor-grab active:cursor-grabbing">
+                                <img src="{{ asset('storage/' . $bannerGambar) }}" alt="Banner {{ $index + 1 }}" class="w-full h-full object-cover pointer-events-none">
+                            </div>
+                        @endif
                     @empty
                         <div class="swiper-slide w-full h-full select-none">
                             <img src="{{ asset('assets/view/iklan.jpg') }}" alt="Promo Utama" class="w-full h-full object-cover pointer-events-none">
@@ -94,7 +107,7 @@
                     @endforelse
                 </div>
 
-                <!-- Tombol Navigasi Swiper (Tampil jika banner > 1) -->
+                <!-- Tombol Navigasi Swiper -->
                 @if(count($banners) > 1)
                     <button class="swiper-btn-prev absolute top-1/2 -translate-y-1/2 left-[15px] w-[35px] h-[35px] bg-black/60 hover:bg-black/90 text-white rounded-full flex items-center justify-center z-20 cursor-pointer transition opacity-0 group-hover:opacity-100 border-0">
                         <i class="fa fa-chevron-left text-[14px]"></i>
