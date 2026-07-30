@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            SettingSeeder::class, // <-- TAMBAHKAN BARIS INI (bebas mau di paling atas atau bawah)
             KategoriSeeder::class,
             SubKategoriSeeder::class, 
             ProductSeeder::class,

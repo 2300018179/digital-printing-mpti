@@ -12,21 +12,37 @@ class SettingSeeder extends Seeder
         $settings = [
             // Identitas & Deskripsi
             ['key' => 'nama_toko', 'value' => 'Fantastic Digital Printing'],
-            ['key' => 'deskripsi_toko', 'value' => 'Fantastic Digital Printing adalah layanan digital printing online terpercaya yang melayani berbagai kebutuhan cetak Anda dengan kualitas terbaik dan harga terjangkau.'],
-            ['key' => 'logo_toko', 'value' => null], // Gambar logo
+            ['key' => 'deskripsi_toko', 'value' => 'Fantastic Digital Printing adalah layanan digital...'],
+            ['key' => 'logo_toko', 'value' => 'settings/YBQUHtBAkr0e2Z5TcvQ1RnX82RdP8Gt.png'], // Sesuaikan ekstensi gambarnya jika ada
 
-            // Jam Layanan (Sesuai Footer)
+            // Jam Layanan
             ['key' => 'jam_senin_sabtu', 'value' => '09.00 - 21.00'],
             ['key' => 'jam_minggu', 'value' => 'Tutup'],
 
-            // Alamat & Kontak (Sesuai Footer)
-            ['key' => 'alamat_lengkap', 'value' => 'Jl. Raya Timur Wanadadi, Dusun Dua, Wanadadi, Kec. Wanadadi, Kab. Banjarnegara, Jawa Tengah'],
+            // Kontak
             ['key' => 'wa_number_1', 'value' => '+62 851-1962-2615'],
             ['key' => 'wa_number_2', 'value' => '+62 812-2978-3247'],
             ['key' => 'email_toko', 'value' => 'fantasticwnd@gmail.com'],
+            ['key' => 'instagram_url', 'value' => '@fantastic.printing'],
 
-            // Sosial Media
-            ['key' => 'instagram_url', 'value' => 'https://instagram.com/fantastic_printing'],
+            // Alamat Terpisah (Penting untuk form/checkout)
+            ['key' => 'kota', 'value' => 'Banjarnegara'],
+            ['key' => 'kode_pos', 'value' => '53461'],
+            ['key' => 'link_google_maps', 'value' => 'https://maps.app.goo.gl/xy5i4cTryXcDAx6Pg'],
+            ['key' => 'jalan_detail', 'value' => 'JL Raya Timur Wanadadi'],
+            ['key' => 'desa_dusun', 'value' => 'Dusun Dua Wanadadi'],
+            ['key' => 'kecamatan', 'value' => 'Wanadadi'],
+            ['key' => 'provinsi', 'value' => 'Jawa Tengah'],
+
+            // Pembayaran & QRIS
+            ['key' => 'qris_nama_pemilik', 'value' => 'Fantastic Digital Printing'],
+            ['key' => 'qris_image', 'value' => 'settings/SSFrpmplpVLb2GwYo3kUSwodCnfgHA.png'],
+
+            // Pengaturan Notifikasi & UI
+            ['key' => 'notif_struk_email', 'value' => '1'],
+            ['key' => 'notif_admin_order', 'value' => '1'],
+            ['key' => 'banner_toko', 'value' => '["settings\/ySFexxUy9S8EvFwxActR3oudxY9h0i.jpg"]'],
+            ['key' => 'active_tab', 'value' => 'sosial-media'],
         ];
 
         foreach ($settings as $setting) {
