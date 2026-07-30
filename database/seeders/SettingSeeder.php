@@ -12,7 +12,7 @@ class SettingSeeder extends Seeder
         $settings = [
             // Identitas & Deskripsi
             ['key' => 'nama_toko', 'value' => 'Fantastic Digital Printing'],
-            ['key' => 'deskripsi_toko', 'value' => 'Fantastic Digital Printing adalah layanan digital...'],
+            ['key' => 'deskripsi_toko', 'value' => 'Fantastic Digital Printing adalah layanan digital printing online terpercaya yang melayani berbagai kebutuhan cetak Anda dengan kualitas terbaik dan harga terjangkau.'],
             ['key' => 'logo_toko', 'value' => 'settings/YyI3wdAss5wjYckm75nNUF1Ty1jP6a56ncwREnIu.jpg'], // Sesuaikan ekstensi gambarnya jika ada
 
             // Jam Layanan
@@ -28,7 +28,7 @@ class SettingSeeder extends Seeder
             // Alamat Terpisah (Penting untuk form/checkout)
             ['key' => 'kota', 'value' => 'Banjarnegara'],
             ['key' => 'kode_pos', 'value' => '53461'],
-            ['key' => 'link_google_maps', 'value' => 'https://maps.app.goo.gl/xy5i4cTryXcDAx6Pg'],
+            ['key' => 'link_google_maps', 'value' => 'https://maps.app.goo.gl/xy5ivHcFryXoCdax6?g_st=aw'],
             ['key' => 'jalan_detail', 'value' => 'JL Raya Timur Wanadadi'],
             ['key' => 'desa_dusun', 'value' => 'Dusun Dua Wanadadi'],
             ['key' => 'kecamatan', 'value' => 'Wanadadi'],
