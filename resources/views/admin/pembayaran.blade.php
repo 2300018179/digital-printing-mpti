@@ -259,7 +259,7 @@
     <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border border-gray-100 text-center p-6">
         
         <div id="confirmIconBg" class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg id="confirmIconApprove" class="w-8 h-8 text-green-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg id="confirmIconApprove" class="w-8 h-8 text-red-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
             </svg>
             <svg id="confirmIconReject" class="w-8 h-8 text-red-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -348,12 +348,12 @@
         if (statusInput) statusInput.value = actionType;
 
         if (actionType === 'Disetujui' || actionType === 'Setujui') {
-            if (iconBg) iconBg.className = 'w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-100';
+            if (iconBg) iconBg.className = 'w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100';
             if (iconApprove) iconApprove.classList.remove('hidden');
             if (iconReject) iconReject.classList.add('hidden');
             if (title) title.innerText = 'Setujui Pembayaran?';
-            if (desc) desc.innerHTML = `Apakah Anda yakin ingin menyetujui pembayaran untuk order <span class="font-bold text-gray-800">#${orderId}</span>? Status pesanan akan diubah menjadi <strong class="text-green-600">Dicetak</strong>.`;
-            if (submitBtn) submitBtn.className = 'w-1/2 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer';
+            if (desc) desc.innerHTML = `Apakah Anda yakin ingin menyetujui pembayaran untuk order <span class="font-bold text-gray-800">#${orderId}</span>? Status pesanan akan diubah menjadi <strong class="text-red-600">Dicetak</strong>.`;
+            if (submitBtn) submitBtn.className = 'w-1/2 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer';
         } else {
             if (iconBg) iconBg.className = 'w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100';
             if (iconApprove) iconApprove.classList.add('hidden');

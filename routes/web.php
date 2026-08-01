@@ -113,6 +113,7 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::get('/pesanan/detail/{id}', [PesananController::class, 'detail'])->name('pesanan.detail');
     Route::put('/pesanan/update/{id}', [PesananController::class, 'updateStatus'])->name('pesanan.updateStatus');
     Route::get('/pesanan/download-desain/{id}', [PesananController::class, 'downloadDesain'])->name('pesanan.downloadDesain');
+    Route::put('/pesanan/pelunasan/{id}', [PesananController::class, 'prosesPelunasan'])->name('pesanan.pelunasan');
     
     Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('pembayaran');
     Route::put('/pembayaran/update/{id}', [PembayaranController::class, 'update'])->name('pembayaran.update');
