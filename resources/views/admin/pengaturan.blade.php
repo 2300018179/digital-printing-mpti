@@ -137,15 +137,29 @@
 
                 <div id="banner-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     @foreach($banners as $index => $bannerPath)
-                        <div class="banner-item space-y-1 relative group">
-                            <input type="hidden" name="existing_banners[]" value="{{ $bannerPath }}">
-                            <div class="border-2 border-red-200 rounded-2xl p-2 text-center bg-gray-50 h-32 relative overflow-hidden flex items-center justify-center">
-                                <img src="{{ asset('storage/' . $bannerPath) }}" class="w-full h-full object-cover rounded-xl">
+                        {{-- Kita pastikan $path adalah string jika $bannerPath berupa array --}}
+                        @php
+                            $paths = is_array($bannerPath) ? $bannerPath : [$bannerPath];
+                        @endphp
+
+                        @foreach($paths as $path)
+                            @php
+                                $cleanPath = is_array($path) ? ($path['path'] ?? reset($path)) : $path;
+                            @endphp
+
+                            {{-- Langsung taruh kartu gambar sebagai anak langsung dari #banner-container --}}
+                            <div class="banner-item border-2 border-red-200 rounded-2xl p-2 text-center bg-gray-50 h-36 relative overflow-hidden flex items-center justify-center">
+                                
+                                <input type="hidden" name="existing_banners[]" value="{{ $cleanPath }}">
+                                
+                                <img src="{{ asset('storage/' . $cleanPath) }}" class="w-full h-full object-cover rounded-xl">
+                                
                                 <button type="button" onclick="removeBannerSlot(this)" class="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-700 transition z-20">
                                     ✕
                                 </button>
+                                
                             </div>
-                        </div>
+                        @endforeach
                     @endforeach
                 </div>
             </div>

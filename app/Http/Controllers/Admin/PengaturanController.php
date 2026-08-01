@@ -101,23 +101,39 @@ class PengaturanController extends Controller
 
         // 5. PROSES BANNER TOKO (Pembersihan file lama & simpan baru)
         $oldBannerSetting = Setting::where('key', 'banner_toko')->first();
-        $oldBannersList = $oldBannerSetting ? json_decode($oldBannerSetting->value, true) : [];
-        if (!is_array($oldBannersList)) $oldBannersList = [];
+        $rawOldBanners = $oldBannerSetting ? json_decode($oldBannerSetting->value, true) : [];
+        if (!is_array($rawOldBanners)) $rawOldBanners = [];
 
-        $keptExistingBanners = $request->input('existing_banners', []);
-        if (!is_array($keptExistingBanners)) $keptExistingBanners = [];
+        // Flatten $oldBannersList (Memastikan data dari DB murni Array 1 Dimensi Bertipe String)
+        $oldBannersList = [];
+        array_walk_recursive($rawOldBanners, function($value) use (&$oldBannersList) {
+            if (is_string($value) && !empty($value)) {
+                $oldBannersList[] = $value;
+            }
+        });
+
+        $rawExistingBanners = $request->input('existing_banners', []);
+        if (!is_array($rawExistingBanners)) $rawExistingBanners = [];
+
+        // Flatten $keptExistingBanners (Memastikan data dari Form Blade murni Array 1 Dimensi Bertipe String)
+        $keptExistingBanners = [];
+        array_walk_recursive($rawExistingBanners, function($value) use (&$keptExistingBanners) {
+            if (is_string($value) && !empty($value)) {
+                $keptExistingBanners[] = $value;
+            }
+        });
 
         // Hapus file fisik banner yang dibuang oleh user dari form
-        $deletedBanners = array_diff($oldBannersList, $keptExistingBanners);
+        $deletedBanners = array_diff(array_unique($oldBannersList), array_unique($keptExistingBanners));
         foreach ($deletedBanners as $deletedFile) {
-            if (Storage::disk('public')->exists($deletedFile)) {
+            if (is_string($deletedFile) && Storage::disk('public')->exists($deletedFile)) {
                 Storage::disk('public')->delete($deletedFile);
             }
         }
 
-        $finalBanners = array_values(array_filter($keptExistingBanners));
+        $finalBanners = array_values(array_unique($keptExistingBanners));
 
-        // Tambah file banner baru
+        // Tambah file banner baru jika ada upload dari user
         if ($request->hasFile('banners')) {
             foreach ($request->file('banners') as $file) {
                 if ($file && $file->isValid()) {
@@ -127,6 +143,7 @@ class PengaturanController extends Controller
             }
         }
 
+        // Simpan ke DB dengan struktur JSON array 1 dimensi yang rapi dan bersih
         Setting::updateOrCreate(
             ['key' => 'banner_toko'],
             ['value' => json_encode(array_values($finalBanners))]

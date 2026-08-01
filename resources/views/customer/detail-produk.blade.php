@@ -43,6 +43,9 @@
     {{-- FORM ORDER --}}
     <form id="orderForm" action="{{ route('customer.pembayaran') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch mb-16">
         @csrf
+        {{-- Tambahkan input buy_type ini --}}
+        <input type="hidden" name="buy_type" id="buyTypeInput" value="direct">
+        
         <input type="hidden" name="product_id" value="{{ $product->id }}">
         <input type="hidden" name="cart_id_edit" value="{{ $editCartData->id ?? '' }}">
         
@@ -98,6 +101,10 @@
                         </button>
                     </div>
 
+                    <p class="text-[10px] text-gray-400 italic mt-1">
+                        * Format: JPG, PNG, PDF, ZIP, RAR (Maks. 2MB)
+                    </p>
+
                     <div id="uploadSuccess" class="hidden w-full flex items-center justify-center">
                         <div class="border border-gray-200 rounded-lg p-3 flex items-center gap-3 bg-white shadow-sm max-w-[280px]">
                             <i class="fa-solid fa-file-pdf text-red-500 text-lg" id="fileIcon"></i>
@@ -148,11 +155,13 @@
             </div>
 
             <div class="mt-8 flex items-center justify-center gap-4">
+                {{-- Tombol + Keranjang / Simpan Edit --}}
                 <button type="button" onclick="addToCart()" class="w-full max-w-[160px] p-[10px_0] bg-white text-brandRed border border-brandRed rounded-[25px] font-bold text-sm tracking-wide text-center transition-all duration-300 hover:bg-brandRed hover:text-white hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] cursor-pointer">
                     {{ isset($editCartData) ? 'Simpan Edit' : '+ Keranjang' }}
                 </button>
                 
-                <button type="submit" class="w-full max-w-[160px] p-[10px_0] bg-brandRed text-white border border-brandRed rounded-[25px] font-bold text-sm tracking-wide text-center transition-all duration-300 hover:bg-white hover:text-brandRed hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] cursor-pointer">
+                {{-- Tombol Beli Sekarang --}}
+                <button type="submit" onclick="submitDirectCheckout()" class="w-full max-w-[160px] p-[10px_0] bg-brandRed text-white border border-brandRed rounded-[25px] font-bold text-sm tracking-wide text-center transition-all duration-300 hover:bg-white hover:text-brandRed hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] cursor-pointer">
                     Beli Sekarang
                 </button>
             </div>
@@ -306,6 +315,7 @@
         return true;
     }
 
+    // FUNGSI 1: Untuk Tombol "+ Keranjang" / "Simpan Edit"
     function addToCart() {
         if (!validateMinQuantity()) return;
 
@@ -315,15 +325,24 @@
         form.submit();
     }
 
-    document.getElementById('orderForm').addEventListener('submit', function(e) {
-        if (!validateMinQuantity()) {
-            e.preventDefault();
-            return;
-        }
+    // FUNGSI 2: Tambahan Baru untuk Tombol "Beli Sekarang" (Direct Checkout)
+    function submitDirectCheckout() {
+        if (!validateMinQuantity()) return;
 
+        const form = document.getElementById('orderForm');
+        const buyTypeInput = document.getElementById('buyTypeInput');
+        
+        if (buyTypeInput) {
+            buyTypeInput.value = 'direct';
+        }
+        
         isSubmittingOrder = true;
-        this.action = "{{ url('keranjang/tambah') }}/{{ $product->id }}?checkout_langsung=true"; 
-    });
+        form.action = "{{ route('customer.pembayaran') }}";
+        form.submit();
+    }
+
+    // HAPUS event listener 'orderForm' submit lama yang mengarah ke checkout_langsung=true
+    // Karena sekarang submit 'Beli Sekarang' ditangani langsung oleh fungsi submitDirectCheckout()
 
     function hapusDesainLama() {
         const modal = document.getElementById('customConfirmModal');

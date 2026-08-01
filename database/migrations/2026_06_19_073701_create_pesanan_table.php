@@ -13,20 +13,22 @@ return new class extends Migration
     {
         Schema::create('pesanan', function (Blueprint $table) {
             $table->id();
-            // 1. Kolom Relasi User (Wajib Login)
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             
-            // 2. Data Unik & Identitas Pesanan
             $table->string('order_id')->unique();
             $table->string('nama_pelanggan');
             $table->date('tanggal_pesanan');
             
-            // 3. Rincian Biaya & Pembayaran
+            // --- RINCIAN BIAYA & PEMBAYARAN (Sudah Disesuaikan) ---
             $table->decimal('total', 15, 2);
-            $table->string('bukti_transfer')->nullable(); // Menampung foto bukti transfer dari customer
+            $table->string('tipe_pembayaran', 20)->nullable();
+            $table->bigInteger('nominal_dibayar')->default(0);
+            $table->string('kode_promo', 50)->nullable();
+            $table->bigInteger('diskon')->default(0);
+            $table->bigInteger('sisa_pembayaran')->default(0);
             
-            // 4. Status Transaksi
-            $table->string('status')->default('Menunggu'); // Default awal jika belum terverifikasi
+            $table->string('bukti_transfer')->nullable();
+            $table->string('status')->default('Menunggu');
             
             $table->timestamps();
         });

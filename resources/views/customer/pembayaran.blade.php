@@ -5,12 +5,13 @@
     <form id="form-pembayaran" action="{{ route('customer.pembayaran.simpan') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-[30px] shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-6 md:p-10">
         @csrf
         
-        {{-- Item Keranjang yang Dipilih --}}
-        @foreach($checkoutItems as $item)
-            <input type="hidden" name="selected_items[]" value="{{ $item['id'] }}">
-        @endforeach
+        {{-- Identifier Jenis Pembelian (cart ATAU direct) --}}
+        <input type="hidden" name="buy_type" value="{{ $buyType }}">
         
-        {{-- Hidden Inputs untuk Dikirim ke Backend --}}
+        {{-- Kirim JSON Data Item (Menampung array barang baik dari keranjang maupun direct) --}}
+        <input type="hidden" name="items_data" value="{{ json_encode($checkoutItems) }}">
+        
+        {{-- Hidden Inputs Keuangan --}}
         <input type="hidden" name="kode_promo" id="input_kode_promo_hidden" value="">
         <input type="hidden" name="grand_total" id="input_grand_total_hidden" value="{{ $grandTotal }}">
         <input type="hidden" name="nominal_dibayar" id="input_nominal_dibayar_hidden" value="{{ $uangMuka }}">
@@ -254,7 +255,6 @@
         }
     });
 
-    // Fungsi Kalkulasi Promo dari DB
     function terapkanPromoManual(isAuto = false) {
         const inputKodeElement = document.getElementById('input_kode_promo');
         const inputKode = inputKodeElement.value.trim();
@@ -262,9 +262,9 @@
         const rowDiskon = document.getElementById('row_diskon');
         const textNominalDiskon = document.getElementById('text_nominal_diskon');
 
+        // Jika Customer tidak mengisi promo dan menekan "Pasang", tidak ada validasi error, cukup reset promo saja
         if (!inputKode) {
-            msgBox.className = "text-[11px] mt-1.5 font-semibold text-red-500 block";
-            msgBox.innerText = "Masukkan kode promo terlebih dahulu.";
+            msgBox.classList.add('hidden');
             resetPromo();
             return;
         }
@@ -284,10 +284,8 @@
         let diskonValue = parseFloat(promoData.diskon) || 0;
 
         if (diskonValue <= 100) {
-            // Diskon Persentase
             currentNominalDiskon = (initialHargaCetak * diskonValue) / 100;
         } else {
-            // Diskon Nominal Tetap (Rupiah)
             currentNominalDiskon = diskonValue;
         }
 
@@ -314,7 +312,6 @@
         document.getElementById('input_grand_total_hidden').value = currentGrandTotal;
 
         handlePaymentTypeChange();
-        localStorage.removeItem('active_promo_code');
     }
 
     function resetPromo() {
