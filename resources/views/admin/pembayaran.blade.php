@@ -89,7 +89,7 @@
                         {{ $item->tanggal_pesanan ? \Carbon\Carbon::parse($item->tanggal_pesanan)->format('d M Y') : $item->created_at->format('d M Y') }}
                     </td>
                     
-                    {{-- Tipe Pembayaran (DP vs Full) --}}
+                    {{-- Tipe Pembayaran --}}
                     <td class="p-2.5 text-center">
                         @if(($item->tipe_pembayaran ?? 'full') === 'dp')
                             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
@@ -115,7 +115,7 @@
                         @endif
                     </td>
 
-                    {{-- Rincian Tagihan & Nominal Dibayar --}}
+                    {{-- Rincian Tagihan --}}
                     <td class="p-2.5 text-right">
                         <div class="font-bold text-gray-900">
                             Rp {{ number_format($item->nominal_dibayar > 0 ? $item->nominal_dibayar : $item->total, 0, ',', '.') }}
@@ -130,7 +130,7 @@
                         @endif
                     </td>
 
-                    {{-- Aksis / Status --}}
+                    {{-- Aksi / Status --}}
                     <td class="p-2.5 text-center">
                         @if($status == 'Menunggu')
                             <div class="flex items-center justify-center gap-2">
@@ -171,48 +171,94 @@
     </div>
 
     {{-- Footer Pagination --}}
-    @if($pesanans->hasPages() || $pesanans->total() > 0)
-    <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+    <div class="flex flex-col sm:flex-row justify-between items-center pt-4 mt-4 border-t border-gray-100 text-xs text-gray-500 gap-3 w-full">
         <div>
             Showing <span class="font-semibold text-gray-700">{{ $pesanans->firstItem() ?? 0 }}</span> 
             to <span class="font-semibold text-gray-700">{{ $pesanans->lastItem() ?? 0 }}</span> 
             of <span class="font-semibold text-gray-700">{{ $pesanans->total() }}</span> results
         </div>
-        <div>
-            {{ $pesanans->links() }}
-        </div>
-    </div>
-    @endif
-</div>
-@endsection
 
-@push('modals')
-<!-- 1. MODAL POPUP BUKTI TRANSFER -->
-<div id="buktiModal" onclick="closeModalOnBackdrop(event, 'buktiModal')" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
-    <div class="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 border border-gray-100">
+        @if($pesanans->hasPages())
+        <div class="inline-flex rounded-xl border border-gray-200 overflow-hidden bg-white shadow-2xs">
+            @if ($pesanans->onFirstPage())
+                <span class="px-3 py-1.5 text-gray-300 border-r border-gray-200 cursor-not-allowed flex items-center">&lsaquo;</span>
+            @else
+                <a href="{{ $pesanans->previousPageUrl() }}" class="px-3 py-1.5 text-gray-600 hover:bg-gray-50 border-r border-gray-200 transition flex items-center no-underline">&lsaquo;</a>
+            @endif
+
+            @php
+                $currentPage = $pesanans->currentPage();
+                $lastPage = $pesanans->lastPage();
+                
+                $start = max(1, $currentPage - 1);
+                $end = min($lastPage, $currentPage + 1);
+
+                if ($currentPage <= 2) {
+                    $end = min($lastPage, 3);
+                }
+                if ($currentPage >= $lastPage - 1) {
+                    $start = max(1, $lastPage - 2);
+                }
+            @endphp
+
+            @if($start > 1)
+                <a href="{{ $pesanans->url(1) }}" class="px-3.5 py-1.5 text-gray-600 hover:bg-gray-50 border-r border-gray-200 transition flex items-center no-underline">1</a>
+                @if($start > 2)
+                    <span class="px-2.5 py-1.5 text-gray-400 border-r border-gray-200 flex items-center">...</span>
+                @endif
+            @endif
+
+            @foreach (range($start, $end) as $page)
+                @if ($page == $currentPage)
+                    <span class="px-3.5 py-1.5 bg-gray-100 font-bold text-gray-900 border-r border-gray-200 flex items-center">{{ $page }}</span>
+                @else
+                    <a href="{{ $pesanans->url($page) }}" class="px-3.5 py-1.5 text-gray-600 hover:bg-gray-50 border-r border-gray-200 transition flex items-center no-underline">{{ $page }}</a>
+                @endif
+            @endforeach
+
+            @if($end < $lastPage)
+                @if($end < $lastPage - 1)
+                    <span class="px-2.5 py-1.5 text-gray-400 border-r border-gray-200 flex items-center">...</span>
+                @endif
+                <a href="{{ $pesanans->url($lastPage) }}" class="px-3.5 py-1.5 text-gray-600 hover:bg-gray-50 border-r border-gray-200 transition flex items-center no-underline">{{ $lastPage }}</a>
+            @endif
+
+            @if ($pesanans->hasMorePages())
+                <a href="{{ $pesanans->nextPageUrl() }}" class="px-3 py-1.5 text-gray-600 hover:bg-gray-50 transition flex items-center no-underline">&rsaquo;</a>
+            @else
+                <span class="px-3 py-1.5 text-gray-300 cursor-not-allowed flex items-center">&rsaquo;</span>
+            @endif
+        </div>
+        @endif
+    </div>
+</div>
+
+<!-- MODAL POPUP BUKTI TRANSFER (z-50 diubah ke z-[9999]) -->
+<div id="buktiModal" onclick="closeModalOnBackdrop(event, 'buktiModal')" class="fixed inset-0 z-[9999] hidden bg-black/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-100">
         <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
             <div>
                 <h3 class="text-xs font-bold text-gray-800">Bukti Transfer Pelanggan</h3>
                 <p id="modalOrderId" class="text-[10px] font-mono text-red-600 font-bold mt-0.5">#ORD-XXXXX</p>
             </div>
-            <button onclick="closeModal('buktiModal')" class="text-gray-400 hover:text-gray-600 text-lg font-bold focus:outline-none transition p-1 cursor-pointer">✕</button>
+            <button type="button" onclick="closeModal('buktiModal')" class="text-gray-400 hover:text-gray-600 text-lg font-bold focus:outline-none transition p-1 cursor-pointer">✕</button>
         </div>
         <div class="p-5 bg-gray-100 flex items-center justify-center min-h-[250px]">
             <img id="modalImage" src="" alt="Bukti Transfer" class="max-h-[450px] w-auto object-contain rounded-lg shadow-sm border border-gray-200">
         </div>
         <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end">
-            <button onclick="closeModal('buktiModal')" class="px-4 py-1.5 bg-red-700 hover:bg-red-800 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+            <button type="button" onclick="closeModal('buktiModal')" class="px-4 py-1.5 bg-red-700 hover:bg-red-800 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
                 Tutup
             </button>
         </div>
     </div>
 </div>
 
-<!-- 2. MODAL CUSTOM KONFIRMASI -->
-<div id="confirmModal" onclick="closeModalOnBackdrop(event, 'confirmModal')" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
-    <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 border border-gray-100 text-center p-6">
+<!-- MODAL CUSTOM KONFIRMASI (z-50 diubah ke z-[9999]) -->
+<div id="confirmModal" onclick="closeModalOnBackdrop(event, 'confirmModal')" class="fixed inset-0 z-[9999] hidden bg-black/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border border-gray-100 text-center p-6">
         
-        <div id="confirmIconBg" class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
+        <div id="confirmIconBg" class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg id="confirmIconApprove" class="w-8 h-8 text-green-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
             </svg>
@@ -223,7 +269,7 @@
 
         <h3 id="confirmTitle" class="text-base font-bold text-gray-800">Konfirmasi Pembayaran</h3>
         <p id="confirmDesc" class="text-xs text-gray-500 mt-2 leading-relaxed">
-            Apakah Anda yakin ingin memproses pesanan <span id="confirmOrderId" class="font-bold text-gray-800"></span>?
+            Apakah Anda yakin ingin memproses pesanan ini?
         </p>
 
         <form id="confirmForm" method="POST" action="" class="mt-6 flex items-center justify-center gap-3">
@@ -240,9 +286,9 @@
         </form>
     </div>
 </div>
-@endpush
 
-@push('scripts')
+@endsection
+
 <script>
     function closeAlertSuccess() {
         const alert = document.getElementById('alert-success');
@@ -262,14 +308,25 @@
         }
     }
 
+    // Pindahkan elemen modal langsung ke <body> setelah DOM loaded
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(closeAlertSuccess, 4000);
         setTimeout(closeAlertError, 4000);
+
+        const buktiModal = document.getElementById('buktiModal');
+        const confirmModal = document.getElementById('confirmModal');
+
+        if (buktiModal) document.body.appendChild(buktiModal);
+        if (confirmModal) document.body.appendChild(confirmModal);
     });
 
     function openModal(orderId, imageUrl) {
-        document.getElementById('modalOrderId').innerText = '#' + orderId;
-        document.getElementById('modalImage').src = imageUrl;
+        const orderEl = document.getElementById('modalOrderId');
+        const imgEl = document.getElementById('modalImage');
+        
+        if (orderEl) orderEl.innerText = '#' + orderId;
+        if (imgEl) imgEl.src = imageUrl;
+        
         showModal('buktiModal');
     }
 
@@ -283,24 +340,27 @@
         const desc = document.getElementById('confirmDesc');
         const submitBtn = document.getElementById('confirmSubmitBtn');
 
-        form.action = `{{ route('admin.pembayaran.update', ':id') }}`.replace(':id', id);
-        statusInput.value = actionType;
-        document.getElementById('confirmOrderId').innerText = '#' + orderId;
+        if (form) {
+            let updateUrl = `{{ route('admin.pembayaran.update', ':id') }}`;
+            form.action = updateUrl.replace(':id', id);
+        }
 
-        if (actionType === 'Disetujui') {
-            iconBg.className = 'w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-100';
-            iconApprove.classList.remove('hidden');
-            iconReject.classList.add('hidden');
-            title.innerText = 'Setujui Pembayaran?';
-            desc.innerHTML = `Apakah Anda yakin ingin menyetujui pembayaran untuk order <span class="font-bold text-gray-800">#${orderId}</span>? Status pesanan akan diubah menjadi <strong class="text-green-600">Dicetak</strong>.`;
-            submitBtn.className = 'w-1/2 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer';
+        if (statusInput) statusInput.value = actionType;
+
+        if (actionType === 'Disetujui' || actionType === 'Setujui') {
+            if (iconBg) iconBg.className = 'w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-100';
+            if (iconApprove) iconApprove.classList.remove('hidden');
+            if (iconReject) iconReject.classList.add('hidden');
+            if (title) title.innerText = 'Setujui Pembayaran?';
+            if (desc) desc.innerHTML = `Apakah Anda yakin ingin menyetujui pembayaran untuk order <span class="font-bold text-gray-800">#${orderId}</span>? Status pesanan akan diubah menjadi <strong class="text-green-600">Dicetak</strong>.`;
+            if (submitBtn) submitBtn.className = 'w-1/2 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer';
         } else {
-            iconBg.className = 'w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100';
-            iconApprove.classList.add('hidden');
-            iconReject.classList.remove('hidden');
-            title.innerText = 'Tolak Pembayaran?';
-            desc.innerHTML = `Apakah Anda yakin ingin menolak pembayaran untuk order <span class="font-bold text-gray-800">#${orderId}</span>? Status pesanan akan diubah menjadi <strong class="text-red-600">Ditolak</strong>.`;
-            submitBtn.className = 'w-1/2 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer';
+            if (iconBg) iconBg.className = 'w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100';
+            if (iconApprove) iconApprove.classList.add('hidden');
+            if (iconReject) iconReject.classList.remove('hidden');
+            if (title) title.innerText = 'Tolak Pembayaran?';
+            if (desc) desc.innerHTML = `Apakah Anda yakin ingin menolak pembayaran untuk order <span class="font-bold text-gray-800">#${orderId}</span>? Status pesanan akan diubah menjadi <strong class="text-red-600">Ditolak</strong>.`;
+            if (submitBtn) submitBtn.className = 'w-1/2 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer';
         }
 
         showModal('confirmModal');
@@ -308,26 +368,23 @@
 
     function showModal(modalId) {
         const modal = document.getElementById(modalId);
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        if (!modal) return;
         
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            modal.querySelector('div').classList.remove('scale-95');
-            modal.querySelector('div').classList.add('scale-100');
-        }, 10);
+        modal.style.display = 'flex';
+        modal.style.pointerEvents = 'auto';
+        modal.classList.remove('hidden');
     }
 
     function closeModal(modalId) {
         const modal = document.getElementById(modalId);
-        modal.classList.add('opacity-0');
-        modal.querySelector('div').classList.remove('scale-100');
-        modal.querySelector('div').classList.add('scale-95');
-        
-        setTimeout(() => {
-            modal.classList.remove('flex');
-            modal.classList.add('hidden');
-        }, 300);
+        if (!modal) return;
+
+        modal.style.display = 'none';
+        modal.style.pointerEvents = 'none';
+        modal.classList.add('hidden');
+
+        const form = document.getElementById('confirmForm');
+        if (form && modalId === 'confirmModal') form.action = '';
     }
 
     function closeModalOnBackdrop(event, modalId) {
@@ -336,4 +393,3 @@
         }
     }
 </script>
-@endpush

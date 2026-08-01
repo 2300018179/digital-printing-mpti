@@ -33,25 +33,34 @@ class AppServiceProvider extends ServiceProvider
                     ->get();
                 $cartCount = $cartItemsData->count();
 
-                // 2. Total Notifikasi Unread (Lonceng Atas)
+                // 2. Data Notifikasi Unread (Session Read IDs)
                 $readIds = session()->get("read_notifications_{$userId}", []);
-                $orderIds = Pesanan::where('user_id', $userId)->pluck('id')->map(fn($id) => 'order_' . $id)->toArray();
+
+                // Hitung Unread Promo
                 $promoIds = Promo::where('status', 'Aktif')->pluck('id')->map(fn($id) => 'promo_' . $id)->toArray();
-                $infoIds  = Pengumuman::where('status', 'Aktif')->pluck('id')->map(fn($id) => 'info_' . $id)->toArray();
+                $promoNotifCount = count(array_diff($promoIds, $readIds));
 
-                $allNotifIds = array_merge($orderIds, $promoIds, $infoIds);
-                $unreadNotificationsCount = count(array_diff($allNotifIds, $readIds));
+                // Hitung Unread Info/Pengumuman
+                $infoIds = Pengumuman::where('status', 'Aktif')->pluck('id')->map(fn($id) => 'info_' . $id)->toArray();
+                $infoNotifCount = count(array_diff($infoIds, $readIds));
 
-                // 3. JUMLAH PESANAN (Berdasarkan Total Transaksi Pesanan User)
-                $orderNotifCount = Pesanan::where('user_id', $userId)->count(); 
-                // *Catatan: Jika hanya ingin hitung pesanan yang sedang diproses, ganti baris atas dengan:
-                // $orderNotifCount = Pesanan::where('user_id', $userId)->whereNotIn('status', ['Selesai', 'Batal'])->count();
+                // Hitung Unread Pesanan (jika notifikasi pesanan pakai session juga)
+                $orderIds = Pesanan::where('user_id', $userId)->pluck('id')->map(fn($id) => 'order_' . $id)->toArray();
+                $orderUnreadCount = count(array_diff($orderIds, $readIds));
+
+                // Total Notifikasi Unread untuk Lonceng Atas
+                $unreadNotificationsCount = $orderUnreadCount + $promoNotifCount + $infoNotifCount;
+
+                // 3. Total Pesanan User (untuk badge tab pesanan)
+                $orderNotifCount = Pesanan::where('user_id', $userId)->count();
 
             } else {
                 $cartItemsData = collect();
                 $cartCount = 0;
                 $unreadNotificationsCount = 0;
                 $orderNotifCount = 0;
+                $promoNotifCount = 0; // <-- Tambahkan default
+                $infoNotifCount = 0;  // <-- Tambahkan default
             }
 
             $view->with([
@@ -60,7 +69,9 @@ class AppServiceProvider extends ServiceProvider
                 'cartItemsData'            => $cartItemsData,
                 'cartCount'                => $cartCount,
                 'unreadNotificationsCount' => $unreadNotificationsCount,
-                'orderNotifCount'          => $orderNotifCount, // Pass ke view
+                'orderNotifCount'          => $orderNotifCount,
+                'promoNotifCount'          => $promoNotifCount, // <-- Kirim ke View
+                'infoNotifCount'           => $infoNotifCount,  // <-- Kirim ke View
             ]);
         });
     }

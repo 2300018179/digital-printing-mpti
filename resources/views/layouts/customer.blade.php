@@ -178,14 +178,21 @@
                                             <span class="text-[11px] font-medium text-gray-700 text-center group-hover:text-brandRed transition">Pesanan</span>
                                         </a>
                                         <a href="{{ route('customer.informasi') }}" class="flex flex-col items-center gap-2 group text-none flex-1">
-                                            <div class="w-12 h-12 rounded-full bg-brandRed flex items-center justify-center transition group-hover:scale-105 shadow-sm">
+                                            <div class="w-12 h-12 rounded-full bg-brandRed flex items-center justify-center transition group-hover:scale-105 shadow-sm relative">
                                                 <i class="fa fa-info-circle text-white text-lg"></i>
+                                                @if(isset($infoNotifCount) && $infoNotifCount > 0)
+                                                    <span class="absolute -top-1 -right-1 bg-amber-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-white">{{ $infoNotifCount }}</span>
+                                                @endif
                                             </div>
                                             <span class="text-[11px] font-medium text-gray-700 text-center group-hover:text-brandRed transition">Informasi Terbaru</span>
                                         </a>
+
                                         <a href="{{ route('customer.promo') }}" class="flex flex-col items-center gap-2 group text-none flex-1">
-                                            <div class="w-12 h-12 rounded-full bg-brandRed flex items-center justify-center transition group-hover:scale-105 shadow-sm">
+                                            <div class="w-12 h-12 rounded-full bg-brandRed flex items-center justify-center transition group-hover:scale-105 shadow-sm relative">
                                                 <i class="fa fa-tags text-white text-lg"></i>
+                                                @if(isset($promoNotifCount) && $promoNotifCount > 0)
+                                                    <span class="absolute -top-1 -right-1 bg-amber-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-white">{{ $promoNotifCount }}</span>
+                                                @endif
                                             </div>
                                             <span class="text-[11px] font-medium text-gray-700 text-center group-hover:text-brandRed transition">Promo</span>
                                         </a>
