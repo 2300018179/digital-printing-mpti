@@ -34,7 +34,7 @@
                     <label for="email" class="text-sm text-gray-700 font-normal pl-1">
                         Masukkan Email
                     </label>
-                    <input type="email" id="email" name="email" value="{{ old('email') }}" required
+                    <input type="email" id="email" name="email" value="{{ old('email', Cookie::get('remembered_email')) }}" required
                         @class([
                             'w-full px-5 py-4 bg-[#f5d5d5] rounded-[15px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#c40000]/20 transition-all text-base',
                             'border border-red-500 focus:ring-red-500/20' => $errors->has('email')
@@ -73,7 +73,7 @@
 
                 <div class="flex items-center justify-between text-xs text-gray-500 px-1 pt-1">
                     <label class="flex items-center gap-2 cursor-pointer select-none text-gray-600">
-                        <input type="checkbox" name="remember" class="w-4 h-4 rounded border-gray-300 text-[#c40000] focus:ring-[#c40000]">
+                        <input type="checkbox" name="remember" {{ Cookie::has('remembered_email') ? 'checked' : '' }} class="w-4 h-4 rounded border-gray-300 text-[#c40000] focus:ring-[#c40000]">
                         <span>Ingat Saya</span>
                     </label>
                     <a href="{{ route('password.request') }}" class="text-[#c40000] hover:underline font-normal">Lupa Password?</a>

@@ -50,7 +50,7 @@
                     @endphp
 
                     @if($itemPertama)
-                    <div class="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-50 last:border-none">
+                    <div class="p-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-gray-50 last:border-none">
                         <div class="flex gap-4 items-center">
                             
                             {{-- Gambar Produk Pertama --}}
@@ -76,8 +76,8 @@
                                     {{ $itemPertama->nama_produk ?? 'Produk Cetak' }}
                                 </h3>
                                 
-                                <p class="text-xs text-gray-500 mb-1">
-                                    Jumlah: {{ $itemPertama->jumlah ?? 1 }} pcs {{ $itemPertama->keterangan ? '| '.$itemPertama->keterangan : '' }}
+                                <p class="text-xs text-gray-500 mb-1 line-clamp-1" title="{{ $itemPertama->keterangan }}">
+                                    Jumlah: {{ $itemPertama->jumlah ?? 1 }} pcs {{ $itemPertama->keterangan ? '| '. \Illuminate\Support\Str::limit($itemPertama->keterangan, 70) : '' }}
                                 </p>
                                 
                                 <p class="text-xs font-medium text-gray-600">Total Tagihan: 
