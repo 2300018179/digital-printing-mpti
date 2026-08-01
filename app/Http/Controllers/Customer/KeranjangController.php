@@ -126,7 +126,7 @@ class KeranjangController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Produk berhasil dimasukkan ke keranjang!');
+        return redirect()->route('customer.semua-produk')->with('success', 'Produk berhasil dimasukkan ke keranjang!');
     }
 
     // 2. Fungsi Hapus Item dari Keranjang
@@ -141,6 +141,6 @@ class KeranjangController extends Controller
 
         $keranjang->delete();
 
-        return redirect()->back()->with('success', 'Item berhasil dihapus dari keranjang.');
+        return redirect()->route('customer.semua-produk')->with('success', 'Item berhasil dihapus dari keranjang.');
     }
 }

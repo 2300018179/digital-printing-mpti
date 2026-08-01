@@ -30,9 +30,7 @@ use App\Http\Controllers\Customer\NotificationController; // <-- 1. IMPORT CONTR
 // =========================================================================
 
 Route::get('/', [DashboardCSController::class, 'index'])->name('customer.dashboard');
-
 Route::get('/semua-produk', [ProductsController::class, 'semuaProduk'])->name('customer.semua-produk');
-Route::get('/customer/detail-produk/{id}', [ProductsController::class, 'detailProduk'])->name('customer.detail-produk');
 Route::get('/promo', [ProductsController::class, 'halamanPromo'])->name('customer.promo');
 Route::get('/jam-layanan', [ProductsController::class, 'jamLayanan'])->name('customer.jam-layanan');
 
@@ -40,9 +38,6 @@ Route::get('/tentang', function () {
     $appSettings = DB::table('settings')->pluck('value', 'key')->toArray();
     return view('customer.tentang-kami', compact('appSettings'));
 })->name('customer.tentang-kami');
-
-Route::get('/pembayaran', [PaymentController::class, 'prosesPembayaran'])->name('customer.pembayaran');
-Route::post('/pembayaran', [PaymentController::class, 'prosesPembayaran'])->name('customer.pembayaran.process');
 
 // =========================================================================
 // 2. RUTE AUTENTIKASI (Hanya jika BELUM LOGIN)
@@ -68,24 +63,29 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // =========================================================================
 
 Route::middleware('auth')->group(function () {
-    // 2. ROUTE NOTIFIKASI DIUBAH MENGGUNAKAN NotificationController
+    // Detail produk wajib login
+    Route::get('/customer/detail-produk/{id}', [ProductsController::class, 'detailProduk'])->name('customer.detail-produk');
+
+    // Proses Pembayaran (Wajib Login)
+    Route::get('/pembayaran', [PaymentController::class, 'prosesPembayaran'])->name('customer.pembayaran');
+    Route::post('/pembayaran', [PaymentController::class, 'prosesPembayaran'])->name('customer.pembayaran.proses');
+    Route::post('/pembayaran/simpan', [PaymentController::class, 'simpanPembayaran'])->name('customer.pembayaran.simpan');
+
+    // Notifikasi
     Route::get('/notifikasi', [NotificationController::class, 'index'])->name('customer.notifikasi');
-    Route::get('/notifikasi/baca/{id}', [NotificationController::class, 'readAndRedirect'])->name('customer.notifikasi.read'); // <-- TAMBAHKAN BARIS INI
+    Route::get('/notifikasi/baca/{id}', [NotificationController::class, 'readAndRedirect'])->name('customer.notifikasi.read');
     Route::post('/notifikasi/mark-all-read', [NotificationController::class, 'markAllRead'])->name('customer.notifikasi.markAllRead');
     
+    // Promo Check & Pesanan
     Route::post('/promo/check', [ProductsController::class, 'checkPromo'])->name('customer.promo.check');
-
     Route::get('/pesanan-saya', [PesananCSController::class, 'index'])->name('customer.pesanan-saya');
     Route::get('/pesanan', [PesananCSController::class, 'index'])->name('customer.pesanan');
-    
     Route::get('/pesanan/download-desain/{filename}', [PesananCSController::class, 'downloadDesain'])->name('customer.download-desain');
-
     Route::get('/informasi-terbaru', [ProductsController::class, 'halamanInformasi'])->name('customer.informasi');
 
+    // Keranjang
     Route::post('/keranjang/tambah/{productId}', [KeranjangController::class, 'tambah'])->name('customer.keranjang.tambah');
     Route::delete('/keranjang/hapus/{id}', [KeranjangController::class, 'hapus'])->name('customer.keranjang.hapus');
-
-    Route::post('/pembayaran/simpan', [PaymentController::class, 'simpanPembayaran'])->name('customer.pembayaran.simpan');
 });
 
 // =========================================================================

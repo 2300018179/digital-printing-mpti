@@ -69,7 +69,7 @@
             <div class="flex items-center gap-3 md:justify-end">
                 <i class="fab fa-whatsapp text-emerald-500 text-lg shrink-0"></i>
                 <span class="font-semibold text-gray-700">
-                    {{ $settingsData['wa_number_1'] ?? '' }}
+                    {{ $settings['wa_number_1'] ?? $appSettings['wa_number_1'] ?? '' }}
                 </span>
             </div>
         </div>

@@ -13,7 +13,7 @@ class SettingSeeder extends Seeder
             // Identitas & Deskripsi
             ['key' => 'nama_toko', 'value' => 'Fantastic Digital Printing'],
             ['key' => 'deskripsi_toko', 'value' => 'Fantastic Digital Printing adalah layanan digital printing online terpercaya yang melayani berbagai kebutuhan cetak Anda dengan kualitas terbaik dan harga terjangkau.'],
-            ['key' => 'logo_toko', 'value' => 'settings/YyI3wdAss5wjYckm75nNUF1Ty1jP6a56ncwREnIu.jpg'], // Sesuaikan ekstensi gambarnya jika ada
+            ['key' => 'logo_toko', 'value' => 'settings/HZWatC2EffZDGYuQuEaQbjObVOji9CZcHEyIw4g6.jpg'], // Sesuaikan ekstensi gambarnya jika ada
 
             // Jam Layanan
             ['key' => 'jam_senin_sabtu', 'value' => '09.00 - 21.00'],
