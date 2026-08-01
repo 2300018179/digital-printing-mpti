@@ -210,15 +210,7 @@
     const databasePromo = @json($databasePromo ?? []);
 
     document.addEventListener('DOMContentLoaded', function () {
-        // Cek jika ada promo tersimpan di LocalStorage
-        const savedPromo = localStorage.getItem('active_promo_code');
-        if (savedPromo) {
-            const inputPromo = document.getElementById('input_kode_promo');
-            if (inputPromo) {
-                inputPromo.value = savedPromo;
-                terapkanPromoManual(true);
-            }
-        }
+        localStorage.removeItem('active_promo_code');
 
         // Preview File Bukti Transfer
         const fileInput = document.getElementById('bukti_transfer');

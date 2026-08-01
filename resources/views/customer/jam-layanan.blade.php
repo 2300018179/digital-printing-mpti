@@ -22,31 +22,41 @@
                 <i class="fas fa-store"></i>
             </div>
             <h2 class="text-2xl md:text-3xl font-bold text-gray-800 tracking-wide text-center">
-                Fantastic Digital Printing
+                {{ $appSettings['nama_toko'] ?? $settings['nama_toko'] ?? '' }}
             </h2>
         </div>
 
         <div class="w-full space-y-6 mb-10 text-base md:text-lg">
             <div class="flex justify-between items-center border-b border-gray-100 pb-4">
                 <span class="font-medium text-gray-700">Senin - Sabtu</span>
-                <span class="font-bold text-brandRed font-inder">09.00 - 21.00</span>
+                <span class="font-bold text-brandRed font-inder">
+                    {{ $appSettings['jam_senin_sabtu'] ?? $settings['jam_senin_sabtu'] ?? '' }}
+                </span>
             </div>
             <div class="flex justify-between items-center border-b border-gray-100 pb-4">
                 <span class="font-medium text-gray-700">Minggu</span>
-                <span class="font-bold text-gray-400 font-inder">Tutup</span>
+                <span class="font-bold text-gray-400 font-inder">
+                    {{ $appSettings['jam_minggu'] ?? $settings['jam_minggu'] ?? '' }}
+                </span>
             </div>
         </div>
 
         <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 text-xs md:text-sm text-gray-500">
             <div class="flex items-start gap-3">
                 <i class="fas fa-map-marker-alt text-brandRed text-base mt-0.5 shrink-0"></i>
-                <p class="leading-relaxed">Jl. Raya Timur Wanadadi, Dusun Dua, Wanadadi, Kec. Wanadadi, Kab. Banjarnegara, Jawa Tengah</p>
+                <p class="leading-relaxed">
+                    {{ $appSettings['jalan_detail'] ?? $settings['jalan_detail'] ?? '' }}, 
+                    {{ $appSettings['desa_dusun'] ?? $settings['desa_dusun'] ?? '' }}, 
+                    Kec. {{ $appSettings['kecamatan'] ?? $settings['kecamatan'] ?? '' }}, 
+                    Kab. {{ $appSettings['kota'] ?? $settings['kota'] ?? '' }}, 
+                    {{ $appSettings['provinsi'] ?? $settings['provinsi'] ?? '' }}
+                </p>
             </div>
             <div class="flex items-center gap-3 md:justify-end">
                 <i class="fab fa-whatsapp text-emerald-500 text-lg shrink-0"></i>
-                <a href="https://wa.me/6288139622615" target="_blank" class="font-semibold text-gray-700 hover:text-brandRed transition duration-300">
-                    +62 881-3962-2615
-                </a>
+                <span class="font-semibold text-gray-700">
+                    {{ $appSettings['wa_number_1'] ?? $settings['wa_number_1'] ?? '' }}
+                </span>
             </div>
         </div>
 
