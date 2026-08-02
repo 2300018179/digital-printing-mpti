@@ -15,11 +15,16 @@ class Pesanan extends Model
         'order_id', 
         'nama_pelanggan', 
         'tanggal_pesanan', 
-        'status',          // 'menunggu_pembayaran', 'dp', 'selesai', 'dibatalkan'
-        'tipe_pembayaran',  // 'full', 'dp_50'
+        'status',          
+        'tipe_pembayaran', 
         'bukti_transfer',
-        'nominal_dibayar', // Nominal riil yang dikirim (misal DP 50% dari total)
-        'total',           // Grand total pesanan
+        'nominal_dibayar', 
+        'total',           
+        'kode_promo',        // <-- Tambahkan
+        'diskon',            // <-- Tambahkan
+        'sisa_pembayaran',   // <-- Tambahkan
+        'status_pelunasan',  // <-- Tambahkan
+        'bukti_pelunasan',   // <-- Tambahkan
     ];
 
     public function items(): HasMany 

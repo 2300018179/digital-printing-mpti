@@ -27,14 +27,30 @@ class PesananController extends Controller
     {
         $request->validate([
             'status' => 'required|string',
+            'bukti_pelunasan' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $pesanan = Pesanan::findOrFail($id);
 
+        // 1. Update Status Utama Pesanan
         $pesanan->status = $request->status;
+
+        // 2. Cek Jika Ada Unggahan Bukti Pelunasan DP
+        if ($request->hasFile('bukti_pelunasan')) {
+            $file = $request->file('bukti_pelunasan');
+            $filename = 'pelunasan_' . time() . '_' . $pesanan->order_id . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('assets/bukti_pelunasan'), $filename);
+
+            // Otomatis Hitung Ulang & Set Lunas di Database
+            $pesanan->bukti_pelunasan  = $filename;
+            $pesanan->status_pelunasan = 'lunas';
+            $pesanan->nominal_dibayar  = $pesanan->total; // Nominal jadi 100% full
+            $pesanan->sisa_pembayaran  = 0;               // Sisa tagihan jadi NOL
+        }
+
         $pesanan->save();
 
-        return redirect()->route('admin.pesanan')->with('success', 'Status pesanan #' . $pesanan->order_id . ' berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Status pesanan #' . $pesanan->order_id . ' & pelunasan berhasil diperbarui!');
     }
 
     public function downloadDesain($id)
@@ -57,32 +73,5 @@ class PesananController extends Controller
         }
 
         return back()->with('error', 'File tidak ditemukan di path: ' . $fullPublicPath);
-    }
-
-    // Tambahkan di bawah method downloadDesain()
-    public function prosesPelunasan(Request $request, $id)
-    {
-        $request->validate([
-            'bukti_pelunasan' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ]);
-
-        $pesanan = Pesanan::findOrFail($id);
-
-        if ($request->hasFile('bukti_pelunasan')) {
-            $file = $request->file('bukti_pelunasan');
-            $filename = 'pelunasan_' . time() . '_' . $pesanan->order_id . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('assets/bukti_pelunasan'), $filename);
-
-            // Update status pelunasan dan nominal dibayar menjadi Lunas
-            $pesanan->update([
-                'bukti_pelunasan' => $filename,
-                'status_pelunasan' => 'lunas',
-                'nominal_dibayar' => $pesanan->total,
-            ]);
-
-            return redirect()->back()->with('success', 'Pelunasan berhasil dikonfirmasi!');
-        }
-
-        return redirect()->back()->with('error', 'Gagal mengunggah bukti pelunasan.');
     }
 } 

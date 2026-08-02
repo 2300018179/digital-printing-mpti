@@ -147,7 +147,7 @@ class PaymentController extends Controller
                 $hargaCetak += ($item['harga_satuan'] * $item['jumlah']);
             }
 
-            $biayaLayanan = 2000;
+            $biayaLayanan = 0;
             $subTotalAwal = $hargaCetak + $biayaLayanan;
 
             $kodePromo = strtoupper(trim($request->input('kode_promo')));

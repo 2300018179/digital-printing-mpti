@@ -150,22 +150,21 @@
 
         </div>
 
-        {{-- Kolom Kanan (1/3): Form Ubah Status Pesanan & Pelunasan DP --}}
+        {{-- Kolom Kanan (1/3): Kelola Status & Pelunasan Terpadu --}}
         <div class="space-y-6">
-            
-            {{-- 1. Box Kelola Status Pesanan --}}
             <div class="bg-white border border-red-300 rounded-2xl shadow-sm p-6">
                 <h3 class="text-xs font-bold text-red-700 uppercase tracking-wider border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 18H7.5m9-6h2.25m-2.25 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 12h8.25" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 1-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 1-3 0M3.75 18H7.5m9-6h2.25m-2.25 0a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 1-3 0M3.75 12h8.25" />
                     </svg>
-                    Kelola Status
+                    Kelola Status & Pembayaran
                 </h3>
 
-                <form action="{{ route('admin.pesanan.updateStatus', $pesanan->id) }}" method="POST" class="space-y-4">
+                <form action="{{ route('admin.pesanan.updateStatus', $pesanan->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                     @csrf
                     @method('PUT') 
 
+                    {{-- Status Pesanan --}}
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-2">Status Pesanan saat ini:</label>
                         @php $currStatus = strtolower($pesanan->status); @endphp
@@ -178,84 +177,65 @@
                         </select>
                     </div>
 
+                    {{-- Info & Pelunasan Khusus Pembayaran DP --}}
+                    @if(($pesanan->tipe_pembayaran ?? '') === 'dp')
+                        <div class="border-t border-gray-100 pt-4 mt-4 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-gray-700">Status DP:</span>
+                                @if($pesanan->status_pelunasan === 'lunas')
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] bg-green-100 text-green-700 font-bold border border-green-200">
+                                        LUNAS
+                                    </span>
+                                @else
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-800 font-bold border border-amber-200">
+                                        BELUM LUNAS
+                                    </span>
+                                @endif
+                            </div>
+
+                            @php
+                                $sisaTagihan = $pesanan->total - ($pesanan->nominal_dibayar ?? ($pesanan->total / 2));
+                            @endphp
+
+                            {{-- BILA SUDAH LUNAS: Hanya Tampilkan Info & Link Bukti Transfer --}}
+                            @if($pesanan->status_pelunasan === 'lunas')
+                                <div class="bg-green-50 border border-green-200 p-3 rounded-xl text-xs text-green-800">
+                                    <p class="font-semibold"> Tagihan Telah Dilunasi</p>
+                                    @if($pesanan->bukti_pelunasan)
+                                        <a href="{{ asset('assets/bukti_pelunasan/' . $pesanan->bukti_pelunasan) }}" target="_blank" 
+                                        class="mt-2 text-[11px] font-bold text-green-700 underline hover:text-green-900 block">
+                                            Lihat Bukti Transfer Pelunasan &rarr;
+                                        </a>
+                                    @endif
+                                </div>
+                            
+                            {{-- BILA BELUM LUNAS: Tampilkan Input Upload Bukti --}}
+                            @else
+                                <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-2">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-gray-500 font-semibold">Sisa Tagihan:</span>
+                                        <span class="font-extrabold text-red-700">Rp {{ number_format(max(0, $sisaTagihan), 0, ',', '.') }}</span>
+                                    </div>
+
+                                    <div class="pt-2 border-t border-gray-200">
+                                        <label class="block text-[11px] font-semibold text-gray-600 mb-1">
+                                            Upload Bukti Pelunasan <span class="text-gray-400 font-normal">(Opsional)</span>:
+                                        </label>
+                                        <input type="file" name="bukti_pelunasan" accept="image/*"
+                                            class="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 border border-gray-200 rounded-xl bg-white cursor-pointer transition">
+                                        <p class="text-[9px] text-gray-400 mt-1">Mengunggah file otomatis mengubah status menjadi LUNAS.</p>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
                     <button type="submit" 
-                            class="w-full bg-red-700 hover:bg-red-800 text-white font-bold text-xs py-3 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                            class="w-full bg-red-700 hover:bg-red-800 text-white font-bold text-xs py-3 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer mt-4">
                         Simpan Status
                     </button>
                 </form>
             </div>
-
-            {{-- 2. Box Pelunasan DP (Serasi dengan Theme Admin) --}}
-            @if(($pesanan->tipe_pembayaran ?? '') === 'dp')
-            <div class="bg-white border border-red-300 rounded-2xl shadow-sm p-6">
-                {{-- Header Card --}}
-                <h3 class="text-xs font-bold text-red-700 uppercase tracking-wider border-b border-gray-100 pb-3 mb-4 flex items-center justify-between">
-                    <span class="flex items-center gap-2">
-                        Status Pelunasan DP
-                    </span>
-                    @if($pesanan->status_pelunasan === 'lunas')
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] bg-green-100 text-green-700 font-bold border border-green-200">
-                            LUNAS
-                        </span>
-                    @else
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-800 font-bold border border-amber-200">
-                            BELUM LUNAS
-                        </span>
-                    @endif
-                </h3>
-
-                {{-- Informasi Sisa Tagihan --}}
-                @php
-                    $sisaTagihan = $pesanan->total - ($pesanan->nominal_dibayar ?? ($pesanan->total / 2));
-                @endphp
-                <div class="mb-4 bg-gray-50 p-3.5 rounded-xl border border-gray-200">
-                    <span class="text-[10px] font-semibold text-gray-400 uppercase block tracking-wider">Sisa Tagihan Pelunasan:</span>
-                    <span class="text-sm font-extrabold text-red-700 mt-0.5 block">
-                        Rp {{ number_format(max(0, $sisaTagihan), 0, ',', '.') }}
-                    </span>
-                </div>
-
-                @if($pesanan->status_pelunasan === 'lunas')
-                    {{-- Kondisi Jika Sudah Lunas --}}
-                    <div class="space-y-3">
-                        <p class="text-xs text-green-700 font-semibold flex items-center gap-1.5">
-                            Pesanan ini telah dilunasi.
-                        </p>
-                        @if($pesanan->bukti_pelunasan)
-                            <a href="{{ asset('assets/bukti_pelunasan/' . $pesanan->bukti_pelunasan) }}" target="_blank" 
-                               class="w-full text-center block px-3 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition">
-                                Lihat Bukti Pelunasan
-                            </a>
-                        @endif
-                    </div>
-                @else
-                    {{-- Form Upload & Konfirmasi Modal --}}
-                    <form id="form-pelunasan" action="{{ route('admin.pesanan.pelunasan', $pesanan->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                        @csrf
-                        @method('PUT')
-
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-2">
-                                Upload Bukti Transfer Pelunasan <span class="text-red-500">*</span>
-                            </label>
-                            <input type="file" name="bukti_pelunasan" id="input_bukti" required accept="image/*"
-                                class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 border border-gray-200 rounded-xl bg-gray-50 cursor-pointer transition">
-                            <p class="text-[10px] text-gray-400 mt-1.5">Format: JPG, PNG, WEBP (Maks 2MB)</p>
-                        </div>
-
-                        {{-- Tombol Pemicu Modal (type="button") --}}
-                        <button type="button" onclick="openModalPelunasan()"
-                                class="w-full bg-red-700 hover:bg-red-800 text-white font-bold text-xs py-3 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                            </svg>
-                            Konfirmasi & Setujui Lunas
-                        </button>
-                    </form>
-                @endif
-            </div>
-            @endif
-
         </div>
 
     </div>

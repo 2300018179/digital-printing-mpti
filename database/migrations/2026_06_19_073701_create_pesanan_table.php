@@ -19,14 +19,19 @@ return new class extends Migration
             $table->string('nama_pelanggan');
             $table->date('tanggal_pesanan');
             
-            // --- RINCIAN BIAYA & PEMBAYARAN (Sudah Disesuaikan) ---
+            // --- RINCIAN BIAYA & PEMBAYARAN ---
             $table->decimal('total', 15, 2);
             $table->string('tipe_pembayaran', 20)->nullable();
             $table->bigInteger('nominal_dibayar')->default(0);
             $table->string('kode_promo', 50)->nullable();
             $table->bigInteger('diskon')->default(0);
             $table->bigInteger('sisa_pembayaran')->default(0);
+
+            // --- KOLOM PELUNASAN DP (BARU) ---
+            $table->string('status_pelunasan', 20)->default('belum_lunas');
+            $table->string('bukti_pelunasan')->nullable();
             
+            // --- BUKTI AWAL & STATUS PESANAN ---
             $table->string('bukti_transfer')->nullable();
             $table->string('status')->default('Menunggu');
             
