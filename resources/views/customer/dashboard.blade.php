@@ -66,43 +66,31 @@
     @php
         $rawBanners = $appSettings['banner_toko'] ?? [];
 
-        // 1. Jika masih string JSON, decode dulu
+        // Jika masih berupa string JSON, decode terlebih dahulu
         if (is_string($rawBanners)) {
-            $banners = json_decode($rawBanners, true) ?? [];
-        } else {
-            $banners = (array) $rawBanners;
+            $rawBanners = json_decode($rawBanners, true) ?? [];
         }
 
-        // 2. Jika isi di dalamnya masih ter-stringifying JSON lagi, decode ulang
-        if (is_string($banners)) {
-            $banners = json_decode($banners, true) ?? [];
-        }
+        // Ratakan array bertingkat (nested array) menjadi 1 dimensi
+        // Contoh: [["a.jpg", "b.jpg"]] -> ["a.jpg", "b.jpg"]
+        $banners = \Illuminate\Support\Arr::flatten((array) $rawBanners);
     @endphp
 
     <div class="flex-1 flex p-0 h-[350px] md:mt-[30px] w-full min-w-0">
-        <div class="w-full h-full rounded-[20px] overflow-hidden relative shadow-[0_10px_20px_rgba(0,0,0,0.05)] group">
+        <div class="w-full h-full rounded-[20px] overflow-hidden relative shadow-[0_10px_20px_rgba(0,0,0,0.05)] group z-10">
             
             <!-- Swiper Main Container -->
             <div class="swiper bannerSwiper w-full h-full">
                 <div class="swiper-wrapper">
-                    @forelse($banners as $index => $banner)
-                        @php
-                            // PASTIKAN $bannerGambar selalu berbentuk STRING
-                            if (is_array($banner)) {
-                                $bannerGambar = $banner['image'] ?? $banner['file'] ?? reset($banner);
-                            } else {
-                                $bannerGambar = $banner;
-                            }
-                        @endphp
-
+                    @forelse($banners as $index => $bannerGambar)
                         @if(!empty($bannerGambar) && is_string($bannerGambar))
                             <div class="swiper-slide w-full h-full select-none cursor-grab active:cursor-grabbing">
-                                <img src="{{ asset('storage/' . $bannerGambar) }}" alt="Banner {{ $index + 1 }}" class="w-full h-full object-cover pointer-events-none">
+                                <img src="{{ asset('storage/' . $bannerGambar) }}" alt="Banner {{ $index + 1 }}" class="w-full h-full object-cover select-none">
                             </div>
                         @endif
                     @empty
                         <div class="swiper-slide w-full h-full select-none">
-                            <img src="{{ asset('assets/view/iklan.jpg') }}" alt="Promo Utama" class="w-full h-full object-cover pointer-events-none">
+                            <img src="{{ asset('assets/view/iklan.jpg') }}" alt="Promo Utama" class="w-full h-full object-cover select-none">
                         </div>
                     @endforelse
                 </div>
@@ -117,7 +105,7 @@
                     </button>
 
                     <!-- Indicator Dots Swiper -->
-                    <div class="swiper-pagination !bottom-3"></div>
+                    <div class="swiper-pagination !bottom-3 z-20"></div>
                 @endif
             </div>
 
@@ -191,7 +179,6 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-    // Handler Klik SubMenu Kategori untuk Mobile
     function toggleSubMenu(element, event) {
         if (window.innerWidth < 768) {
             const submenu = element.querySelector('.submenu-box');
@@ -202,16 +189,18 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        const swiperElement = document.querySelector('.bannerSwiper');
-        
-        if (swiperElement) {
-            new Swiper(".bannerSwiper", {
+        // Mencegah error jika library Swiper terlambat dimuat
+        if (typeof Swiper !== 'undefined') {
+            const bannerSwiper = new Swiper(".bannerSwiper", {
                 loop: true,
                 grabCursor: true,
-                touchEventsTarget: 'wrapper',
+                simulateTouch: true,
+                allowTouchMove: true,
+                speed: 800, // Kecepatan transisi slide (ms)
                 autoplay: {
-                    delay: 3500,
-                    disableOnInteraction: false,
+                    delay: 3000, // Berpindah setiap 3 detik
+                    disableOnInteraction: false, // Autoplay tetap jalan meski habis di-drag/klik
+                    pauseOnMouseEnter: false, // Tidak pause saat kursor di atas banner
                 },
                 pagination: {
                     el: ".swiper-pagination",
@@ -221,8 +210,9 @@
                     nextEl: ".swiper-btn-next",
                     prevEl: ".swiper-btn-prev",
                 },
-                speed: 600,
             });
+        } else {
+            console.error('Swiper JS belum terisi dengan benar');
         }
     });
 </script>
