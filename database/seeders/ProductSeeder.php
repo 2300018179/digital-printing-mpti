@@ -132,8 +132,8 @@ class ProductSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Buku Yasin Lengkap Hardcover Blusdru',
-                'slug' => 'buku-yasin-lengkap-hardcover-blusdru',
+                'name' => 'Buku Yasin Lengkap Hardcover Bludru',
+                'slug' => 'buku-yasin-lengkap-hardcover-bludru',
                 'sub_kategori_id' => 3,
                 'description' => 'Kertas Art Paper, Hardcover',
                 'price' => 30000,
