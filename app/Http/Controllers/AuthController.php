@@ -8,17 +8,16 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cookie;
 use App\Models\User;
 
 class AuthController extends Controller
 {
-    // Menampilkan halaman Login form
     public function showLogin()
     {
         return view('customer.login');
     }
 
-    // Memproses data input dari Form Login
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -31,6 +30,14 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
             
+            if ($remember) {
+
+                Cookie::queue('remembered_email', $request->email, 43200);
+            } else {
+
+                Cookie::queue(Cookie::forget('remembered_email'));
+            }
+
             if (Auth::user()->role === 'admin') {
                 return redirect()->route('admin.dashboard'); 
             }
@@ -43,7 +50,6 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    // Memproses Log Out / Keluar Akun
     public function logout(Request $request)
     {
         $isAdmin = Auth::user() && Auth::user()->role === 'admin';
@@ -60,13 +66,11 @@ class AuthController extends Controller
         return redirect()->route('customer.dashboard'); 
     }
 
-    // Menampilkan halaman Daftar Akun
     public function showRegister()
     {
         return view('customer.register');
     }
 
-    // Process Register & Kirim OTP
     public function register(Request $request)
     {
         if (session()->has('otp_requested') && session()->has('otp_expires_at')) {
@@ -81,11 +85,11 @@ class AuthController extends Controller
             'name'     => ['required', 'string', 'max:255'],
             'phone'    => ['required', 'string', 'max:20', 'unique:users,phone'], 
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6'], 
+            'password' => ['required', 'string', 'min:6', 'regex:/[a-zA-Z]/', 'regex:/[0-9]/'],
         ], [
             'phone.unique' => 'Nomor Handphone ini sudah terdaftar, silakan gunakan nomor lain.',
             'email.unique' => 'Email ini sudah terdaftar, silakan gunakan email lain.',
-            'password.min' => 'Password minimal harus 6 karakter.',
+            'password.regex' => 'Password harus mengandung kombinasi huruf dan angka.',
         ]);
 
         $otpCode = rand(100000, 999999);
@@ -129,7 +133,6 @@ class AuthController extends Controller
         return redirect()->route('register');
     }
 
-    // Memproses verifikasi OTP
     public function verifyOtp(Request $request)
     {
         $request->validate([
@@ -173,7 +176,6 @@ class AuthController extends Controller
         return redirect()->back()->with('error', 'Kode OTP yang Anda masukkan salah.')->withInput();
     }
 
-    // Batalkan OTP & kembali ke form
     public function cancelOtp()
     {
         session()->forget([
@@ -187,13 +189,11 @@ class AuthController extends Controller
         return redirect()->route('register');
     }
 
-    // Menampilkan halaman Lupa Password
     public function showForgotPassword()
     {
         return view('customer.forgot-password');
     }
 
-    // Memproses kirim link reset password
     public function sendResetLink(Request $request)
     {
         $request->validate([
@@ -239,7 +239,6 @@ class AuthController extends Controller
         }
     }
 
-    // Menampilkan Halaman Input Password Baru (Saat link di email diklik)
     public function showResetPassword(Request $request, $token)
     {
         return view('customer.reset-password', [
@@ -248,16 +247,16 @@ class AuthController extends Controller
         ]);
     }
 
-    // Memproses Perubahan Password Baru Ke Database
     public function updatePassword(Request $request)
     {
         $request->validate([
             'token'    => 'required',
             'email'    => 'required|email|exists:users,email',
-            'password' => 'required|min:6|confirmed',
+            'password' => ['required', 'string', 'min:6', 'regex:/[a-zA-Z]/', 'regex:/[0-9]/', 'confirmed'],
         ], [
             'password.required'  => 'Password baru wajib diisi.',
             'password.min'       => 'Password minimal harus 6 karakter.',
+            'password.regex'     => 'Password harus mengandung kombinasi huruf dan angka.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 

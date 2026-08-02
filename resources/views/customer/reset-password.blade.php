@@ -47,8 +47,8 @@
 
                 {{-- Password Baru --}}
                 <div class="flex flex-col gap-2">
-                    <label for="password" class="text-sm text-gray-700 font-normal pl-1">Password Baru</label>
-                    <input type="password" id="password" name="password" required placeholder="Minimal 6 karakter"
+                    <label for="password" class="text-sm text-gray-700 font-normal pl-1">Password Baru, minimal 6 Karakter kombinasi Huruf dan Angka</label>
+                    <input type="password" id="password" name="password" required placeholder="Kombinasi huruf & angka (min. 6 karakter)"
                         @class([
                             'w-full px-5 py-3.5 bg-[#f5d5d5] rounded-[15px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#c40000]/20 transition-all text-base',
                             'border border-red-500 focus:ring-red-500/20' => $errors->has('password')

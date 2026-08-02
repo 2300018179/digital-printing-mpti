@@ -20,18 +20,14 @@ use Carbon\Carbon;
 
 class PaymentController extends Controller
 {
-    // =========================================================================
-    // TAHAP 1: FORM PEMBAYARAN (SUPPORT CART & DIRECT CHECKOUT)
-    // =========================================================================
+
     public function prosesPembayaran(Request $request)
     {
         $userId = Auth::id();
-        $buyType = $request->input('buy_type', 'cart'); // 'cart' ATAU 'direct'
-
+        $buyType = $request->input('buy_type', 'cart'); 
         $checkoutItems = [];
         $hargaCetak = 0;
 
-        // --- JALUR 1: DARI KERANJANG ---
         if ($buyType === 'cart') {
             $request->validate([
                 'selected_items'   => 'required|array',
@@ -64,7 +60,7 @@ class PaymentController extends Controller
                 ];
             }
         } 
-        // --- JALUR 2: DIRECT CHECKOUT (LANGSUNG DARI DETAIL PRODUK) ---
+
         else if ($buyType === 'direct') {
             $request->validate([
                 'product_id' => 'required|integer|exists:products,id',
@@ -79,7 +75,6 @@ class PaymentController extends Controller
             $subtotal = $hargaSatuan * $request->jumlah;
             $hargaCetak = $subtotal;
 
-            // Handle Upload File Desain Sementara (Direct Checkout)
             $desainPath = null;
             if ($request->hasFile('file_desain')) {
                 $file = $request->file('file_desain');
@@ -100,13 +95,12 @@ class PaymentController extends Controller
             ];
         }
 
-        $biayaLayanan = 2000; 
+        $biayaLayanan = 0; 
         $grandTotal = $hargaCetak + $biayaLayanan;
         $uangMuka = ceil($grandTotal * 0.5);
 
         $settings = Setting::pluck('value', 'key')->toArray();
 
-        // Ambil Promo Aktif
         $today = Carbon::today()->toDateString();
         $databasePromo = Promo::where('status', 'Aktif')
             ->whereDate('tanggal_mulai', '<=', $today)
@@ -126,9 +120,6 @@ class PaymentController extends Controller
         ));
     }
 
-    // =========================================================================
-    // TAHAP 2: SIMPAN TRANSAKSI KE DATABASE
-    // =========================================================================
     public function simpanPembayaran(Request $request)
     {
         $request->validate([
@@ -136,7 +127,7 @@ class PaymentController extends Controller
             'bukti_transfer'  => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'payment_type'    => 'nullable|string|in:dp,full',
             'kode_promo'      => 'nullable|string',
-            'items_data'      => 'required|string', // Format JSON String
+            'items_data'      => 'required|string', 
         ]);
 
         $user = Auth::user();
@@ -150,7 +141,7 @@ class PaymentController extends Controller
         DB::beginTransaction();
 
         try {
-            // 1. Kalkulasi Ulang Total (Mencegah Manipulasi Input)
+
             $hargaCetak = 0;
             foreach ($items as $item) {
                 $hargaCetak += ($item['harga_satuan'] * $item['jumlah']);
@@ -159,7 +150,6 @@ class PaymentController extends Controller
             $biayaLayanan = 2000;
             $subTotalAwal = $hargaCetak + $biayaLayanan;
 
-            // 2. Cek Diskon Promo (Hanya jika dimasukkan dan Valid)
             $kodePromo = strtoupper(trim($request->input('kode_promo')));
             $diskon = 0;
 
@@ -175,7 +165,7 @@ class PaymentController extends Controller
                     $nilaiDiskon = (float) $promo->diskon;
                     $diskon = ($nilaiDiskon <= 100) ? ($hargaCetak * $nilaiDiskon) / 100 : $nilaiDiskon;
                 } else {
-                    $kodePromo = null; // Reset jika kode tidak valid
+                    $kodePromo = null; 
                 }
             }
 
@@ -183,7 +173,6 @@ class PaymentController extends Controller
             $paymentType = $request->input('payment_type', 'dp');
             $nominalDibayar = ($paymentType === 'dp') ? ceil($grandTotalFinal / 2) : $grandTotalFinal;
 
-            // 3. Simpan Data Induk Pesanan
             $pesanan = new Pesanan(); 
             $pesanan->user_id = $userId; 
             $pesanan->order_id = 'ORD-' . strtoupper(uniqid()); 
@@ -197,7 +186,6 @@ class PaymentController extends Controller
             $pesanan->sisa_pembayaran = max(0, $grandTotalFinal - $nominalDibayar);
             $pesanan->status = 'Diproses';
 
-            // 4. Upload Bukti Pembayaran
             if ($request->hasFile('bukti_transfer')) {
                 $file = $request->file('bukti_transfer');
                 $fileName = time() . '_' . $file->getClientOriginalName();
@@ -207,7 +195,6 @@ class PaymentController extends Controller
 
             $pesanan->save();
 
-            // 5. Simpan Rincian Detail Pesanan
             $cartIdsToDelete = [];
             foreach ($items as $item) {
                 $fileDesain = null;
@@ -237,7 +224,6 @@ class PaymentController extends Controller
                 }
             }
 
-            // 6. Hapus Keranjang Hanya Jika Asalnya Dari Keranjang
             if ($request->buy_type === 'cart' && !empty($cartIdsToDelete)) {
                 Keranjang::whereIn('id', $cartIdsToDelete)
                          ->where('user_id', $userId)
@@ -246,14 +232,21 @@ class PaymentController extends Controller
 
             DB::commit();
 
-            // 7. Notifikasi Email (Opsional)
             try {
-                $settings = Setting::pluck('value', 'key')->toArray();
-                if (($settings['notif_struk_email'] ?? 0) == 1 && !empty($user->email)) {
+                
+                if (!empty($user->email)) {
                     Mail::to($user->email)->send(new NotifikasiPesananMail($pesanan, 'struk_pelanggan'));
                 }
+
+                $settings = Setting::pluck('value', 'key')->toArray();
+                $adminEmail = $settings['admin_email'] ?? 'fantasticwnd@gmail.com';
+
+                if (!empty($adminEmail)) {
+                    Mail::to($adminEmail)->send(new NotifikasiPesananMail($pesanan, 'notif_admin'));
+                }
+
             } catch (\Exception $mailEx) {
-                Log::error('Gagal kirim email: ' . $mailEx->getMessage());
+                Log::error('Gagal kirim email notifikasi: ' . $mailEx->getMessage());
             }
 
             return redirect()->route('customer.pesanan-saya')

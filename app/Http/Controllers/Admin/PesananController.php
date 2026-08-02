@@ -58,4 +58,31 @@ class PesananController extends Controller
 
         return back()->with('error', 'File tidak ditemukan di path: ' . $fullPublicPath);
     }
-}
+
+    // Tambahkan di bawah method downloadDesain()
+    public function prosesPelunasan(Request $request, $id)
+    {
+        $request->validate([
+            'bukti_pelunasan' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
+
+        $pesanan = Pesanan::findOrFail($id);
+
+        if ($request->hasFile('bukti_pelunasan')) {
+            $file = $request->file('bukti_pelunasan');
+            $filename = 'pelunasan_' . time() . '_' . $pesanan->order_id . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('assets/bukti_pelunasan'), $filename);
+
+            // Update status pelunasan dan nominal dibayar menjadi Lunas
+            $pesanan->update([
+                'bukti_pelunasan' => $filename,
+                'status_pelunasan' => 'lunas',
+                'nominal_dibayar' => $pesanan->total,
+            ]);
+
+            return redirect()->back()->with('success', 'Pelunasan berhasil dikonfirmasi!');
+        }
+
+        return redirect()->back()->with('error', 'Gagal mengunggah bukti pelunasan.');
+    }
+} 

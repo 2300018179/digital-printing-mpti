@@ -37,21 +37,21 @@ class PesananCSController extends Controller
      */
     public function downloadDesain($filename)
     {
-        // Ambil nama file bersih dari request
         $cleanFilename = basename(urldecode($filename));
 
-        // Path fisik sesuai dengan lokasi sebenarnya di laptop kamu
-        $filePath = public_path('uploads/desain/' . $cleanFilename);
+        // Tambahkan path storage/app/public/desain_temp ke dalam array
+        $possiblePaths = [
+            public_path('uploads/desain/' . $cleanFilename),
+            public_path($filename), // Jika nilai di DB tersimpan "uploads/desain/nama.jpg"
+            storage_path('app/public/desain_temp/' . $cleanFilename), // <-- Untuk transaksi direct checkout
+            storage_path('app/public/desain/' . $cleanFilename),
+            storage_path('app/public/' . $cleanFilename),
+        ];
 
-        // Cek apakah file ada di folder public/uploads/desain
-        if (file_exists($filePath)) {
-            return response()->download($filePath);
-        }
-
-        // Backup jika di kemudian hari file di-upload ke assets/file_desain
-        $backupPath = public_path('assets/file_desain/' . $cleanFilename);
-        if (file_exists($backupPath)) {
-            return response()->download($backupPath);
+        foreach ($possiblePaths as $filePath) {
+            if (file_exists($filePath)) {
+                return response()->download($filePath);
+            }
         }
 
         return back()->with('error', 'File tidak ditemukan di server.');
